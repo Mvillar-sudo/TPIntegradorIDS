@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reserva de Turno Médico</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/reserva.css') }}">
+</head>
+<body>
+    <div class="reserva-container">
+        <h2>RESERVA DE TURNO MÉDICO</h2>
+
+        <!-- El formulario envía los datos a la ruta Flask encargada de manejar la lógica -->
+        <form action="/turnos/reserva" method="POST">
+        
+        <!-- PASO 1: Especialidad -->
+        <fieldset>
+            <legend>PASO 1: Especialidad</legend>
+            <select name="especialidad_id" onchange="this.form.submit()" required>
+                <option value="">Seleccione una especialidad</option>
+                {% for especialidad in especialidades %}
+                    <option value="{{ especialidad.id_especialidad }}" 
+                        {% if especialidad_seleccionada == especialidad.id_especialidad|string %}selected{% endif %}>
+                        {{ especialidad.nombre }}
+                    </option>
+                {% endfor %}
+            </select>
+        </fieldset>
+
+        <!-- PASO 2: Profesional Médico -->
+        {% if medicos %}
+        <fieldset>
+            <legend>PASO 2: Profesional Médico</legend>
+            <select name="medico_id" onchange="this.form.submit()" required>
+                <option value="">Seleccione un profesional</option>
+                {% for medico in medicos %}
+                    <option value="{{ medico.id_medico }}" 
+                        {% if medico_seleccionado == medico.id_medico|string %}selected{% endif %}>
+                        {{ medico.nombre }} (Consultorio {{ medico.id_consultorio }})
+                    </option>
+                {% endfor %}
+            </select>
+        </fieldset>
+        {% endif %}
+
+        <!-- PASO 3: Día y Horario Disponible (DATETIME) -->
+        {% if turnos_disponibles %}
+        <fieldset>
+            <legend>PASO 3: Día y Horario Disponible</legend>
+            <div class="grilla-horarios">
+                {% for turno in turnos_disponibles %}
+                    <!-- Renderiza botones interactivos interactuando con la tabla turnos (estado disponible) -->
+                    <label class="btn-turno">
+                        <input type="radio" name="id_turno" value="{{ turno.id_turno }}" required>
+                        <span>{{ turno.fecha_hora }}</span>
+                    </label>
+                {% endfor %}
+            </div>
+        </fieldset>
+
+        <!-- Botón de acción final para confirmar -->
+        <button type="submit" name="accion" value="confirmar">
+            [ CONFIRMAR RESERVA DE TURNO ]
+        </button>
+        {% endif %}
+
+    </form>
+</div>

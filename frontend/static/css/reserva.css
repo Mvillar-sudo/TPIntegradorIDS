@@ -1,0 +1,94 @@
+/* Contenedor principal adaptable */
+.reserva-container {
+    max-width: 650px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    font-family: Arial, sans-serif;
+}
+
+.reserva-container h2 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+}
+
+/* Estilos de los pasos (Fieldsets) */
+fieldset {
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    background: #fdfdfd;
+}
+
+legend {
+    font-weight: bold;
+    color: #34495e;
+    background: #fff;
+    padding: 0 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+}
+
+select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+/* Grilla responsive para los horarios */
+.grilla-horarios {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-top: 10px;
+}
+
+/* Transformar radio buttons en botones interactivos */
+.btn-turno input[type="radio"] {
+    display: none; /* Oculta el input original */
+}
+
+.btn-turno span {
+    display: block;
+    padding: 12px;
+    text-align: center;
+    background: #fff;
+    border: 2px solid #3498db;
+    border-radius: 6px;
+    color: #3498db;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Cambio de color cuando el paciente selecciona un horario */
+.btn-turno input[type="radio"]:checked + span {
+    background: #3498db;
+    color: #fff;
+    box-shadow: 0 2px 5px rgba(52, 152, 219, 0.4);
+}
+
+/* Botón de confirmación final */
+button[type="submit"] {
+    width: 100%;
+    padding: 15px;
+    background: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+button[type="submit"]:hover {
+    background: #219653;
+}
