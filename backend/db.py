@@ -1,39 +1,28 @@
 import mysql.connector
-from mysql.connector import Error
 
-DB_CONFIG = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': '',
-    'database': 'salud_integral'
-}
+def get_connection():
+    return mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="",
+        database="centro_medico"
+    )
 
-def get_db_connection():
+def execute_query(query, params=None):
     try:
-        connection = mysql.connector.connect(**DB_CONFIG)
-        return connection
-    except Error as e:
-        print(f"Error al conectar a MySQL: {e}")
-        return None
-
-def execute_query(query, params=None, fetch_all=True):
-    connection = get_db_connection()
-    if not connection:
-        return None
-    
-    cursor = connection.cursor(dictionary=True)
-    result = None
-    try:
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
         cursor.execute(query, params or ())
-        if query.strip().upper().startswith("SELECT"):
-            result = cursor.fetchall() if fetch_all else cursor.fetchone()
-        else:
-            connection.commit()
-            result = cursor.lastrowid
-    except Error as e:
-        print(f"Error ejecutando SQL: {e}")
-    finally:
-        cursor.close()
-        connection.close()
         
-    return result
+        if query.strip().upper().startswith("SELECT"):
+            result = cursor.fetchall()
+        else:
+            conn.commit()
+            result = cursor.rowcount
+            
+        cursor.close()
+        conn.close()
+        return result
+    except Exception as e:
+        print(f"Error en execute_query: {e}")
+        return None
