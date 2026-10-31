@@ -1,5 +1,4 @@
 from functools import wraps
-
 import jwt
 from flask import jsonify, request
 
@@ -45,3 +44,17 @@ def token_required(roles_permitidos=None):
         return decorated
     return decorator
 
+def validar_login(datos):
+    if not isinstance(datos, dict):
+        return False, "Se requiere un objeto JSON válido"
+
+    email = datos.get("email")
+    password = datos.get("password")
+
+    if not isinstance(email, str) or not email.strip():
+        return False, "El email es obligatorio"
+
+    if not isinstance(password, str) or not password:
+        return False, "La contraseña es obligatoria"
+
+    return True, None
