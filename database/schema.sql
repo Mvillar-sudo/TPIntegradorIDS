@@ -49,10 +49,8 @@ CREATE TABLE IF NOT EXISTS agendas(
   id_agenda int auto_increment PRIMARY KEY,
   id_medico int NOT NULL,
   id_consultorio int NOT NULL,
-  dia_semana int NOT NULL,
-  hora_inicio time NOT NULL,
-  hora_fin time NOT NULL,
-  duracion_turno_minutos INT DEFAULT 60,
+  agenda_fecha_hora_inicio DATETIME NOT NULL,
+  agenda_fecha_hora_fin DATETIME NOT NULL,
   FOREIGN KEY (id_medico) references medicos(id_medico),
   FOREIGN KEY (id_consultorio) references consultorios(id_consultorio)
 );
