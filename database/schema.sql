@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS turnos(
   fecha_hora DATETIME NOT NULL,
   estado enum('disponible', 'reservado', 'confirmado', 'atendido', 'cancelado', 'ausente') NOT NULL DEFAULT 'disponible',
   token_qr varchar(255) UNIQUE NULL,
-  fecha_hora_checkin datetime null,
+  fecha_hora_checkin DATETIME NULL,
   fecha_hora_cancelacion DATETIME NULL,
   FOREIGN KEY (id_medico) references medicos(id_medico),
   FOREIGN KEY (id_paciente) references usuarios(id_usuario),
