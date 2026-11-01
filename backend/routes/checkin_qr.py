@@ -19,12 +19,12 @@ ROLES_RECEPCION = ["admin", "recepcionista"]
 def checkin_turno():
     try:
         datos_body = request.get_json(silent=True)
-        codigo_qr_hash = validar_entrada_checkin(datos_body)
+        token_qr = validar_entrada_checkin(datos_body)
     except ValueError as err:
         return jsonify({"error": str(err)}), 400
 
     try:
-        respuesta, status_code = registrar_checkin_por_qr(codigo_qr_hash)
+        respuesta, status_code = registrar_checkin_por_qr(token_qr)
         return jsonify(respuesta), status_code
     except MySQLError:
         return jsonify({"error": "No se pudo conectar a la base de datos o fallo la consulta"}), 500

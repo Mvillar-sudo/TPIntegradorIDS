@@ -31,11 +31,11 @@ def formatear_fecha_iso(dt):
     return dt.replace(tzinfo=None, microsecond=0).strftime("%Y-%m-%dT%H:%M:%S")
 
 """
-Pre: 'codigo_qr_hash' es un string no vacío.
+Pre: 'token_qr' es un string no vacío.
 Post: Registra el check-in del turno correspondiente al código QR, siguiendo las reglas de negocio.
 """
-def registrar_checkin_por_qr(codigo_qr_hash):
-    turno = buscar_turno_por_qr(codigo_qr_hash)
+def registrar_checkin_por_qr(token_qr):
+    turno = buscar_turno_por_qr(token_qr)
 
     if turno is None:
         return {"error": "Código QR inválido o turno no encontrado"}, 404
@@ -56,10 +56,10 @@ def registrar_checkin_por_qr(codigo_qr_hash):
         }, 400
 
     ahora = obtener_ahora_gmt3()
-    fecha_inicio = turno["fecha_hora_inicio"].replace(tzinfo=None)
+    fecha_turno = turno["fecha_hora"].replace(tzinfo=None)
 
-    inicio_ventana = fecha_inicio - timedelta(minutes=30)
-    fin_ventana = fecha_inicio + timedelta(minutes=15)
+    inicio_ventana = fecha_turno - timedelta(minutes=30)
+    fin_ventana = fecha_turno + timedelta(minutes=15)
 
     if ahora < inicio_ventana:
         return {
@@ -83,6 +83,7 @@ def registrar_checkin_por_qr(codigo_qr_hash):
     return {
         "id_turno": turno["id_turno"],
         "estado": "confirmado",
+        "fecha_hora": formatear_fecha_iso(fecha_turno),
         "fecha_hora_checkin": formatear_fecha_iso(ahora),
         "paciente": nombre_paciente,
     }, 200

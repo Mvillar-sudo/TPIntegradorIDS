@@ -14,10 +14,10 @@ def _obtener_conexion():
 
 
 """
-Pre: 'codigo_qr_hash' es un string no vacío.
-Post: Retorna un diccionario con los datos del turno y del paciente si existe, o None si no existe.
+Pre: 'token_qr' es un string no vacío.
+Post: Devuelve un diccionario con los datos del turno y del paciente si existe. Si no existe devuelve None.
 """
-def buscar_turno_por_qr(codigo_qr_hash):
+def buscar_turno_por_qr(token_qr):
     conn = None
     cursor = None
     try:
@@ -29,18 +29,17 @@ def buscar_turno_por_qr(codigo_qr_hash):
                 t.id_medico,
                 t.id_paciente,
                 t.id_consultorio,
-                t.fecha_hora_inicio,
-                t.fecha_hora_fin,
+                t.fecha_hora,
                 t.estado,
-                t.codigo_qr_hash,
+                t.token_qr,
                 t.fecha_hora_checkin,
-                u.nombre AS paciente_nombre,
-                u.apellido AS paciente_apellido
+                u.nombre_usuario AS paciente_nombre,
+                u.apellido_usuario AS paciente_apellido
             FROM turnos t
             INNER JOIN usuarios u ON t.id_paciente = u.id_usuario
-            WHERE t.codigo_qr_hash = %s
+            WHERE t.token_qr = %s
         """
-        cursor.execute(query, (codigo_qr_hash,))
+        cursor.execute(query, (token_qr,))
         return cursor.fetchone()
     finally:
         if cursor is not None:
@@ -51,7 +50,8 @@ def buscar_turno_por_qr(codigo_qr_hash):
 
 """
 Pre: 'id_turno' es un entero positivo y 'fecha_hora_checkin' es un objeto datetime válido.
-Post: Actualiza el estado del turno a 'confirmado' y registra la fecha y hora de check-in. Retorna True si se actualizó al menos una fila, False en caso contrario.
+Post: Actualiza el estado del turno a 'confirmado' y registra la fecha y hora de check-in. 
+Devuelve True si se actualizó al menos una fila. En caso contrario devuelve False.
 """
 def confirmar_checkin_turno(id_turno, fecha_hora_checkin):
     conn = None

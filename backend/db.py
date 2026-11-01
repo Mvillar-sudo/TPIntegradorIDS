@@ -19,7 +19,6 @@ def get_db_connection():
         print(f"Error al conectar a MySQL: {e}")
         return None
 
-
 """
 Pre: 'query' es una sentencia SQL válida, 'params' es una tupla o lista opcional de parámetros.
 Post: Ejecuta la consulta SQL y devuelve los resultados para SELECT o lastrowid para INSERT/UPDATE.

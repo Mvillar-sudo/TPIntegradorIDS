@@ -15,7 +15,7 @@ def _obtener_conexion():
 
 """
 Pre: 'id_usuario' es un entero positivo.
-Post: Retorna un diccionario con el id_medico si el usuario es médico, o None si no lo es.
+Post: Devuelve un diccionario con el id_medico si el usuario es médico. Si no es médico devuelve None.
 """
 def obtener_medico_por_usuario_id(id_usuario):
     conn = None
@@ -34,8 +34,8 @@ def obtener_medico_por_usuario_id(id_usuario):
 
 """
 Pre: 'id_medico' es un entero positivo.
-Post: Retorna una lista de diccionarios con los turnos del día actual para el médico indicado, ordenados por hora de inicio.
-      Solo incluye turnos que tienen un paciente asignado (id_paciente no nulo).
+Post: Devuelve una lista de diccionarios con los turnos del día actual para el médico indicado, ordenados por hora de inicio.
+Solo incluye turnos que tienen un paciente asignado.
 """
 def obtener_turnos_hoy_por_medico(id_medico):
     conn = None
@@ -46,18 +46,17 @@ def obtener_turnos_hoy_por_medico(id_medico):
         query = """
             SELECT
                 t.id_turno,
-                t.fecha_hora_inicio,
-                t.fecha_hora_fin,
+                t.fecha_hora,
                 t.estado,
-                t.codigo_qr_hash,
+                t.token_qr,
                 t.fecha_hora_checkin,
-                u.nombre AS paciente_nombre,
-                u.apellido AS paciente_apellido,
-                u.dni AS paciente_dni
+                u.nombre_usuario AS paciente_nombre,
+                u.apellido_usuario AS paciente_apellido,
+                u.dni_usuario AS paciente_dni
             FROM turnos t
             INNER JOIN usuarios u ON t.id_paciente = u.id_usuario
-            WHERE t.id_medico = %s AND DATE(t.fecha_hora_inicio) = CURDATE()
-            ORDER BY t.fecha_hora_inicio ASC
+            WHERE t.id_medico = %s AND DATE(t.fecha_hora) = CURDATE()
+            ORDER BY t.fecha_hora ASC
         """
         cursor.execute(query, (id_medico,))
         return cursor.fetchall()
@@ -70,7 +69,7 @@ def obtener_turnos_hoy_por_medico(id_medico):
 
 """
 Pre: 'id_turno' es un entero positivo.
-Post: Retorna un diccionario con los datos del turno si existe, o None si no existe.
+Post: Devuelve un diccionario con los datos del turno si existe.
 """
 def buscar_turno_por_id(id_turno):
     conn = None
@@ -84,10 +83,9 @@ def buscar_turno_por_id(id_turno):
                 id_medico,
                 id_paciente,
                 id_consultorio,
-                fecha_hora_inicio,
-                fecha_hora_fin,
+                fecha_hora,
                 estado,
-                codigo_qr_hash,
+                token_qr,
                 fecha_hora_checkin
             FROM turnos
             WHERE id_turno = %s
@@ -104,7 +102,7 @@ def buscar_turno_por_id(id_turno):
 """
 Pre: 'id_turno' es un entero positivo, 'id_medico' es un entero positivo.
 Post: Actualiza el estado del turno a 'atendido' si pertenece al médico y está en estado 'confirmado'.
-      Retorna True si se actualizó al menos una fila, False en caso contrario.
+      Devuelve True si se actualizó al menos una fila. En caso contrario devuelve False.
 """
 def actualizar_turno_a_atendido(id_turno, id_medico):
     conn = None

@@ -16,7 +16,7 @@ except ImportError:
 
 """
 Pre: 'dt' es un objeto datetime o None.
-Post: Formatea 'dt' como 'YYYY-MM-DDTHH:MM:SS'. Retorna None si 'dt' es None.
+Post: Formatea 'dt' como 'YYYY-MM-DDTHH:MM:SS'.
 """
 def formatear_fecha_iso(dt):
     if dt is None:
@@ -26,7 +26,7 @@ def formatear_fecha_iso(dt):
 
 """
 Pre: 'turno' es un diccionario con los datos de un turno obtenido de la consulta SQL.
-Post: Retorna un diccionario con los datos del turno formateados para la respuesta JSON.
+Post: Devuelve un diccionario con los datos del turno formateados para la respuesta JSON.
 """
 def _formatear_turno(turno):
     nombre = turno.get("paciente_nombre") or ""
@@ -35,21 +35,22 @@ def _formatear_turno(turno):
 
     return {
         "id_turno": turno["id_turno"],
-        "fecha_hora_inicio": formatear_fecha_iso(turno["fecha_hora_inicio"]),
-        "fecha_hora_fin": formatear_fecha_iso(turno["fecha_hora_fin"]),
+        "fecha_hora": formatear_fecha_iso(turno.get("fecha_hora")),
         "estado": turno["estado"],
+        "token_qr": turno.get("token_qr"),
         "fecha_hora_checkin": formatear_fecha_iso(turno.get("fecha_hora_checkin")),
         "paciente": paciente,
-        "paciente_dni": turno["paciente_dni"],
+        "paciente_dni": turno.get("paciente_dni"),
     }
 
 
 """
 Pre: 'id_usuario' es un entero positivo correspondiente a un usuario con rol 'medico'.
-Post: Retorna una tupla (respuesta_json, status_code) con los turnos del día del médico.
+Post: Devuelve una tupla (respuesta_json, status_code) con los turnos del día del médico y el codigo de estado.
 """
 def listar_turnos_hoy_servicio(id_usuario):
     medico = obtener_medico_por_usuario_id(id_usuario)
+
     if not medico:
         return {"error": "Usuario no registrado como médico"}, 403
 
@@ -62,14 +63,16 @@ def listar_turnos_hoy_servicio(id_usuario):
 """
 Pre: 'id_usuario' es un entero positivo, 'id_turno' es un entero positivo.
 Post: Marca el turno como 'atendido' si pertenece al médico y está en estado 'confirmado'.
-      Retorna una tupla (respuesta_json, status_code).
+Devuelve una tupla (respuesta_json, status_code).
 """
 def marcar_atendido_servicio(id_usuario, id_turno):
     medico = obtener_medico_por_usuario_id(id_usuario)
+
     if not medico:
         return {"error": "Usuario no registrado como médico"}, 403
 
     turno = buscar_turno_por_id(id_turno)
+
     if turno is None:
         return {"error": "Turno no encontrado"}, 404
 
@@ -87,6 +90,7 @@ def marcar_atendido_servicio(id_usuario, id_turno):
         }, 400
 
     exito = actualizar_turno_a_atendido(id_turno, medico["id_medico"])
+
     if not exito:
         return {"error": "No se pudo marcar como atendido el turno"}, 400
 
