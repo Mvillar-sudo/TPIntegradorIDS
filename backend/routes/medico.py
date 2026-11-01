@@ -15,7 +15,7 @@ medico_bp = Blueprint("medico", __name__, url_prefix="/api/v1/medicos")
 ROLES_MEDICO = ["medico"]
 
 
-@medico_bp.route("/dashboard/turnos-hoy", methods=["GET"])
+@medico_bp.route("/turnos/hoy", methods=["GET"])
 @token_required(roles_permitidos=ROLES_MEDICO)
 def ver_turnos_hoy():
     id_usuario = request.user_data.get("id_usuario")
