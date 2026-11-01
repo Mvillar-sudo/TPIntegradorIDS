@@ -48,7 +48,7 @@ VALUES (1, 1, 1, DATE_ADD(NOW(), INTERVAL 10 MINUTE), 'reservado', 'qr_valido_12
 
 -- Turno confirmado (check-in ya realizado)
 INSERT INTO turnos (id_medico, id_paciente, id_consultorio, fecha_hora, estado, token_qr, fecha_hora_checkin)
-VALUES (1, 1, 1, DATE_ADD(NOW(), INTERVAL 1 HOUR), 'confirmado', 'qr_confirmado_456', NOW());
+VALUES (1, 1, 1, DATE_ADD(NOW(), INTERVAL 20 MINUTE), 'confirmado', 'qr_confirmado_456', NOW());
 
 -- Turno ausente (paciente no se presentó)
 INSERT INTO turnos (id_medico, id_paciente, id_consultorio, fecha_hora, estado, token_qr, fecha_hora_checkin)
