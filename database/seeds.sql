@@ -32,7 +32,7 @@ INSERT INTO usuarios (rol_usuario, nombre_usuario, apellido_usuario, dni_usuario
 ('recepcionista', 'Ana',    'López',      '11223344', 'ana@test.com',    'hash_placeholder_789', '1155559012', NULL),
 ('admin',         'María',  'Rodríguez',  '44332211', 'maria@test.com',  'hash_placeholder_012', '1155553456', NULL),
 ('paciente',      'Laura',  'Martínez',   '55667788', 'laura@test.com',  'hash_placeholder_345', '1155557890', 2),
-('medico',        'Jose', 'Gonzalez',      '87654321', 'jose@test.com', 'hash_placeholder_556', '1155555678', NULL);
+('medico',        'Jose', 'Gonzalez',     '11335577', 'jose@test.com', 'hash_placeholder_556', '1145555678', NULL);
 
 -- 5. Médicos de prueba
 INSERT INTO medicos (id_usuario, id_especialidad, matricula) VALUES
@@ -42,19 +42,19 @@ INSERT INTO medicos (id_usuario, id_especialidad, matricula) VALUES
 
 -- 6. Turnos de prueba
 
--- Turno reservado, dentro de la ventana de checkin.
-INSERT INTO turnos (id_medico, id_paciente, id_consultorio, fecha_hora_inicio, fecha_hora_fin, estado, codigo_qr_hash, fecha_hora_checkin)
-VALUES (1, 1, 1, DATE_ADD(NOW(), INTERVAL 10 MINUTE), DATE_ADD(NOW(), INTERVAL 30 MINUTE), 'reservado', 'qr_valido_123', NULL);
+-- Turno reservado, dentro de la ventana de check-in (10 min en el futuro)
+INSERT INTO turnos (id_medico, id_paciente, id_consultorio, fecha_hora, estado, token_qr, fecha_hora_checkin)
+VALUES (1, 1, 1, DATE_ADD(NOW(), INTERVAL 10 MINUTE), 'reservado', 'qr_valido_123', NULL);
 
--- Turno confirmado (checkin ya realizado).
-INSERT INTO turnos (id_medico, id_paciente, id_consultorio, fecha_hora_inicio, fecha_hora_fin, estado, codigo_qr_hash, fecha_hora_checkin)
-VALUES (1, 1, 1, DATE_ADD(NOW(), INTERVAL 1 HOUR), DATE_ADD(NOW(), INTERVAL 2 HOUR), 'confirmado', 'qr_confirmado_456', NOW());
+-- Turno confirmado (check-in ya realizado)
+INSERT INTO turnos (id_medico, id_paciente, id_consultorio, fecha_hora, estado, token_qr, fecha_hora_checkin)
+VALUES (1, 1, 1, DATE_ADD(NOW(), INTERVAL 1 HOUR), 'confirmado', 'qr_confirmado_456', NOW());
 
--- Turno ausente (paciente no se presentó).
-INSERT INTO turnos (id_medico, id_paciente, id_consultorio, fecha_hora_inicio, fecha_hora_fin, estado, codigo_qr_hash, fecha_hora_checkin)
-VALUES (1, 1, 1, DATE_ADD(NOW(), INTERVAL -2 HOUR), DATE_ADD(NOW(), INTERVAL -1 HOUR), 'ausente', 'qr_ausente_789', NULL);
+-- Turno ausente (paciente no se presentó)
+INSERT INTO turnos (id_medico, id_paciente, id_consultorio, fecha_hora, estado, token_qr, fecha_hora_checkin)
+VALUES (1, 1, 1, DATE_ADD(NOW(), INTERVAL -2 HOUR), 'ausente', 'qr_ausente_789', NULL);
 
--- Turno reservado.
-INSERT INTO turnos (id_medico, id_paciente, id_consultorio, fecha_hora_inicio, fecha_hora_fin, estado, codigo_qr_hash, fecha_hora_checkin)
-VALUES (1, 5, 1, DATE_ADD(NOW(), INTERVAL 3 HOUR), DATE_ADD(NOW(), INTERVAL 4 HOUR), 'reservado', 'qr_laura_101', NULL);
+-- Turno reservado (paciente: Laura)
+INSERT INTO turnos (id_medico, id_paciente, id_consultorio, fecha_hora, estado, token_qr, fecha_hora_checkin)
+VALUES (1, 5, 1, DATE_ADD(NOW(), INTERVAL 3 HOUR), 'reservado', 'qr_laura_101', NULL);
 
