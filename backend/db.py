@@ -1,4 +1,6 @@
 import mysql.connector
+import os
+from dotenv import load_dotenv
 from mysql.connector import Error
 
 try:
@@ -18,6 +20,7 @@ def get_db_connection():
     except Error as e:
         print(f"Error al conectar a MySQL: {e}")
         return None
+    )
 
 """
 Pre: 'query' es una sentencia SQL válida, 'params' es una tupla o lista opcional de parámetros.
