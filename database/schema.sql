@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS coberturas(
 -- 2. Tabla usuarios
 CREATE TABLE IF NOT EXISTS usuarios(
   id_usuario int auto_increment PRIMARY KEY,
-  rol_usuario enum('admin', 'recepcionista', 'paciente') NOT NULL,
+  rol_usuario enum('admin', 'recepcionista', 'paciente', 'medico') NOT NULL,
   nombre_usuario varchar(100) NOT NULL,
   apellido_usuario varchar(100) NOT NULL,
   dni_usuario varchar(20) UNIQUE NOT NULL,
@@ -29,12 +29,12 @@ CREATE TABLE IF NOT EXISTS especialidades(
 
 -- 4. Tabla medicos
 CREATE TABLE IF NOT EXISTS medicos(
-    id_medico int auto_increment PRIMARY KEY,
-    id_especialidad int NOT NULL,
-    nombre_medico varchar(100),
-    apellido_medico varchar(100),
-    matricula varchar(50) UNIQUE NOT NULL,
-    FOREIGN KEY (id_especialidad) references especialidades(id_especialidad)
+  id_medico int auto_increment PRIMARY KEY,
+  id_usuario int NOT NULL,
+  id_especialidad int NOT NULL,
+  matricula varchar(50) UNIQUE NOT NULL,
+  FOREIGN KEY (id_usuario) references usuarios(id_usuario),
+  FOREIGN KEY (id_especialidad) references especialidades(id_especialidad)
 );
 
 -- 5. Tabla consultorios
