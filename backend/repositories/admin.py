@@ -1,4 +1,4 @@
-from ..db import ejecutar_consulta
+from ..consultas_repositories import ejecutar_consulta
 from ..constants import CATALOGO
 
 
