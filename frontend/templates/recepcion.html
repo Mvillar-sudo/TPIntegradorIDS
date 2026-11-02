@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Recepción{% endblock %}
+
+{% block content %}
+<h2>Backoffice Recepción</h2>
+
+<section>
+    <h3>Registro de llegada (check-in por QR)</h3>
+
+    <form method="POST" action="{{ url_for('recepcion.registrar_checkin') }}">
+        <label for="token_qr">Código QR</label>
+        <input type="text" id="token_qr" name="token_qr" maxlength="255"
+               autocomplete="off" autofocus required>
+        <button type="submit">Check-in</button>
+    </form>
+
+    {% if checkin %}
+        <div class="checkin-exitoso">
+            <p><strong>✓ Check-in exitoso</strong></p>
+            <p>Paciente: {{ checkin.paciente }}</p>
+            <p>Médico asignado: {{ checkin.medico }} (Consultorio {{ checkin.consultorio }})</p>
+            <p>Hora de llegada: {{ checkin.hora_llegada }} hs</p>
+        </div>
+    {% endif %}
+</section>
+
+<section>
+    <h3>Sala de espera (ordenada por horario de llegada)</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Llegada</th>
+                <th>Paciente</th>
+                <th>Médico</th>
+                <th>Consultorio</th>
+                <th>Espera</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for turno in sala_espera %}
+                <tr>
+                    <td>{{ turno.hora_llegada }} hs</td>
+                    <td>{{ turno.paciente }}</td>
+                    <td>{{ turno.medico }}</td>
+                    <td>{{ turno.consultorio }}</td>
+                    <td>{{ turno.minutos_espera }} min</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="5">No hay pacientes en la sala de espera.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}
