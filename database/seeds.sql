@@ -1,7 +1,7 @@
 -- =============================================
 -- DATOS INICIALES / SEMILLA (SEED DATA)
 -- =============================================
-
+USE centro_medico;
 -- 1. Coberturas
 INSERT INTO coberturas (nombre_cobertura) VALUES 
 ('Particular'),
