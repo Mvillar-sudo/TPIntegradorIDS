@@ -125,3 +125,49 @@ def actualizar_turno_a_atendido(id_turno, id_medico):
             cursor.close()
         if conn is not None and conn.is_connected():
             conn.close()
+
+def obtener_medicos_por_especialidad(especialidad_id=None):
+    conexion = None
+    cursor = None
+
+    try:
+        conexion = get_connection()
+        cursor = conexion.cursor(dictionary=True)
+
+        query = """
+            SELECT
+                m.id_medico,
+                m.nombre_medico AS nombre,
+                m.apellido_medico AS apellido,
+                m.id_especialidad,
+                e.nombre_especialidad AS especialidad
+            FROM medicos m
+            INNER JOIN especialidades e
+                ON m.id_especialidad = e.id_especialidad
+        """
+
+        parametros = ()
+
+        if especialidad_id is not None:
+            query += " WHERE m.id_especialidad = %s"
+            parametros = (especialidad_id,)
+
+        query += """
+            ORDER BY m.apellido_medico ASC, m.nombre_medico ASC;
+        """
+
+        cursor.execute(query, parametros)
+        resultados = cursor.fetchall()
+
+        return resultados
+
+    except Exception as e:
+        print(f"Error al obtener médicos: {e}")
+        return None
+
+    finally:
+        if cursor is not None:
+            cursor.close()
+
+        if conexion is not None and conexion.is_connected():
+            conexion.close()
