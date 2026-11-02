@@ -1,10 +1,20 @@
 from flask import Flask
+from routes.turnos import turnos_bp  # Importación desde la carpeta local routes
 from routes.auth import auth_bp
 
 app = Flask(__name__)
 
+app.json.ensure_ascii = False
+
+# Registro del Blueprint
+app.register_blueprint(turnos_bp)
 app.register_blueprint(auth_bp, url_prefix="/api/v1")
 
+# Ruta base de prueba
+@app.route('/')
+def home():
+    return {"mensaje": "API Centro Médico Salud Integral activa"}, 200
 
-if __name__ == "__main__":
-    app.run(port=8080, debug=True)
+# Clave para mantener el servidor escuchando en el puerto 5000
+if __name__ == '__main__':
+    app.run(debug=True, host='127.0.0.1', port=5000)

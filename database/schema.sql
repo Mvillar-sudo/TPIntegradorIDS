@@ -34,7 +34,6 @@ CREATE TABLE IF NOT EXISTS medicos(
     nombre_medico varchar(100),
     apellido_medico varchar(100),
     matricula varchar(50) UNIQUE NOT NULL,
-    FOREIGN KEY (id_usuario) references usuarios(id_usuario),
     FOREIGN KEY (id_especialidad) references especialidades(id_especialidad)
 );
 

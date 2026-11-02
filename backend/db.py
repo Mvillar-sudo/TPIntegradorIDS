@@ -14,3 +14,21 @@ def get_connection():
         password = os.getenv("DB_PASSWORD")
     )
 
+def execute_query(query, params=None):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute(query, params or ())
+        
+        if query.strip().upper().startswith("SELECT"):
+            result = cursor.fetchall()
+        else:
+            conn.commit()
+            result = cursor.rowcount
+            
+        cursor.close()
+        conn.close()
+        return result
+    except Error as e:
+        print(f"Error en execute_query: {e}")
+        return None
