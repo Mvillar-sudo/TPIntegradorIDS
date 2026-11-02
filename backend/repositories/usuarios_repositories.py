@@ -47,3 +47,25 @@ def crear_usuario(nombre, apellido, dni, email, password_hash, telefono=None, id
         if cursor is not None:
             cursor.close()
         conexion.close()
+
+def obtener_usuario_por_dni(dni):
+    conexion = get_connection()
+    cursor = None
+
+    try:
+        cursor = conexion.cursor(dictionary=True)
+
+        cursor.execute(
+            """
+            SELECT id_usuario FROM usuarios
+            WHERE dni_usuario = %s
+            """,
+            (dni,)
+        )
+
+        return cursor.fetchone()
+
+    finally:
+        if cursor is not None:
+            cursor.close()
+        conexion.close()
