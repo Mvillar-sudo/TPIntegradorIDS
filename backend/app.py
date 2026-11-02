@@ -1,5 +1,6 @@
 from flask import Flask, jsonify
-
+from backend.routes.admin import admin_bp
+from backend.routes.agendas import agendas_bp
 from routes.turnos import turnos_bp  # Importación desde la carpeta local routes
 from routes.checkin_qr import checkin_qr_bp
 from routes.medico import medico_bp
@@ -10,11 +11,13 @@ app = Flask(__name__)
 
 # Para las tildes y caracteres especiales en JSON
 app.json.ensure_ascii = False
-
+app.json.sort_keys = False
 # Registro del Blueprint
-app.register_blueprint(turnos_bp)
-app.register_blueprint(checkin_qr_bp)
-app.register_blueprint(medico_bp)
+app.register_blueprint(turnos_bp, url_prefix='/api/v1')
+app.register_blueprint(admin_bp, url_prefix='/api/v1')
+app.register_blueprint(agendas_bp, url_prefix='/api/v1')
+app.register_blueprint(checkin_qr_bp, url_prefix='/api/v1')
+app.register_blueprint(medico_bp, url_prefix='/api/v1')
 app.register_blueprint(auth_bp, url_prefix="/api/v1")
 
 
@@ -23,6 +26,9 @@ app.register_blueprint(auth_bp, url_prefix="/api/v1")
 def home():
     return jsonify({"mensaje": "API Centro Médico Salud Integral activa"}), 200
 
+@app.errorhandler(RuntimeError)
+def database_unavailable(_error):
+	return jsonify({'error': 'Base de datos no disponible'}), 503
 
 @app.errorhandler(404)
 def not_found(e):
