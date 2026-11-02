@@ -1,1 +1,484 @@
+openapi: 3.0.3
+info:
+  title: API REST - Centro Médico Salud Integral
+  version: 1.0.0
+  description: >
+    API del sistema Centro Médico Salud Integral. Todos los intercambios se realizan
+    en JSON. Los endpoints protegidos usan JWT en Authorization: Bearer <token>.
+servers:
+  - url: http://localhost:5000
+    description: Servidor local
+tags:
+  - name: Autenticación
+  - name: Especialidades
+  - name: Médicos
+  - name: Turnos
+  - name: Recepción
+  - name: Agendas
 
+paths:
+  /api/v1/auth/login:
+    post:
+      tags: [Autenticación]
+      summary: Iniciar sesión
+      description: Autentica pacientes o personal administrativo.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: {type: string, format: email, example: usuario@ejemplo.com}
+                password: {type: string, format: password, example: mipassword}
+      responses:
+        '200':
+          description: Autenticación exitosa.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token: {type: string, example: eyJhbGci...}
+                  usuario: {$ref: '#/components/schemas/UsuarioSesion'}
+              example:
+                token: eyJhbGci...
+                usuario: {id_usuario: 1, nombre: Juan, rol: paciente}
+        '401':
+          description: Credenciales inválidas.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+              example: {error: Credenciales inválidas}
+
+  /api/v1/auth/register:
+    post:
+      tags: [Autenticación]
+      summary: Registrar un nuevo paciente
+      description: Crea una cuenta nueva con rol paciente.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [nombre, apellido, dni, email, password]
+              properties:
+                nombre: {type: string, example: Juan}
+                apellido: {type: string, example: García}
+                dni: {type: string, example: '12345678'}
+                email: {type: string, format: email, example: juan@ejemplo.com}
+                password: {type: string, format: password, example: mipassword}
+      responses:
+        '201':
+          description: Usuario registrado.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id_usuario: {type: integer, example: 12}
+                  mensaje: {type: string, example: Usuario registrado exitosamente}
+        '400':
+          description: DNI o email ya registrado.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+              example: {error: El DNI o Email ingresado ya se encuentra registrado}
+
+  /api/v1/especialidades:
+    get:
+      tags: [Especialidades]
+      summary: Listar especialidades médicas
+      description: Retorna el catálogo completo de especialidades.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de especialidades.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/Especialidad'}
+              example:
+                - {id_especialidad: 1, nombre: Cardiología}
+                - {id_especialidad: 2, nombre: Pediatría}
+        '401': {$ref: '#/components/responses/NoAutorizado'}
+        '500': {$ref: '#/components/responses/ErrorInterno'}
+
+  /api/v1/medicos:
+    get:
+      tags: [Médicos]
+      summary: Listar médicos
+      description: Obtiene los profesionales y permite filtrar por especialidad.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: especialidad_id
+          in: query
+          required: false
+          schema: {type: integer}
+          example: 1
+      responses:
+        '200':
+          description: Lista de médicos.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/Medico'}
+              example:
+                - {id_medico: 3, nombre: Dr. Carlos Pérez, matricula: M12345, especialidad: Cardiología}
+        '401': {$ref: '#/components/responses/NoAutorizado'}
+        '500': {$ref: '#/components/responses/ErrorInterno'}
+    post:
+      tags: [Médicos]
+      summary: Dar de alta un médico
+      description: Vincula una cuenta existente con el perfil profesional del médico.
+      security:
+        - bearerAuth: []
+      x-required-roles: [admin, recepcionista]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id_usuario, id_especialidad, matricula]
+              properties:
+                id_usuario: {type: integer, example: 5}
+                id_especialidad: {type: integer, example: 1}
+                matricula: {type: string, example: MP99876}
+      responses:
+        '201':
+          description: Médico registrado correctamente.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id_medico: {type: integer, example: 8}
+                  mensaje: {type: string, example: Médico registrado correctamente}
+        '400':
+          description: Matrícula duplicada o datos inválidos.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+              example: {error: La matrícula ingresada ya existe}
+        '401': {$ref: '#/components/responses/NoAutorizado'}
+        '403': {$ref: '#/components/responses/Prohibido'}
+        '500': {$ref: '#/components/responses/ErrorInterno'}
+
+  /api/v1/turnos/disponibles:
+    get:
+      tags: [Turnos]
+      summary: Consultar turnos disponibles
+      security:
+        - bearerAuth: []
+      parameters:
+        - {name: especialidad_id, in: query, required: false, schema: {type: integer}, example: 1}
+        - {name: medico_id, in: query, required: false, schema: {type: integer}, example: 3}
+        - {name: fecha, in: query, required: false, schema: {type: string, format: date}, example: '2026-10-27'}
+      responses:
+        '200':
+          description: Franjas horarias disponibles.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/TurnoDisponible'}
+              example:
+                - {id_turno: 45, medico: Dr. Carlos Pérez, fecha_hora: '2026-10-27T09:00:00', consultorio: '102'}
+        '401': {$ref: '#/components/responses/NoAutorizado'}
+        '500': {$ref: '#/components/responses/ErrorInterno'}
+
+  /api/v1/turnos/reservar:
+    post:
+      tags: [Turnos]
+      summary: Reservar un turno
+      description: Reserva una franja disponible para el paciente autenticado y genera el token QR.
+      security:
+        - bearerAuth: []
+      x-required-roles: [paciente]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id_turno]
+              properties:
+                id_turno: {type: integer, example: 45}
+      responses:
+        '200':
+          description: Reserva confirmada.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id_turno: {type: integer, example: 45}
+                  estado: {type: string, enum: [reservado], example: reservado}
+                  codigo_qr_hash: {type: string, example: a8f9c233x}
+                  mensaje: {type: string, example: Reserva confirmada exitosamente}
+        '400':
+          description: El turno ya no está disponible.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+              example: {error: El turno seleccionado ya no se encuentra disponible}
+        '401': {$ref: '#/components/responses/NoAutorizado'}
+        '403': {$ref: '#/components/responses/Prohibido'}
+        '409':
+          description: El paciente ya tiene un turno activo con el profesional.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+              example: {error: El paciente ya posee un turno activo con este profesional}
+        '500': {$ref: '#/components/responses/ErrorInterno'}
+
+  /api/v1/turnos/mis-turnos:
+    get:
+      tags: [Turnos]
+      summary: Consultar mis turnos
+      description: Devuelve los turnos del paciente autenticado.
+      security:
+        - bearerAuth: []
+      x-required-roles: [paciente]
+      responses:
+        '200':
+          description: Turnos asociados al paciente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/MiTurno'}
+              example:
+                - {id_turno: 45, medico: Dr. Carlos Pérez, fecha_hora: '2026-10-27T09:00:00', estado: reservado, codigo_qr_hash: a8f9c233x}
+        '401': {$ref: '#/components/responses/NoAutorizado'}
+        '403': {$ref: '#/components/responses/Prohibido'}
+        '500': {$ref: '#/components/responses/ErrorInterno'}
+
+  /api/v1/turnos/{id}/cancelar:
+    post:
+      tags: [Turnos]
+      summary: Cancelar un turno
+      description: El paciente puede cancelar online con al menos dos horas de anticipación.
+      security:
+        - bearerAuth: []
+      x-required-roles: [paciente, admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del turno.
+          schema: {type: integer}
+          example: 45
+      responses:
+        '200':
+          description: Turno cancelado.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id_turno: {type: integer, example: 45}
+                  estado: {type: string, enum: [cancelado], example: cancelado}
+                  mensaje: {type: string, example: Turno cancelado con éxito}
+        '400':
+          description: Se excedió el límite para la cancelación online.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+              example: {error: Excedido el límite de tiempo permitido para la cancelación online}
+        '401': {$ref: '#/components/responses/NoAutorizado'}
+        '403': {$ref: '#/components/responses/Prohibido'}
+        '404': {$ref: '#/components/responses/NoEncontrado'}
+        '500': {$ref: '#/components/responses/ErrorInterno'}
+
+  /api/v1/turnos/checkin:
+    post:
+      tags: [Turnos]
+      summary: Registrar check-in por QR
+      description: Valida la ventana de -30 a +15 minutos y registra la llegada del paciente.
+      security:
+        - bearerAuth: []
+      x-required-roles: [admin, recepcionista]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [codigo_qr_hash]
+              properties:
+                codigo_qr_hash: {type: string, example: a8f9c233x}
+      responses:
+        '200':
+          description: Check-in registrado.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id_turno: {type: integer, example: 45}
+                  estado: {type: string, enum: [confirmado], example: confirmado}
+                  fecha_hora_checkin: {type: string, format: date-time, example: '2026-10-27T08:50:12'}
+                  paciente: {type: string, example: Juan García}
+        '400':
+          description: Turno fuera de la ventana horaria permitida.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+              example: {error: Turno fuera de la ventana horaria permitida para check-in. Marcado como ausente}
+        '401': {$ref: '#/components/responses/NoAutorizado'}
+        '403': {$ref: '#/components/responses/Prohibido'}
+        '404': {$ref: '#/components/responses/NoEncontrado'}
+        '500': {$ref: '#/components/responses/ErrorInterno'}
+
+  /api/v1/recepcion/sala-espera:
+    get:
+      tags: [Recepción]
+      summary: Consultar sala de espera
+      description: Devuelve los pacientes con check-in confirmado, ordenados por hora de llegada.
+      security:
+        - bearerAuth: []
+      x-required-roles: [admin, recepcionista]
+      responses:
+        '200':
+          description: Pacientes presentes en la sala de espera.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/EntradaSalaEspera'}
+              example:
+                - {id_turno: 45, paciente: 'García, Juan', medico: Dr. Carlos Pérez, consultorio: '102', fecha_hora_checkin: '2026-10-27T08:50:12'}
+        '401': {$ref: '#/components/responses/NoAutorizado'}
+        '403': {$ref: '#/components/responses/Prohibido'}
+        '500': {$ref: '#/components/responses/ErrorInterno'}
+
+  /api/v1/agendas:
+    post:
+      tags: [Agendas]
+      summary: Configurar agenda médica
+      description: Define la agenda semanal y genera franjas horarias disponibles.
+      security:
+        - bearerAuth: []
+      x-required-roles: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id_medico, id_consultorio, dia_semana, hora_inicio, hora_fin, duracion_minutos]
+              properties:
+                id_medico: {type: integer, example: 3}
+                id_consultorio: {type: integer, example: 1}
+                dia_semana: {type: integer, example: 1, description: Día de la semana según la convención usada por el backend.}
+                hora_inicio: {type: string, example: '08:00'}
+                hora_fin: {type: string, example: '12:00'}
+                duracion_minutos: {type: integer, minimum: 1, example: 20}
+      responses:
+        '201':
+          description: Agenda configurada y turnos generados.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensaje: {type: string, example: Agenda configurada y turnos generados correctamente}
+        '400':
+          description: Consultorio ocupado o datos inválidos.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+              example: {error: El consultorio seleccionado ya se encuentra asignado a otro profesional en esa franja horaria}
+        '401': {$ref: '#/components/responses/NoAutorizado'}
+        '403': {$ref: '#/components/responses/Prohibido'}
+        '500': {$ref: '#/components/responses/ErrorInterno'}
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Ingresar el JWT recibido al iniciar sesión.
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error: {type: string, example: Ocurrió un error en la solicitud}
+    UsuarioSesion:
+      type: object
+      properties:
+        id_usuario: {type: integer, example: 1}
+        nombre: {type: string, example: Juan}
+        rol: {type: string, enum: [paciente, admin, recepcionista], example: paciente}
+    Especialidad:
+      type: object
+      properties:
+        id_especialidad: {type: integer, example: 1}
+        nombre: {type: string, example: Cardiología}
+    Medico:
+      type: object
+      properties:
+        id_medico: {type: integer, example: 3}
+        nombre: {type: string, example: Dr. Carlos Pérez}
+        matricula: {type: string, example: M12345}
+        especialidad: {type: string, example: Cardiología}
+    TurnoDisponible:
+      type: object
+      properties:
+        id_turno: {type: integer, example: 45}
+        medico: {type: string, example: Dr. Carlos Pérez}
+        fecha_hora: {type: string, format: date-time, example: '2026-10-27T09:00:00'}
+        consultorio: {type: string, example: '102'}
+    MiTurno:
+      type: object
+      properties:
+        id_turno: {type: integer, example: 45}
+        medico: {type: string, example: Dr. Carlos Pérez}
+        fecha_hora: {type: string, format: date-time, example: '2026-10-27T09:00:00'}
+        estado: {type: string, enum: [disponible, reservado, confirmado, atendido, cancelado, ausente]}
+        codigo_qr_hash: {type: string, example: a8f9c233x}
+    EntradaSalaEspera:
+      type: object
+      properties:
+        id_turno: {type: integer, example: 45}
+        paciente: {type: string, example: 'García, Juan'}
+        medico: {type: string, example: Dr. Carlos Pérez}
+        consultorio: {type: string, example: '102'}
+        fecha_hora_checkin: {type: string, format: date-time, example: '2026-10-27T08:50:12'}
+  responses:
+    NoAutorizado:
+      description: Token ausente, inválido o expirado.
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/Error'}
+          example: {error: Token inválido o expirado}
+    Prohibido:
+      description: El usuario autenticado no tiene permisos para esta operación.
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/Error'}
+          example: {error: No tiene permisos para realizar esta operación}
+    NoEncontrado:
+      description: El recurso solicitado no existe.
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/Error'}
+          example: {error: Recurso no encontrado}
+    ErrorInterno:
+      description: Error interno o fallo de conexión con la base de datos.
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/Error'}
+          example: {error: No se pudo completar la operación}
