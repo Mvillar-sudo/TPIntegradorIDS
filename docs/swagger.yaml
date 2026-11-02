@@ -10,11 +10,17 @@ servers:
     description: Servidor local
 tags:
   - name: Autenticación
+    description: Inicio de sesión y registro de pacientes
   - name: Especialidades
+    description: Catálogo de especialidades médicas
   - name: Médicos
+    description: Gestión de médicos y atención en consultorio
   - name: Turnos
+    description: Disponibilidad, reserva, mis turnos, cancelación y check-in por QR
   - name: Recepción
+    description: Dashboard y monitoreo en tiempo real de la sala de espera
   - name: Agendas
+    description: Configuración de los días y horarios de atención de los médicos
 
 paths:
   /api/v1/auth/login:
@@ -173,10 +179,74 @@ paths:
         '403': {$ref: '#/components/responses/Prohibido'}
         '500': {$ref: '#/components/responses/ErrorInterno'}
 
+  /api/v1/medicos/turnos/hoy:
+    get:
+      tags: [Médicos]
+      summary: Consultar turnos del día para el médico
+      description: Devuelve la lista de turnos asignados al médico autenticado para la fecha actual, ordenados cronológicamente.
+      security:
+        - bearerAuth: []
+      x-required-roles: [medico]
+      responses:
+        '200':
+          description: Turnos del día del médico.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/TurnoHoyMedico'}
+              example:
+                - {id_turno: 45, paciente: 'García, Juan', dni: '12345678', fecha_hora: '2026-11-02T14:40:00', fecha_hora_checkin: '2026-11-02T14:40:00', estado: confirmado, consultorio: '102'}
+        '401': {$ref: '#/components/responses/NoAutorizado'}
+        '403': {$ref: '#/components/responses/Prohibido'}
+        '500': {$ref: '#/components/responses/ErrorInterno'}
+
+  /api/v1/medicos/turnos/{id_turno}/atendido:
+    patch:
+      tags: [Médicos]
+      summary: Marcar turno como atendido
+      description: Actualiza el estado del turno a atendido. Requiere que pertenezca al médico y esté confirmado.
+      security:
+        - bearerAuth: []
+      x-required-roles: [medico]
+      parameters:
+        - name: id_turno
+          in: path
+          required: true
+          description: ID del turno a marcar como atendido.
+          schema: {type: integer}
+          example: 45
+      responses:
+        '200':
+          description: Turno marcado como atendido exitosamente.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id_turno: {type: integer, example: 45}
+                  estado: {type: string, enum: [atendido], example: atendido}
+                  mensaje: {type: string, example: Turno marcado como atendido exitosamente}
+              example:
+                id_turno: 45
+                estado: atendido
+                mensaje: Turno marcado como atendido exitosamente
+        '400':
+          description: El turno no está confirmado o el ID es inválido.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+              example: {error: No se puede atender el turno porque no está confirmado}
+        '401': {$ref: '#/components/responses/NoAutorizado'}
+        '403': {$ref: '#/components/responses/Prohibido'}
+        '404': {$ref: '#/components/responses/NoEncontrado'}
+        '500': {$ref: '#/components/responses/ErrorInterno'}
+
   /api/v1/turnos/disponibles:
     get:
       tags: [Turnos]
       summary: Consultar turnos disponibles
+      description: Devuelve la lista de turnos con estado `disponible` según los filtros especificados.
       security:
         - bearerAuth: []
       parameters:
@@ -421,7 +491,7 @@ components:
       properties:
         id_usuario: {type: integer, example: 1}
         nombre: {type: string, example: Juan}
-        rol: {type: string, enum: [paciente, admin, recepcionista], example: paciente}
+        rol: {type: string, enum: [paciente, admin, recepcionista, medico], example: paciente}
     Especialidad:
       type: object
       properties:
@@ -434,6 +504,16 @@ components:
         nombre: {type: string, example: Dr. Carlos Pérez}
         matricula: {type: string, example: M12345}
         especialidad: {type: string, example: Cardiología}
+    TurnoHoyMedico:
+      type: object
+      properties:
+        id_turno: {type: integer, example: 45}
+        paciente: {type: string, example: 'García, Juan'}
+        dni: {type: string, example: '12345678'}
+        fecha_hora: {type: string, format: date-time, example: '2026-11-02T14:40:00'}
+        fecha_hora_checkin: {type: string, format: date-time, nullable: true, example: '2026-11-02T14:40:00'}
+        estado: {type: string, enum: [disponible, reservado, confirmado, atendido, cancelado, ausente], example: confirmado}
+        consultorio: {type: string, example: '102'}
     TurnoDisponible:
       type: object
       properties:
