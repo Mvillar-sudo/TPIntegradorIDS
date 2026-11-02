@@ -1,5 +1,6 @@
 from flask import Flask, jsonify
 
+from routes.turnos import turnos_bp  # Importación desde la carpeta local routes
 try:
     from routes.checkin_qr import checkin_qr_bp
     from routes.medico import medico_bp
@@ -12,10 +13,12 @@ app = Flask(__name__)
 # Para las tildes y caracteres especiales en JSON
 app.json.ensure_ascii = False
 
+# Registro del Blueprint
+app.register_blueprint(turnos_bp)
 app.register_blueprint(checkin_qr_bp)
 app.register_blueprint(medico_bp)
 
-
+# Ruta base de prueba
 @app.route("/")
 def home():
     return jsonify({"mensaje": "API Centro Médico Salud Integral activa"}), 200
@@ -35,6 +38,7 @@ def method_not_allowed(e):
 def internal_error(e):
     return jsonify({"error": "Error interno en el servidor"}), 500
 
-
+  
+# Clave para mantener el servidor escuchando en el puerto 5000
 if __name__ == "__main__":
     app.run(debug=True, host="127.0.0.1", port=5000)
