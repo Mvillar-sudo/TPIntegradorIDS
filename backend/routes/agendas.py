@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from mysql.connector import Error
 
-from ..auth_middleware import token_required
+from validators.validator_auth import token_required
 from ..constants import ADMIN_ROLES
 from ..services import agendas
 from ..utils import respuesta_error

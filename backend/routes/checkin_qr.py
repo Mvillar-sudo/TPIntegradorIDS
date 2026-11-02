@@ -1,14 +1,11 @@
 from flask import Blueprint, jsonify, request
 from mysql.connector import Error as MySQLError
 
-try:
-    from auth_middleware import token_required
-    from validators.checkin_qr import validar_entrada_checkin
-    from services.checkin_qr import registrar_checkin_por_qr
-except ImportError:
-    from backend.auth_middleware import token_required
-    from backend.validators.checkin_qr import validar_entrada_checkin
-    from backend.services.checkin_qr import registrar_checkin_por_qr
+
+from validators.validator_auth import token_required
+from validators.checkin_qr import validar_entrada_checkin
+from services.checkin_qr import registrar_checkin_por_qr
+
 
 checkin_qr_bp = Blueprint("checkin_qr", __name__, url_prefix="/api/v1")
 

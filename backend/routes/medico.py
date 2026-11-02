@@ -1,14 +1,10 @@
 from flask import Blueprint, jsonify, request
 from mysql.connector import Error as MySQLError
 
-try:
-    from auth_middleware import token_required
-    from validators.medico import validar_id_turno
-    from services.medico import listar_turnos_hoy_servicio, marcar_atendido_servicio
-except ImportError:
-    from backend.auth_middleware import token_required
-    from backend.validators.medico import validar_id_turno
-    from backend.services.medico import listar_turnos_hoy_servicio, marcar_atendido_servicio
+
+from validators.validator_auth import token_required
+from validators.medico import validar_id_turno
+from services.medico import listar_turnos_hoy_servicio, marcar_atendido_servicio
 
 medico_bp = Blueprint("medico", __name__, url_prefix="/api/v1/medicos")
 
