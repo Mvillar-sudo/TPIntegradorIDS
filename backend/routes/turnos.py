@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 
 from flask import Blueprint, jsonify, request
 
+from repositories.especialidades_repositories import obtener_especialidades
 from validators.validator_auth import token_required
 
 turnos_bp = Blueprint('turnos', __name__)
@@ -43,14 +44,15 @@ def cancelar_turno(id_turno):
         "mensaje": f"El turno {id_turno} fue cancelado exitosamente."
     }), 200
 
-@turnos_bp.route('/especialidades', methods=['GET'])
-def obtener_especialidades():
-    query = "SELECT id_especialidad, nombre_especialidad FROM especialidades ORDER BY nombre_especialidad ASC;"
-    resultados = execute_query(query)
-    
+@turnos_bp.route("/especialidades", methods=["GET"])
+def listar_especialidades():
+    resultados = obtener_especialidades()
+
     if resultados is None:
-        return jsonify({"error": "No se pudo conectar a la base de datos o fallo la consulta"}), 500
-    
+        return jsonify({
+            "error": "No se pudieron obtener las especialidades."
+        }), 500
+
     especialidades = [
         {
             "id_especialidad": row["id_especialidad"],
@@ -58,7 +60,7 @@ def obtener_especialidades():
         }
         for row in resultados
     ]
-    
+
     return jsonify(especialidades), 200
 
 @turnos_bp.route('/medicos', methods=['GET'])

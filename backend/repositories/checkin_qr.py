@@ -1,13 +1,9 @@
 from mysql.connector import Error as MySQLError
 
-try:
-    from db import get_db_connection
-except ImportError:
-    from backend.db import get_db_connection
-
+from db import get_connection
 
 def _obtener_conexion():
-    conn = get_db_connection()
+    conn = get_connection()
     if conn is None:
         raise MySQLError("No se pudo establecer conexión con la base de datos")
     return conn
