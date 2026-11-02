@@ -30,10 +30,10 @@ CREATE TABLE IF NOT EXISTS especialidades(
 -- 4. Tabla medicos
 CREATE TABLE IF NOT EXISTS medicos(
     id_medico int auto_increment PRIMARY KEY,
-    id_usuario int NOT NULL,
     id_especialidad int NOT NULL,
+    nombre_medico varchar(100),
+    apellido_medico varchar(100),
     matricula varchar(50) UNIQUE NOT NULL,
-    FOREIGN KEY (id_usuario) references usuarios(id_usuario),
     FOREIGN KEY (id_especialidad) references especialidades(id_especialidad)
 );
 
@@ -49,10 +49,8 @@ CREATE TABLE IF NOT EXISTS agendas(
   id_agenda int auto_increment PRIMARY KEY,
   id_medico int NOT NULL,
   id_consultorio int NOT NULL,
-  dia_semana int NOT NULL,
-  hora_inicio time NOT NULL,
-  hora_fin time NOT NULL,
-  duracion_turno_minutos INT DEFAULT 60,
+  agenda_fecha_hora_inicio DATETIME NOT NULL,
+  agenda_fecha_hora_fin DATETIME NOT NULL,
   FOREIGN KEY (id_medico) references medicos(id_medico),
   FOREIGN KEY (id_consultorio) references consultorios(id_consultorio)
 );
@@ -66,7 +64,7 @@ CREATE TABLE IF NOT EXISTS turnos(
   fecha_hora DATETIME NOT NULL,
   estado enum('disponible', 'reservado', 'confirmado', 'atendido', 'cancelado', 'ausente') NOT NULL DEFAULT 'disponible',
   token_qr varchar(255) UNIQUE NULL,
-  fecha_hora_checkin datetime null,
+  fecha_hora_checkin DATETIME NULL,
   fecha_hora_cancelacion DATETIME NULL,
   FOREIGN KEY (id_medico) references medicos(id_medico),
   FOREIGN KEY (id_paciente) references usuarios(id_usuario),
