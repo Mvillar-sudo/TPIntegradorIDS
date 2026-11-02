@@ -1,9 +1,14 @@
+import uuid
+import hashlib
 from datetime import datetime
 from flask import Blueprint, jsonify, request
+
 try:
     from db import execute_query
+    from auth_middleware import token_required
 except ImportError:
     from backend.db import execute_query
+    from backend.auth_middleware import token_required
 
 turnos_bp = Blueprint('turnos', __name__, url_prefix='/api/v1')
 
@@ -140,3 +145,89 @@ def obtener_turnos_disponibles():
         })
 
     return jsonify(turnos_disponibles), 200
+
+@turnos_bp.route('/turnos/reservar', methods=['POST'])
+@token_required()
+def reservar_turno():
+    user_data = getattr(request, 'user_data', {})
+    id_paciente = user_data.get('id_usuario')
+
+    if not id_paciente:
+        return jsonify({"error": "El token no contiene un id_usuario valido"}), 401
+
+    data = request.get_json()
+    if not data or 'id_turno' not in data:
+        return jsonify({"error": "Debe proporcionar el id_turno en el cuerpo de la peticion"}), 400
+
+    try:
+        id_turno = int(data['id_turno'])
+    except ValueError:
+        return jsonify({"error": "El id_turno debe ser un numero entero valido"}), 400
+
+    # 1. Verificar existencia y estado del turno
+    query_turno = """
+        SELECT id_turno, id_medico, fecha_hora, estado 
+        FROM turnos 
+        WHERE id_turno = %s;
+    """
+    res_turno = execute_query(query_turno, (id_turno,))
+
+    if res_turno is None:
+        return jsonify({"error": "Error al consultar la base de datos"}), 500
+
+    if not res_turno:
+        return jsonify({"error": "El turno solicitado no existe"}), 404
+
+    turno = res_turno[0]
+
+    if turno['estado'] != 'disponible':
+        return jsonify({"error": "El turno ya no se encuentra disponible"}), 409
+
+    # 2. Validar restriccion de solapamiento (mismo paciente y mismo medico en la misma fecha/hora)
+    query_solapamiento = """
+        SELECT id_turno 
+        FROM turnos 
+        WHERE id_paciente = %s 
+          AND id_medico = %s 
+          AND fecha_hora = %s 
+          AND estado IN ('reservado', 'confirmado');
+    """
+    res_solapamiento = execute_query(query_solapamiento, (id_paciente, turno['id_medico'], turno['fecha_hora']))
+
+    if res_solapamiento is None:
+        return jsonify({"error": "Error al validar restricciones de la reserva"}), 500
+
+    if len(res_solapamiento) > 0:
+        return jsonify({
+            "error": "El paciente ya posee un turno activo reservado con este medico en la misma franja horaria"
+        }), 409
+
+    # 3. Generar token hash unico para el codigo QR
+    semilla = f"TURNO-{id_turno}-PACIENTE-{id_paciente}-{datetime.now().isoformat()}-{uuid.uuid4().hex}"
+    codigo_qr_hash = hashlib.sha256(semilla.encode('utf-8')).hexdigest()
+
+    # 4. Asignar el turno al paciente y marcarlo como reservado
+    query_update = """
+        UPDATE turnos 
+        SET id_paciente = %s, 
+            estado = 'reservado', 
+            token_qr = %s 
+        WHERE id_turno = %s AND estado = 'disponible';
+    """
+    filas_afectadas = execute_query(query_update, (id_paciente, codigo_qr_hash, id_turno))
+
+    if filas_afectadas is None or filas_afectadas == 0:
+        return jsonify({"error": "No se pudo concretar la reserva. El turno pudo haber sido tomado recientemente"}), 409
+
+    fecha_hora_str = turno['fecha_hora'].strftime("%Y-%m-%d %H:%M:%S") if hasattr(turno['fecha_hora'], "strftime") else str(turno['fecha_hora'])
+
+    return jsonify({
+        "mensaje": "Turno reservado exitosamente",
+        "reserva": {
+            "id_turno": id_turno,
+            "id_paciente": id_paciente,
+            "fecha_hora": fecha_hora_str,
+            "estado": "reservado",
+            "token_qr": codigo_qr_hash
+        }
+    }), 200
