@@ -1,12 +1,10 @@
 from flask import Flask, jsonify
 
 from routes.turnos import turnos_bp  # Importación desde la carpeta local routes
-try:
-    from routes.checkin_qr import checkin_qr_bp
-    from routes.medico import medico_bp
-except ImportError:
-    from backend.routes.checkin_qr import checkin_qr_bp
-    from backend.routes.medico import medico_bp
+from routes.checkin_qr import checkin_qr_bp
+from routes.medico import medico_bp
+from routes.auth import auth_bp
+
 
 app = Flask(__name__)
 
@@ -17,6 +15,8 @@ app.json.ensure_ascii = False
 app.register_blueprint(turnos_bp)
 app.register_blueprint(checkin_qr_bp)
 app.register_blueprint(medico_bp)
+app.register_blueprint(auth_bp, url_prefix="/api/v1")
+
 
 # Ruta base de prueba
 @app.route("/")
