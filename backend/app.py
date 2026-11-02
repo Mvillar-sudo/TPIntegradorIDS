@@ -1,5 +1,6 @@
 from flask import Flask
 from routes.turnos import turnos_bp  # Importación desde la carpeta local routes
+from routes.auth import auth_bp
 
 app = Flask(__name__)
 
@@ -7,6 +8,7 @@ app.json.ensure_ascii = False
 
 # Registro del Blueprint
 app.register_blueprint(turnos_bp)
+app.register_blueprint(auth_bp, url_prefix="/api/v1")
 
 # Ruta base de prueba
 @app.route('/')
