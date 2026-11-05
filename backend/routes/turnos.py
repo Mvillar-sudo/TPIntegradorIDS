@@ -16,8 +16,15 @@ turnos_bp = Blueprint('turnos', __name__)
 
 
 @turnos_bp.route('/turnos/mis-turnos', methods=['GET'])
-@token_required()
 def obtener_mis_turnos():
+
+    data_usuario, error_token, codigo = token_required()
+
+    if error_token is not None:
+        return jsonify({
+            "error": error_token
+        }), codigo
+
     usuario = request.user_data
     id_usuario = usuario.get("id_usuario") or usuario.get("id")
     
@@ -30,6 +37,14 @@ def obtener_mis_turnos():
 @turnos_bp.route('/turnos/<int:id_turno>/cancelar', methods=['POST'])
 @token_required()
 def cancelar_turno(id_turno):
+
+    data_usuario, error_token, codigo = token_required()
+
+    if error_token is not None:
+        return jsonify({
+            "error": error_token
+        }), codigo
+
     fecha_turno_simulada = datetime.now() + timedelta(hours=5) 
     
     ahora = datetime.now()
@@ -159,6 +174,14 @@ def listar_turnos_disponibles():
 @turnos_bp.route("/turnos/reservar", methods=["POST"])
 @token_required()
 def reservar_turno_endpoint():
+
+    data_usuario, error_token, codigo = token_required()
+
+    if error_token is not None:
+        return jsonify({
+            "error": error_token
+        }), codigo
+
     # 1. Obtener el usuario autenticado desde el token.
     user_data = getattr(request, "user_data", {})
     id_paciente = user_data.get("id_usuario")
