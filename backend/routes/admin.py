@@ -14,13 +14,17 @@ def _validar_recurso(recurso):
     if recurso not in CATALOGO_CAMPOS:
         raise LookupError('El catálogo solicitado no existe')
 
-def _verificar_permisos(roles_permitidos):
-    return request.user_data.get('rol_usuario') in roles_permitidos
-
 
 @admin_bp.route('/<recurso>', methods=['GET'])
-@token_required()
 def listar_catalogos(recurso):
+
+    user_data, error_token, codigo = token_required(["admin"])
+    if error_token:
+        return jsonify({
+            "error": error_token
+        }), codigo
+    
+
     try:
         _validar_recurso(recurso)
         
@@ -31,13 +35,17 @@ def listar_catalogos(recurso):
 
 
 @admin_bp.route('/<recurso>', methods=['POST'])
-@token_required()
 def crear_catalogo(recurso):
     try:
         _validar_recurso(recurso)
 
-        if not _verificar_permisos(PERSONAL_ROLES):
-            return jsonify({'error': 'No posee permisos para esta acción'}), 403
+        user_data, error_token, codigo = token_required(["admin"])
+        if error_token:
+            return jsonify({
+                "error": error_token
+            }), codigo
+
+        
         values = validar_catalogo(
             recurso,
             request.get_json(silent=True)
@@ -49,8 +57,14 @@ def crear_catalogo(recurso):
         return respuesta_error(error)
 
 @admin_bp.route('/<recurso>/<int:item_id>', methods=['GET'])
-@token_required()
 def obtener_catalogo(recurso, item_id):
+
+    user_data, error_token, codigo = token_required(["admin"])
+    if error_token:
+        return jsonify({
+            "error": error_token
+        }), codigo
+
     try:
         _validar_recurso(recurso)
 
@@ -61,13 +75,17 @@ def obtener_catalogo(recurso, item_id):
 
 
 @admin_bp.route('/<recurso>/<int:item_id>', methods=['PATCH'])
-@token_required()
 def actualizar_catalogo(recurso, item_id):
+
+    user_data, error_token, codigo = token_required(["admin"])
+    if error_token:
+        return jsonify({
+            "error": error_token
+        }), codigo
+
+
     try:
         _validar_recurso(recurso)
-
-        if not _verificar_permisos(PERSONAL_ROLES):
-            return jsonify({'error': 'No posee permisos para esta acción'}), 403
         values = validar_catalogo(
             recurso,
             request.get_json(silent=True),
@@ -81,13 +99,16 @@ def actualizar_catalogo(recurso, item_id):
 
 
 @admin_bp.route('/<recurso>/<int:item_id>', methods=['DELETE'])
-@token_required()
 def eliminar_catalogo(recurso, item_id):
+
+    user_data, error_token, codigo = token_required(["admin"])
+    if error_token:
+        return jsonify({
+            "error": error_token
+        }), codigo
+
     try:
         _validar_recurso(recurso)
-
-        if not _verificar_permisos(PERSONAL_ROLES):
-            return jsonify({'error': 'No posee permisos para esta acción'}), 403
         
         admin.eliminar(recurso, item_id)
 
