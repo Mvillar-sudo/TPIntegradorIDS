@@ -9,8 +9,6 @@ from services.medico import (listar_turnos_hoy_servicio, marcar_atendido_servici
 
 medico_bp = Blueprint("medico", __name__)
 
-ROLES_MEDICO = ["medico"]
-
 
 """
 Pre: -
@@ -37,9 +35,16 @@ def atender_turno(id_turno):
 
 
 @medico_bp.route("/turnos/hoy", methods=["GET"])
-@token_required(roles_permitidos=ROLES_MEDICO)
 def ver_turnos_hoy():
-    id_usuario = request.user_data.get("id_usuario")
+
+    user_data, error_token, codigo = token_required(["admin", "medico"])
+
+    if error_token is not None:
+        return jsonify({
+            "error": error_token
+        }), codigo
+
+    id_usuario = user_data["id_usuario"]
     try:
         respuesta, status_code = listar_turnos_hoy_servicio(id_usuario)
         return jsonify(respuesta), status_code
@@ -48,14 +53,21 @@ def ver_turnos_hoy():
 
 
 @medico_bp.route("/turnos/<id_turno>/atendido", methods=["PATCH"])
-@token_required(roles_permitidos=ROLES_MEDICO)
 def marcar_atendido(id_turno):
+
+    user_data, error_token, codigo = token_required(["admin", "medico"])
+
+    if error_token is not None:
+        return jsonify({
+            "error": error_token
+        }), codigo
+
     try:
         id_turno_valido = validar_id_turno(id_turno)
     except ValueError as err:
         return jsonify({"error": str(err)}), 400
 
-    id_usuario = request.user_data.get("id_usuario")
+    id_usuario = user_data["id_usuario"]
     try:
         respuesta, status_code = marcar_atendido_servicio(id_usuario, id_turno_valido)
         return jsonify(respuesta), status_code

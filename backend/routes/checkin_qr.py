@@ -7,13 +7,19 @@ from validators.checkin_qr import validar_entrada_checkin
 from services.checkin_qr import registrar_checkin_por_qr
 
 
-checkin_qr_bp = Blueprint("checkin_qr", __name__, url_prefix="/api/v1")
+checkin_qr_bp = Blueprint("checkin_qr", __name__)
 
-ROLES_RECEPCION = ["admin", "recepcionista"]
 
 @checkin_qr_bp.route("/turnos/checkin", methods=["POST"])
-@token_required(roles_permitidos=ROLES_RECEPCION)
 def checkin_turno():
+
+    user_data, error_token, codigo = token_required(["admin", "recepcionista"])
+
+    if error_token is not None:
+        return jsonify({
+            "error": error_token
+        }), codigo
+
     try:
         datos_body = request.get_json(silent=True)
         token_qr = validar_entrada_checkin(datos_body)

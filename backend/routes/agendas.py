@@ -11,8 +11,16 @@ agendas_bp = Blueprint('agendas', __name__)
 
 
 @agendas_bp.route('/agendas', methods=['GET', 'POST'])
-@token_required(roles_permitidos=ADMIN_ROLES)
 def coleccion_agendas():
+
+    user_data, error_token, codigo = token_required(["admin"])
+
+    if error_token is not None:
+        return jsonify({
+            "error": error_token
+        }), codigo
+
+
     try:
         if request.method == 'GET':
             return jsonify(agendas.listar()), 200
