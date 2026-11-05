@@ -35,7 +35,6 @@ def obtener_mis_turnos():
 
 
 @turnos_bp.route('/turnos/<int:id_turno>/cancelar', methods=['POST'])
-@token_required()
 def cancelar_turno(id_turno):
 
     data_usuario, error_token, codigo = token_required()
@@ -172,7 +171,6 @@ def listar_turnos_disponibles():
     return jsonify(turnos_disponibles), 200
 
 @turnos_bp.route("/turnos/reservar", methods=["POST"])
-@token_required()
 def reservar_turno_endpoint():
 
     data_usuario, error_token, codigo = token_required()
