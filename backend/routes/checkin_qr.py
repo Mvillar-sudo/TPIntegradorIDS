@@ -7,7 +7,7 @@ from validators.checkin_qr import validar_entrada_checkin
 from services.checkin_qr import registrar_checkin_por_qr
 
 
-checkin_qr_bp = Blueprint("checkin_qr", __name__, url_prefix="/api/v1")
+checkin_qr_bp = Blueprint("checkin_qr", __name__)
 
 
 @checkin_qr_bp.route("/turnos/checkin", methods=["POST"])
