@@ -1,21 +1,11 @@
+
 import os
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, redirect, url_for, flash, Blueprint
 from routes.recepcion import recepcion_bp
 
-try:
-    from services.medico import (
-        obtener_perfil_medico,
-        obtener_turnos_hoy,
-        registrar_turno_atendido,
-    )
-except ImportError:
-    from frontend.services.medico import (
-        obtener_perfil_medico,
-        obtener_turnos_hoy,
-        registrar_turno_atendido,
-    )
-
+from services.medico import (obtener_perfil_medico, obtener_turnos_hoy, registrar_turno_atendido)
+    
 load_dotenv()
 
 app = Flask(__name__)
@@ -51,5 +41,5 @@ app.register_blueprint(medico_bp)
 app.register_blueprint(recepcion_bp)
 
 
-if __name__ == '__main__':
-    app.run(port=5001, debug=True)
+if __name__ == "__main__":
+    app.run(port=3000, debug=False)
