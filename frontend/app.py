@@ -1,4 +1,3 @@
-
 import os
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, redirect, url_for, flash, Blueprint
@@ -39,7 +38,18 @@ def atender_turno(id_turno):
 
 app.register_blueprint(medico_bp)
 app.register_blueprint(recepcion_bp)
+app.register_blueprint
+@app.route('/')
+def index():
+    return render_template('index.html')
 
+@app.route('/medico')
+def mostrar_pagina_medicos():
+    return render_template('medico.html')
+
+@app.route('/register')
+def mostrar_registro():
+    return render_template('register.html')
 
 if __name__ == "__main__":
     app.run(port=3000, debug=False)
