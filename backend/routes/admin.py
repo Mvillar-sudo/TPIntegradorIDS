@@ -19,7 +19,7 @@ def _validar_recurso(recurso):
 def listar_catalogos(recurso):
 
     user_data, error_token, codigo = token_required(["admin"])
-    if error_token:
+    if error_token is not None:
         return jsonify({
             "error": error_token
         }), codigo
@@ -40,7 +40,7 @@ def crear_catalogo(recurso):
         _validar_recurso(recurso)
 
         user_data, error_token, codigo = token_required(["admin"])
-        if error_token:
+        if error_token is not None:
             return jsonify({
                 "error": error_token
             }), codigo
@@ -60,7 +60,7 @@ def crear_catalogo(recurso):
 def obtener_catalogo(recurso, item_id):
 
     user_data, error_token, codigo = token_required(["admin"])
-    if error_token:
+    if error_token is not None:
         return jsonify({
             "error": error_token
         }), codigo
@@ -78,7 +78,7 @@ def obtener_catalogo(recurso, item_id):
 def actualizar_catalogo(recurso, item_id):
 
     user_data, error_token, codigo = token_required(["admin"])
-    if error_token:
+    if error_token is not None:
         return jsonify({
             "error": error_token
         }), codigo
@@ -102,7 +102,7 @@ def actualizar_catalogo(recurso, item_id):
 def eliminar_catalogo(recurso, item_id):
 
     user_data, error_token, codigo = token_required(["admin"])
-    if error_token:
+    if error_token is not None:
         return jsonify({
             "error": error_token
         }), codigo
