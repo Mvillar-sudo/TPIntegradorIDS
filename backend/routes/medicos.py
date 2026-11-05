@@ -75,7 +75,6 @@ def obtener_medico(medico_id):
         return respuesta_error(error)
 
 @medicos_bp.route('/medicos/<int:medico_id>', methods=['PATCH'])
-@token_required()
 def actualizar_medico(medico_id):
 
 
@@ -99,7 +98,6 @@ def actualizar_medico(medico_id):
         return respuesta_error(error)
 
 @medicos_bp.route('/medicos/<int:medico_id>', methods=['DELETE'])
-@token_required()
 def eliminar_medico(medico_id):
 
 
