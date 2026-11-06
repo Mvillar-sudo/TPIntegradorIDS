@@ -1,11 +1,50 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hola chaval, te estas registrando</title>
-</head>
-<body>
-    
-</body>
-</html>
+{% extends "base_template.html" %}
+
+{% block title %}Registrarse | Centro Medico Salud Integral{% endblock %}
+
+{% block content %}
+<!-- Main -->
+<section id="main" class="container" style="padding-top: 8em;">
+	<section class="box">
+		<header class="major special">
+			<h2>Crear cuenta</h2>
+			<p>Completá tus datos para registrarte como paciente.</p>
+		</header>
+
+		<form method="post" action="/register">
+			<div class="row gtr-uniform gtr-50">
+				<div class="col-6 col-12-xsmall">
+					<input type="text" name="nombre" id="nombre" placeholder="Nombre" required />
+				</div>
+				<div class="col-6 col-12-xsmall">
+					<input type="text" name="apellido" id="apellido" placeholder="Apellido" required />
+				</div>
+				<div class="col-6 col-12-xsmall">
+					<input type="text" name="dni" id="dni" placeholder="DNI" inputmode="numeric" pattern="[0-9]{7,8}" required />
+				</div>
+				<div class="col-6 col-12-xsmall">
+					<input type="date" name="fecha_nacimiento" id="fecha_nacimiento" required />
+				</div>
+				<div class="col-6 col-12-xsmall">
+					<input type="email" name="email" id="email" placeholder="Email" required />
+				</div>
+				<div class="col-6 col-12-xsmall">
+					<input type="tel" name="telefono" id="telefono" placeholder="Teléfono" />
+				</div>
+				<div class="col-6 col-12-xsmall">
+					<input type="password" name="password" id="password" placeholder="Contraseña" minlength="8" required />
+				</div>
+				<div class="col-6 col-12-xsmall">
+					<input type="password" name="password_confirm" id="password_confirm" placeholder="Repetir contraseña" minlength="8" required />
+				</div>
+				<div class="col-12">
+					<ul class="actions special">
+						<li><input type="submit" value="Registrarse" class="button primary" /></li>
+						<li><input type="reset" value="Limpiar" /></li>
+					</ul>
+				</div>
+			</div>
+		</form>
+	</section>
+</section>
+{% endblock %}
