@@ -11,6 +11,7 @@ from repositories.turnos_repositories import (obtener_turnos_disponibles, reserv
 from validators.turnos_validator import (validar_id_opcional,validar_fecha_opcional, validar_id_turno)
 from validators.medico import validar_especialidad_id
 from validators.validator_auth import token_required
+from services.notificaciones import notificar_reserva
 
 turnos_bp = Blueprint('turnos', __name__)
 
@@ -25,7 +26,7 @@ def obtener_mis_turnos():
             "error": error_token
         }), codigo
 
-    usuario = request.user_data
+    usuario = data_usuario
     id_usuario = usuario.get("id_usuario") or usuario.get("id")
     
     return jsonify({
@@ -180,16 +181,13 @@ def reservar_turno_endpoint():
             "error": error_token
         }), codigo
 
-    # 1. Obtener el usuario autenticado desde el token.
-    user_data = getattr(request, "user_data", {})
-    id_paciente = user_data.get("id_usuario")
+    id_paciente = data_usuario.get("id_usuario")
 
     if not id_paciente:
         return jsonify({
             "error": "El token no contiene un id_usuario válido."
         }), 401
 
-    # 2. Obtener y validar el cuerpo de la petición.
     data = request.get_json(silent=True)
 
     if not isinstance(data, dict) or "id_turno" not in data:
@@ -202,7 +200,6 @@ def reservar_turno_endpoint():
     if error is not None:
         return jsonify({"error": error}), 400
 
-    # 3. Generar el hash que se utilizará como token del QR.
     semilla = (
         f"TURNO-{id_turno}-PACIENTE-{id_paciente}-"
         f"{datetime.now().isoformat()}-{uuid.uuid4().hex}"
@@ -212,7 +209,6 @@ def reservar_turno_endpoint():
         semilla.encode("utf-8")
     ).hexdigest()
 
-    # 4. Intentar realizar la reserva.
     resultado = reservar_turno(
         id_turno=id_turno,
         id_paciente=id_paciente,
@@ -244,7 +240,6 @@ def reservar_turno_endpoint():
             "error": "No se pudo completar la reserva por un error interno."
         }), 500
 
-    # 5. Preparar la respuesta.
     turno = resultado["turno"]
     fecha_hora = turno["fecha_hora"]
 
@@ -253,8 +248,11 @@ def reservar_turno_endpoint():
     else:
         fecha_hora = str(fecha_hora)
 
+    email_enviado = notificar_reserva(id_turno)
+
     return jsonify({
         "mensaje": "Turno reservado exitosamente.",
+        "email_enviado": email_enviado,
         "reserva": {
             "id_turno": id_turno,
             "id_paciente": id_paciente,
