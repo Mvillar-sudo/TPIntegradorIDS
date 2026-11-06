@@ -1,5 +1,5 @@
-from ..constants import CATALOGO_CAMPOS
-from ..utils import validar_objeto_json, validar_texto
+from constants import CATALOGO_CAMPOS
+from utils import validar_objeto_json, validar_texto
 
 
 def validar_catalogo(resource, body, partial=False):

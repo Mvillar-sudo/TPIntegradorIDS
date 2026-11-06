@@ -2,10 +2,10 @@ from flask import Blueprint, jsonify, request
 from mysql.connector import Error
 
 from validators.validator_auth import token_required
-from ..constants import PERSONAL_ROLES, CATALOGO_CAMPOS
-from ..services import admin
-from ..utils import respuesta_error
-from ..validators.admin import validar_catalogo
+from constants import PERSONAL_ROLES, CATALOGO_CAMPOS
+from services import admin
+from utils import respuesta_error
+from validators.admin import validar_catalogo
 
 admin_bp = Blueprint('admin', __name__)
 

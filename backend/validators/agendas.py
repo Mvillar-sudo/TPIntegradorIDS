@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from ..constants import MAX_DIAS_AGENDA, MAX_DURACION_MINUTOS
-from ..utils import validar_entero_positivo, validar_objeto_json
+from constants import MAX_DIAS_AGENDA, MAX_DURACION_MINUTOS
+from utils import validar_entero_positivo, validar_objeto_json
 
 
 def _datetime(value, field):
