@@ -2,10 +2,10 @@ from flask import Blueprint, jsonify, request
 from mysql.connector import Error
 
 from validators.validator_auth import token_required
-from ..constants import LECTORES_ROLES, PERSONAL_ROLES
-from ..services import medicos
-from ..utils import respuesta_error, validar_entero_positivo
-from ..validators.medicos import validar_medico
+from constants import LECTORES_ROLES, PERSONAL_ROLES
+from services import medicos
+from utils import respuesta_error, validar_entero_positivo
+from validators.medicos import validar_medico
 
 medicos_bp = Blueprint('medicos', __name__)
 

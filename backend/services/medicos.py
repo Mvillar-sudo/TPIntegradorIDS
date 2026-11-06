@@ -1,4 +1,4 @@
-from ..repositories import medicos
+from repositories import medicos
 
 
 def listar(especialidad_id=None):

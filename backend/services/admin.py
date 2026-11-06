@@ -1,4 +1,4 @@
-from ..repositories import admin
+from repositories import admin
 
 
 def listar(resource):
