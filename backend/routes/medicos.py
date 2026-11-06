@@ -14,7 +14,7 @@ medicos_bp = Blueprint('medicos', __name__)
 @medicos_bp.route('/medicos', methods=['GET'])
 def listar_medicos():
 
-    user_data, error_token, codigo = token_required(LECTORES_ROLES)
+    _, error_token, codigo = token_required(LECTORES_ROLES)
 
     if error_token is not None:
         return jsonify({
@@ -37,7 +37,7 @@ def listar_medicos():
 @medicos_bp.route('/medicos', methods=['POST'])
 def crear_medico():
 
-    user_data, error_token, codigo = token_required(PERSONAL_ROLES)
+    _, error_token, codigo = token_required(PERSONAL_ROLES)
 
     if error_token is not None:
         return jsonify({
@@ -60,7 +60,7 @@ def crear_medico():
 @medicos_bp.route('/medicos/<int:medico_id>', methods=['GET'])
 def obtener_medico(medico_id):
 
-    user_data, error_token, codigo = token_required(LECTORES_ROLES)
+    _, error_token, codigo = token_required(LECTORES_ROLES)
 
     if error_token is not None:
         return jsonify({
@@ -77,7 +77,7 @@ def obtener_medico(medico_id):
 @medicos_bp.route('/medicos/<int:medico_id>', methods=['PATCH'])
 def actualizar_medico(medico_id):
 
-    user_data, error_token, codigo = token_required(PERSONAL_ROLES)
+    _, error_token, codigo = token_required(PERSONAL_ROLES)
 
     if error_token is not None:
         return jsonify({
@@ -99,7 +99,7 @@ def actualizar_medico(medico_id):
 @medicos_bp.route('/medicos/<int:medico_id>', methods=['DELETE'])
 def eliminar_medico(medico_id):
 
-    user_data, error_token, codigo = token_required(PERSONAL_ROLES)
+    _, error_token, codigo = token_required(PERSONAL_ROLES)
 
     if error_token is not None:
         return jsonify({
