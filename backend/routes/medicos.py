@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from mysql.connector import Error
 
 from validators.validator_auth import token_required
-from constants import LECTORES_ROLES, PERSONAL_ROLES
+from constants import GESTION_ROLES, LECTORES_ROLES
 from services import medicos
 from utils import respuesta_error, validar_entero_positivo
 from validators.medicos import validar_medico
@@ -36,7 +36,7 @@ def listar_medicos():
 @medicos_bp.route('/medicos', methods=['POST'])
 def crear_medico():
 
-    data_usuario, error_token, codigo = token_required(PERSONAL_ROLES)
+    data_usuario, error_token, codigo = token_required(GESTION_ROLES)
 
     if error_token is not None:
         return jsonify({
@@ -78,7 +78,7 @@ def obtener_medico(medico_id):
 def actualizar_medico(medico_id):
 
 
-    data_usuario, error_token, codigo = token_required(PERSONAL_ROLES)
+    data_usuario, error_token, codigo = token_required(GESTION_ROLES)
 
     if error_token is not None:
         return jsonify({

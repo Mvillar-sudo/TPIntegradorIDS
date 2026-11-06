@@ -30,6 +30,7 @@ CATALOGO_CAMPOS = {
 ADMIN_ROLES = ('admin',)
 LECTORES_ROLES = ('admin', 'recepcionista', 'paciente', 'medico')
 PERSONAL_ROLES = ('admin', 'recepcionista', 'medico')
+GESTION_ROLES = ('admin', 'recepcionista')
 
 MAX_ESPACIOS_GENERADOS = 10000
 MAX_DIAS_AGENDA = 365
