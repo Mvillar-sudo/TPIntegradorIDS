@@ -70,7 +70,7 @@ def listar_especialidades():
 
 @turnos_bp.route("/medicos", methods=["GET"])
 def listar_medicos():
-    especialidad_id_recibido = request.args.get("especialidad_id")
+    especialidad_id_recibido = request.args.get("id_especialidad")
 
     especialidad_id, error = validar_especialidad_id(especialidad_id_recibido)
 
@@ -89,7 +89,7 @@ def listar_medicos():
 @turnos_bp.route("/turnos/disponibles", methods=["GET"])
 def listar_turnos_disponibles():
     medico_id_recibido = request.args.get("medico_id")
-    especialidad_id_recibido = request.args.get("especialidad_id")
+    especialidad_id_recibido = request.args.get("id_especialidad")
     fecha_recibida = request.args.get("fecha")
 
     # Validar medico_id
@@ -104,7 +104,7 @@ def listar_turnos_disponibles():
     # Validar especialidad_id
     especialidad_id, error = validar_id_opcional(
         especialidad_id_recibido,
-        "especialidad_id"
+        "id_especialidad"
     )
 
     if error is not None:

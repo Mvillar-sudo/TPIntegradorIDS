@@ -10,13 +10,14 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<title>{% block title %}Centro Medico Salud Integral{% endblock %}</title>
 			<link rel="stylesheet" href="{{ url_for('static', filename='css/index_main.css') }}" />
+			{% block head_extra %}{% endblock %}
         
 	</head>
 	<body class="landing is-preload">
 		<div id="page-wrapper">
 
 			<!-- Header -->
-				<header id="header" class="alt">
+				<header id="header" class="{% block header_class %}alt{% endblock %}">
 					<h1>Centro Medico Salud Integral</h1>
 					<nav id="nav">
 						<ul>
@@ -29,7 +30,11 @@
 									<li><a href="/especialidades">Especialidades</a></li>
 								</ul>
 							</li>
+							{% if request.path == '/register' %}
+							<li><a href="/login" class="button">Log In</a></li>
+							{% else %}
 							<li><a href="/register" class="button">Sign Up</a></li>
+							{% endif %}
 						</ul>
 					</nav>
 				</header>

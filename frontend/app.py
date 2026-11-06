@@ -4,8 +4,9 @@ from flask import Flask, render_template, request, redirect, url_for, flash, Blu
 from routes.recepcion import recepcion_bp
 
 from constants import FRONTEND_SECRET_KEY
-from frontend.routes.auth import auth_bp
-from frontend.routes.medico import medico_bp
+from routes.auth import auth_bp
+from routes.medico import medico_bp
+from routes.admin import admin_bp
     
 load_dotenv()
 
@@ -18,6 +19,7 @@ app.secret_key = FRONTEND_SECRET_KEY
 app.register_blueprint(auth_bp)
 app.register_blueprint(medico_bp)
 app.register_blueprint(recepcion_bp)
+app.register_blueprint(admin_bp)
 
 
 @app.route('/')

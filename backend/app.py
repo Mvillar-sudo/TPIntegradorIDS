@@ -1,6 +1,6 @@
 from flask import Flask, jsonify
-from backend.routes.admin import admin_bp
-from backend.routes.agendas import agendas_bp
+from routes.admin import admin_bp
+from routes.agendas import agendas_bp
 from routes.turnos import turnos_bp  # Importación desde la carpeta local routes
 from routes.checkin_qr import checkin_qr_bp
 from routes.medico import medico_bp

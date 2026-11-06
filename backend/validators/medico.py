@@ -23,9 +23,9 @@ def validar_especialidad_id(valor):
     try:
         especialidad_id = int(valor)
     except ValueError:
-        return None, "El parámetro especialidad_id debe ser un número entero válido."
+        return None, "El parámetro id_especialidad debe ser un número entero válido."
 
     if especialidad_id <= 0:
-        return None, "El parámetro especialidad_id debe ser un entero positivo."
+        return None, "El parámetro id_especialidad debe ser un entero positivo."
 
     return especialidad_id, None

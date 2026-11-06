@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
-from ..constants import MAX_ESPACIOS_GENERADOS
-from .consultas_repositories import ejecutar_consulta, get_connection
+from constants import MAX_ESPACIOS_GENERADOS
+from repositories.consultas_repositories import ejecutar_consulta, get_connection
 
 
 def listar_agendas():

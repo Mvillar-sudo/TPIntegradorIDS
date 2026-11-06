@@ -1,5 +1,5 @@
-from .consultas_repositories import ejecutar_consulta
-from ..constants import MEDICOS_BASE_SELECT
+from repositories.consultas_repositories import ejecutar_consulta
+from constants import MEDICOS_BASE_SELECT
 
 
 def listar_medicos(especialidad_id=None):
