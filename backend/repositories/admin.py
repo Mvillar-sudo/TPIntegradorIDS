@@ -1,5 +1,5 @@
 from .consultas_repositories import ejecutar_consulta
-from ..constants import CATALOGO
+from constants import CATALOGO
 
 
 def listar_catalogo(resource):

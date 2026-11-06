@@ -1,4 +1,4 @@
-from ..repositories import agendas
+from repositories import agendas
 
 
 def listar():
