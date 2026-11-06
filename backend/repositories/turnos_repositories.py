@@ -13,8 +13,8 @@ def obtener_turnos_disponibles(medico_id=None, fecha=None, especialidad_id=None)
             SELECT
                 t.id_turno,
                 t.id_medico,
-                m.nombre_medico,
-                m.apellido_medico,
+                u.nombre_usuario AS nombre_medico,
+                u.apellido_usuario AS apellido_medico,
                 e.id_especialidad,
                 e.nombre_especialidad,
                 t.id_consultorio,
@@ -25,6 +25,8 @@ def obtener_turnos_disponibles(medico_id=None, fecha=None, especialidad_id=None)
             FROM turnos t
             INNER JOIN medicos m
                 ON t.id_medico = m.id_medico
+            INNER JOIN usuarios u
+                ON m.id_usuario = u.id_usuario
             INNER JOIN especialidades e
                 ON m.id_especialidad = e.id_especialidad
             INNER JOIN consultorios c

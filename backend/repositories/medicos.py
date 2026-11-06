@@ -8,7 +8,7 @@ def listar_medicos(especialidad_id=None):
     if especialidad_id is not None:
         query += ' WHERE m.id_especialidad = %s'
         params = (especialidad_id,)
-    query += ' ORDER BY m.apellido_medico, m.nombre_medico, m.id_medico'
+    query += ' ORDER BY u.apellido_usuario, u.nombre_usuario, m.id_medico'
     return ejecutar_consulta(query, params)
 
 

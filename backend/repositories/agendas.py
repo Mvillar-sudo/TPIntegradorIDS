@@ -6,11 +6,12 @@ from .consultas_repositories import ejecutar_consulta, get_connection
 
 def listar_agendas():
     return ejecutar_consulta("""
-     SELECT a.id_agenda, a.id_medico, m.nombre_medico,
-         m.apellido_medico, a.id_consultorio, c.numero_consultorio,
+     SELECT a.id_agenda, a.id_medico, u.nombre_usuario AS nombre_medico,
+         u.apellido_usuario AS apellido_medico, a.id_consultorio, c.numero_consultorio,
          c.piso, a.agenda_fecha_hora_inicio, a.agenda_fecha_hora_fin
         FROM agendas AS a
         JOIN medicos AS m ON m.id_medico = a.id_medico
+        JOIN usuarios AS u ON u.id_usuario = m.id_usuario
         JOIN consultorios AS c ON c.id_consultorio = a.id_consultorio
      ORDER BY a.id_medico, a.agenda_fecha_hora_inicio
     """)
