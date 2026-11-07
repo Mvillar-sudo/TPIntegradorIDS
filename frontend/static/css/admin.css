@@ -1,0 +1,116 @@
+/* Panel de administrador: layout, menú lateral, tarjetas y tablas */
+
+.admin-layout {
+	display: flex;
+	gap: 2em;
+	align-items: flex-start;
+}
+
+/* Menú lateral */
+.admin-sidebar {
+	flex: 0 0 15em;
+	position: sticky;
+	top: 5em;
+}
+
+.admin-sidebar h3 {
+	font-size: 0.9em;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	margin-bottom: 1em;
+}
+
+.admin-sidebar ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.admin-sidebar li + li {
+	margin-top: 0.5em;
+}
+
+.admin-sidebar .button {
+	text-align: left;
+}
+
+/* Contenido */
+.admin-contenido {
+	flex: 1;
+	min-width: 0;
+}
+
+.admin-titulo {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 1em;
+	margin-bottom: 1.5em;
+}
+
+.admin-titulo h2 {
+	margin: 0;
+}
+
+/* Tarjetas de resumen */
+.admin-tarjetas {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(11em, 1fr));
+	gap: 1em;
+	margin-bottom: 2em;
+}
+
+.admin-tarjeta {
+	text-align: center;
+	padding: 1.5em 1em;
+	border: 1px solid rgba(160, 160, 160, 0.3);
+	border-radius: 0.35em;
+	background: #fff;
+}
+
+.admin-tarjeta .numero {
+	display: block;
+	font-size: 2.2em;
+	font-weight: 600;
+	line-height: 1.2;
+}
+
+.admin-tarjeta .etiqueta {
+	font-size: 0.85em;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	opacity: 0.7;
+}
+
+/* Accesos rápidos */
+.admin-accesos {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75em;
+}
+
+/* Tablas */
+.admin-tabla-contenedor {
+	overflow-x: auto;
+}
+
+.admin-acciones {
+	white-space: nowrap;
+}
+
+.admin-acciones .button {
+	margin-right: 0.25em;
+}
+
+@media screen and (max-width: 980px) {
+	.admin-layout {
+		flex-direction: column;
+	}
+
+	.admin-sidebar {
+		position: static;
+		flex: none;
+		width: 100%;
+	}
+}
