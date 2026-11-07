@@ -1,9 +1,17 @@
+import os
+import sys
+
+# Asegurar que el directorio backend esté en sys.path para imports absolutos
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
+
 from flask import Flask, jsonify
-from backend.routes.admin import admin_bp
-from backend.routes.agendas import agendas_bp
+from routes.admin import admin_bp
+from routes.agendas import agendas_bp
 from routes.turnos import turnos_bp  # Importación desde la carpeta local routes
 from routes.checkin_qr import checkin_qr_bp
-from routes.medico import medico_bp
+from routes.medicos import medicos_bp
 from routes.auth import auth_bp
 
 
@@ -16,8 +24,8 @@ app.json.sort_keys = False
 app.register_blueprint(turnos_bp, url_prefix='/api/v1')
 app.register_blueprint(admin_bp, url_prefix='/api/v1')
 app.register_blueprint(agendas_bp, url_prefix='/api/v1')
+app.register_blueprint(medicos_bp, url_prefix='/api/v1')
 app.register_blueprint(checkin_qr_bp, url_prefix='/api/v1')
-app.register_blueprint(medico_bp, url_prefix='/api/v1')
 app.register_blueprint(auth_bp, url_prefix="/api/v1")
 
 

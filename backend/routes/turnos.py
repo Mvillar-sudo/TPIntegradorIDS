@@ -5,11 +5,9 @@ from datetime import datetime, timedelta
 from flask import Blueprint, jsonify, request
 
 from repositories.especialidades_repositories import obtener_especialidades
-from repositories.medico import obtener_medicos_por_especialidad
 from repositories.turnos_repositories import (obtener_turnos_disponibles, reservar_turno)
 
 from validators.turnos_validator import (validar_id_opcional,validar_fecha_opcional, validar_id_turno)
-from validators.medico import validar_especialidad_id
 from validators.validator_auth import token_required
 
 turnos_bp = Blueprint('turnos', __name__)
@@ -68,23 +66,6 @@ def listar_especialidades():
 
     return jsonify(especialidades), 200
 
-@turnos_bp.route("/medicos", methods=["GET"])
-def listar_medicos():
-    especialidad_id_recibido = request.args.get("especialidad_id")
-
-    especialidad_id, error = validar_especialidad_id(especialidad_id_recibido)
-
-    if error is not None:
-        return jsonify({"error": error}), 400
-
-    resultados = obtener_medicos_por_especialidad(especialidad_id)
-
-    if resultados is None:
-        return jsonify({
-            "error": "No se pudieron obtener los médicos."
-        }), 500
-
-    return jsonify(resultados), 200
 
 @turnos_bp.route("/turnos/disponibles", methods=["GET"])
 def listar_turnos_disponibles():
