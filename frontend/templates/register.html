@@ -13,6 +13,18 @@
 			<p>Completá tus datos para registrarte como paciente.</p>
 		</header>
 
+		{% with mensajes = get_flashed_messages(with_categories=true) %}
+			{% if mensajes %}
+				<div style="margin-bottom: 1.5em;">
+					{% for categoria, mensaje in mensajes %}
+						<div class="mensaje mensaje-{{ categoria }}" style="background: {% if categoria == 'success' %}#ecfdf5; border: 1px solid #10b981; color: #065f46{% else %}#fef2f2; border: 1px solid #ef4444; color: #991b1b{% endif %}; padding: 12px 18px; border-radius: 6px; margin-bottom: 10px; font-weight: 500;">
+							{{ mensaje }}
+						</div>
+					{% endfor %}
+				</div>
+			{% endif %}
+		{% endwith %}
+
 		<form method="post" action="/register">
 			<div class="row gtr-uniform gtr-50">
 				<div class="col-6 col-12-xsmall">

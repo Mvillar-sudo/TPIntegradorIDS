@@ -18,7 +18,7 @@
 
 			<!-- Header -->
 				<header id="header" class="{% block header_class %}alt{% endblock %}">
-					<h1>Centro Medico Salud Integral</h1>
+					<h1><a href="/">Centro Medico Salud Integral</a></h1>
 					<nav id="nav">
 						<ul>
 							<li><a href="/">Home</a></li>
@@ -26,14 +26,27 @@
 								<a href="#" class="icon solid fa-angle-down">Menú</a>
 								<ul>
 									<li><a href="/turnos">Turnos</a></li>
-									<li><a href="/medicos">Medicos</a></li>
+									<li><a href="/medicos">Médicos</a></li>
 									<li><a href="/especialidades">Especialidades</a></li>
 								</ul>
 							</li>
-							{% if request.path == '/register' %}
-							<li><a href="/login" class="button">Log In</a></li>
+							{% if session.get('usuario') %}
+								{% if session['usuario'].get('rol') == 'medico' %}
+								<li><a href="/medico">Portal Médico</a></li>
+								{% elif session['usuario'].get('rol') == 'recepcionista' %}
+								<li><a href="/recepcion/">Recepción</a></li>
+								{% elif session['usuario'].get('rol') == 'admin' %}
+								<li><a href="/admin/">Panel Admin</a></li>
+								{% endif %}
+								<li>
+									<a href="#" class="icon solid fa-angle-down">{{ session['usuario'].get('nombre', 'Mi Cuenta') }}</a>
+									<ul>
+										<li><a href="/logout">Cerrar sesión</a></li>
+									</ul>
+								</li>
 							{% else %}
-							<li><a href="/register" class="button">Sign Up</a></li>
+								<li><a href="/login" class="button">Log In</a></li>
+								<li><a href="/register" class="button">Sign Up</a></li>
 							{% endif %}
 						</ul>
 					</nav>

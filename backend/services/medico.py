@@ -33,6 +33,11 @@ def _formatear_turno(turno):
     apellido = turno.get("paciente_apellido") or ""
     paciente = f"{nombre} {apellido}".strip()
 
+    consultorio = ""
+    if turno.get("numero_consultorio"):
+        piso = f" ({turno.get('piso')})" if turno.get("piso") else ""
+        consultorio = f"Consultorio {turno.get('numero_consultorio')}{piso}"
+
     return {
         "id_turno": turno["id_turno"],
         "fecha_hora": formatear_fecha_iso(turno.get("fecha_hora")),
@@ -41,6 +46,7 @@ def _formatear_turno(turno):
         "fecha_hora_checkin": formatear_fecha_iso(turno.get("fecha_hora_checkin")),
         "paciente": paciente,
         "paciente_dni": turno.get("paciente_dni"),
+        "consultorio": consultorio,
     }
 
 
@@ -57,7 +63,22 @@ def listar_turnos_hoy_servicio(id_usuario):
     turnos = obtener_turnos_hoy_por_medico(medico["id_medico"])
     turnos_formateados = [_formatear_turno(t) for t in turnos]
 
-    return {"id_medico": medico["id_medico"], "turnos_hoy": turnos_formateados}, 200
+    nombre = medico.get("nombre_usuario") or ""
+    apellido = medico.get("apellido_usuario") or ""
+    nombre_completo = f"{nombre} {apellido}".strip()
+
+    info_medico = {
+        "id_medico": medico["id_medico"],
+        "nombre": nombre_completo,
+        "especialidad": medico.get("nombre_especialidad", ""),
+        "matricula": medico.get("matricula", ""),
+    }
+
+    return {
+        "id_medico": medico["id_medico"],
+        "medico": info_medico,
+        "turnos_hoy": turnos_formateados,
+    }, 200
 
 
 """

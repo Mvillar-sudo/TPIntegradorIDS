@@ -21,7 +21,21 @@ def obtener_medico_por_usuario_id(id_usuario):
     try:
         conn = _obtener_conexion()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT id_medico FROM medicos WHERE id_usuario = %s", (id_usuario,))
+        query = """
+            SELECT
+                m.id_medico,
+                m.id_usuario,
+                m.matricula,
+                e.id_especialidad,
+                e.nombre_especialidad,
+                u.nombre_usuario,
+                u.apellido_usuario
+            FROM medicos m
+            INNER JOIN usuarios u ON m.id_usuario = u.id_usuario
+            INNER JOIN especialidades e ON m.id_especialidad = e.id_especialidad
+            WHERE m.id_usuario = %s
+        """
+        cursor.execute(query, (id_usuario,))
         return cursor.fetchone()
     finally:
         if cursor is not None:
@@ -48,11 +62,14 @@ def obtener_turnos_hoy_por_medico(id_medico):
                 t.estado,
                 t.token_qr,
                 t.fecha_hora_checkin,
+                c.numero_consultorio,
+                c.piso,
                 u.nombre_usuario AS paciente_nombre,
                 u.apellido_usuario AS paciente_apellido,
                 u.dni_usuario AS paciente_dni
             FROM turnos t
             INNER JOIN usuarios u ON t.id_paciente = u.id_usuario
+            LEFT JOIN consultorios c ON t.id_consultorio = c.id_consultorio
             WHERE t.id_medico = %s AND DATE(t.fecha_hora) = CURDATE()
             ORDER BY t.fecha_hora ASC
         """

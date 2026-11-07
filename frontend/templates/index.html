@@ -10,40 +10,91 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="stylesheet" href="static/css/index_main.css" />
+		<style>
+			.notificacion-banner-flotante {
+				position: absolute;
+				top: 4.2em;
+				left: 50%;
+				transform: translateX(-50%);
+				width: 90%;
+				max-width: 460px;
+				z-index: 1000;
+			}
+			.toast-alerta {
+				padding: 12px 20px;
+				border-radius: 6px;
+				font-size: 0.9em;
+				font-weight: 500;
+				box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+				text-align: center;
+				margin-bottom: 8px;
+				background: #ffffff;
+			}
+			.toast-alerta.toast-success {
+				color: #15803d;
+				border-left: 4px solid #22c55e;
+			}
+			.toast-alerta.toast-danger,
+			.toast-alerta.toast-error {
+				color: #b91c1c;
+				border-left: 4px solid #ef4444;
+			}
+		</style>
 	</head>
 	<body class="landing is-preload">
 		<div id="page-wrapper">
 
 			<!-- Header -->
 				<header id="header" class="alt">
-					<h1>Centro medico Salud Integral</h1>
+					<h1><a href="/">Centro Medico Salud Integral</a></h1>
 					<nav id="nav">
 						<ul>
 							<li><a href="/">Home</a></li>
 							<li>
 								<a href="#" class="icon solid fa-angle-down">Menú</a>
 								<ul>
-									<li><a href="medico">Medico</a></li>
-									<li><a href="turnos">Turnos</a></li>
-									<li><a href="elements">Base template</a></li>
-									<li>
-										<a href="#">Submenu</a>
-										<ul>
-											<li><a href="#">Option One</a></li>
-											<li><a href="#">Option Two</a></li>
-											<li><a href="#">Option Three</a></li>
-											<li><a href="#">Option Four</a></li>
-										</ul>
-									</li>
+									<li><a href="/turnos">Turnos</a></li>
+									<li><a href="/medicos">Médicos</a></li>
+									<li><a href="/especialidades">Especialidades</a></li>
 								</ul>
 							</li>
-							<li><a href="register" class="button">Sign Up</a></li>
+							{% if session.get('usuario') %}
+								{% if session['usuario'].get('rol') == 'medico' %}
+								<li><a href="/medico">Portal Médico</a></li>
+								{% elif session['usuario'].get('rol') == 'recepcionista' %}
+								<li><a href="/recepcion/">Recepción</a></li>
+								{% elif session['usuario'].get('rol') == 'admin' %}
+								<li><a href="/admin/">Panel Admin</a></li>
+								{% endif %}
+								<li>
+									<a href="#" class="icon solid fa-angle-down">{{ session['usuario'].get('nombre', 'Mi Cuenta') }}</a>
+									<ul>
+										<li><a href="/logout">Cerrar sesión</a></li>
+									</ul>
+								</li>
+							{% else %}
+								<li><a href="/login" class="button">Log In</a></li>
+								<li><a href="/register" class="button">Sign Up</a></li>
+							{% endif %}
 						</ul>
 					</nav>
 				</header>
 
 			<!-- Banner -->
-				<section id="banner">
+				<section id="banner" style="position: relative;">
+
+					{% with mensajes = get_flashed_messages(with_categories=true) %}
+						{% if mensajes %}
+							<div class="notificacion-banner-flotante">
+								{% for categoria, mensaje in mensajes %}
+									<div class="toast-alerta toast-{{ categoria }}">
+										{{ mensaje }}
+									</div>
+								{% endfor %}
+							</div>
+						{% endif %}
+					{% endwith %}
+
 					<h2>Bienvenido</h2>
 					<p>Esta es la pagina de inicio del Centro Medico de Salud Integral.</p>
 				</section>
