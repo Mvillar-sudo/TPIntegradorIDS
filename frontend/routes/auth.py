@@ -35,7 +35,7 @@ def mostrar_registro():
 
     if r.status_code == 201:
         flash(datos['mensaje'], 'success')
-        return redirect(url_for('index'))   # o a /login cuando exista
+        return redirect(url_for('public.index'))   # o a /login cuando exista
 
     flash(datos.get('error', 'Error al registrar'), 'error')
     return render_template('register.html')
@@ -62,7 +62,7 @@ def iniciar_sesion():
         session['token'] = datos['token']
         session['usuario'] = datos['usuario']
         flash(datos['mensaje'], 'success')
-        return redirect(url_for('index'))
+        return redirect(url_for('public.index'))
 
     flash(datos.get('error', 'Error al iniciar sesión'), 'error')
     return render_template('login.html')
@@ -71,4 +71,4 @@ def iniciar_sesion():
 @auth_bp.route('/logout')
 def cerrar_sesion():
     session.clear()
-    return redirect(url_for('index'))
+    return redirect(url_for('public.index'))
