@@ -1,0 +1,29 @@
+{% extends "base_template.html" %}
+
+{% block header_class %}{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}" />
+{% endblock %}
+
+{% block content %}
+<section id="main" class="container admin-main">
+	<div class="admin-layout">
+		<aside class="admin-sidebar">
+			{% include "admin/_sidebar.html" %}
+		</aside>
+
+		<div class="admin-contenido">
+			{% with mensajes = get_flashed_messages(with_categories=true) %}
+				{% for categoria, mensaje in mensajes %}
+					<p class="mensaje mensaje-{{ categoria }}">{{ mensaje }}</p>
+				{% endfor %}
+			{% endwith %}
+
+			<section class="box">
+				{% block admin_content %}{% endblock %}
+			</section>
+		</div>
+	</div>
+</section>
+{% endblock %}

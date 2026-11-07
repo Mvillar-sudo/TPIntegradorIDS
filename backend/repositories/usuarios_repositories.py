@@ -20,7 +20,7 @@ def obtener_usuario_por_email(email):
         cursor.close()
         conexion.close()
 
-def crear_usuario(nombre, apellido, dni, email, password_hash, telefono=None, id_cobertura=None):
+def crear_usuario(nombre, apellido, dni, email, password_hash, telefono=None, id_cobertura=None, rol="paciente"):
     conexion = get_connection()
     cursor = None
 
@@ -32,7 +32,7 @@ def crear_usuario(nombre, apellido, dni, email, password_hash, telefono=None, id
             INSERT INTO usuarios(rol_usuario, nombre_usuario, apellido_usuario, dni_usuario, email_usuario, password_hash, telefono_usuario, id_cobertura)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """, 
-            ("paciente", nombre, apellido, dni, email, password_hash, telefono, id_cobertura)
+            (rol, nombre, apellido, dni, email, password_hash, telefono, id_cobertura)
         )
 
         conexion.commit()
