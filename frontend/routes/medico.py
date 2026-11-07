@@ -18,13 +18,12 @@ def exigir_medico():
         flash('Acceso denegado: Se requiere rol de profesional médico.', 'danger')
         return redirect(url_for('index'))
 
-
+"""
+Pre: -
+Post: Renderiza la plantilla 'medico.html' con la información del médico y la lista de turnos asignados.
+"""
 @medico_bp.route('/medico', methods=['GET'])
 def agenda():
-    """
-    Pre: -
-    Post: Renderiza la plantilla 'medico.html' con la información del médico y la lista de turnos asignados.
-    """
     try:
         perfil, turnos, turnos_espera = obtener_agenda_medico()
     except ValueError as e:
@@ -41,13 +40,12 @@ def agenda():
 
     return render_template('medico.html', medico=perfil, turnos=turnos, turnos_espera=turnos_espera)
 
-
+"""
+Pre: 'id_turno' es un entero positivo que identifica al turno a atender.
+Post: Registra el turno como atendido y redirige a la agenda limpia evitando reenvío de formularios.
+"""
 @medico_bp.route('/medico/turnos/<int:id_turno>/atender', methods=['POST'])
 def atender_turno(id_turno):
-    """
-    Pre: 'id_turno' es un entero positivo que identifica al turno a atender.
-    Post: Registra el turno como atendido y redirige a la agenda limpia evitando reenvío de formularios.
-    """
     try:
         resultado = registrar_turno_atendido(id_turno)
         flash(f'Consulta finalizada con éxito. Turno #{id_turno} marcado como atendido.', 'success')
