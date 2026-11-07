@@ -6,7 +6,7 @@ from routes.checkin_qr import checkin_qr_bp
 from routes.medico import medico_bp
 from routes.medicos import medicos_bp
 from routes.auth import auth_bp
-
+from routes.agendas_routes import agendas_bp
 
 app = Flask(__name__)
 
@@ -21,7 +21,7 @@ app.register_blueprint(checkin_qr_bp, url_prefix='/api/v1')
 app.register_blueprint(medico_bp, url_prefix='/api/v1')
 app.register_blueprint(medicos_bp, url_prefix="/api/v1")
 app.register_blueprint(auth_bp, url_prefix="/api/v1")
-
+app.register_blueprint(agendas_bp)
 
 # Ruta base de prueba
 @app.route("/")

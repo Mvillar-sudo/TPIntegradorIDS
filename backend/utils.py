@@ -54,6 +54,5 @@ def generar_intervalos_turnos(fecha_str, hora_inicio_str, hora_fin_str):
     turno_actual = inicio_dt 
     while turno_actual + timedelta(hours=1) <= fin_dt:
         turnos.append(turno_actual)
-        # Sumamos exactamente 1 hora para el siguiente turno
         turno_actual += timedelta(hours=1)
     return turnos
