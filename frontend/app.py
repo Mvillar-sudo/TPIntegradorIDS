@@ -26,6 +26,10 @@ app.register_blueprint(admin_bp)
 def index():
     return render_template('index.html')
 
+@app.route('/about-us')
+def about_us():
+    return render_template('about_us.html')
+
 @app.route('/medico')
 def mostrar_pagina_medicos():
     return render_template('medico.html')
