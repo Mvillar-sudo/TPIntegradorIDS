@@ -1,18 +1,21 @@
 {% extends "base_template.html" %}
 
 {% block title %}Iniciar sesión | Centro Medico Salud Integral{% endblock %}
-
 {% block header_class %}{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}" />
+{% endblock %}
 
 {% block content %}
 <!-- Main -->
 <section id="main" class="container" style="padding-top: 8em;">
-	<section class="box">
+	<section class="box" >
 		<header class="major special">
 			<h2>Iniciar sesión</h2>
 			<p>Ingresá con tu email y contraseña.</p>
 		</header>
-
+		{% include '_flashes.html' %}
 		<form method="post" action="/login">
 			<div class="row gtr-uniform gtr-50">
 				<div class="col-12">

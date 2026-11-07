@@ -1,0 +1,17 @@
+.mensaje {
+	padding: 0.8em 1em;
+	border-radius: 4px;
+	margin-bottom: 1.5em;
+}
+
+.mensaje-success {
+	background: #ecfdf5;
+	border: 1px solid #10b981;
+	color: #065f46;
+}
+
+.mensaje-error {
+	background: #fef2f2;
+	border: 1px solid #ef4444;
+	color: #991b1b;
+}

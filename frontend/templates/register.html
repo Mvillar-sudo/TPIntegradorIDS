@@ -4,15 +4,19 @@
 
 {% block header_class %}{% endblock %}
 
+{% block head_extra %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}" />
+{% endblock %}
+
 {% block content %}
 <!-- Main -->
 <section id="main" class="container" style="padding-top: 8em;">
-	<section class="box">
+	<section class="box" >
 		<header class="major special">
 			<h2>Crear cuenta</h2>
 			<p>Completá tus datos para registrarte como paciente.</p>
 		</header>
-
+		{% include '_flashes.html' %}
 		<form method="post" action="/register">
 			<div class="row gtr-uniform gtr-50">
 				<div class="col-6 col-12-xsmall">
