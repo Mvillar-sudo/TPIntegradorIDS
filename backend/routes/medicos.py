@@ -2,13 +2,15 @@ from flask import Blueprint, jsonify, request
 from mysql.connector import Error
 
 from validators.validator_auth import token_required
-from constants import LECTORES_ROLES, PERSONAL_ROLES
-from services import medicos
-from utils import respuesta_error, validar_entero_positivo
 from validators.medicos import validar_medico
 
-medicos_bp = Blueprint('medicos', __name__)
+from services import medicos
 
+from constants import GESTION_ROLES, LECTORES_ROLES, PERSONAL_ROLES
+from utils import respuesta_error, validar_entero_positivo
+
+
+medicos_bp = Blueprint('medicos', __name__)
 
 
 @medicos_bp.route('/medicos', methods=['GET'])
@@ -20,7 +22,6 @@ def listar_medicos():
         return jsonify({
             "error": error_token
         }), codigo
-
     
     try:    
         raw_specialty = request.args.get('id_especialidad')
@@ -36,8 +37,8 @@ def listar_medicos():
 
 @medicos_bp.route('/medicos', methods=['POST'])
 def crear_medico():
-
-    _, error_token, codigo = token_required(PERSONAL_ROLES)
+  
+    _, error_token, codigo = token_required(GESTION_ROLES)
 
     if error_token is not None:
         return jsonify({
@@ -68,7 +69,6 @@ def obtener_medico(medico_id):
         }), codigo
 
     try:
-
         return jsonify(medicos.obtener(medico_id)), 200
 
     except (ValueError, LookupError, Error) as error:
@@ -77,7 +77,7 @@ def obtener_medico(medico_id):
 @medicos_bp.route('/medicos/<int:medico_id>', methods=['PATCH'])
 def actualizar_medico(medico_id):
 
-    _, error_token, codigo = token_required(PERSONAL_ROLES)
+    _, error_token, codigo = token_required(["admin"])
 
     if error_token is not None:
         return jsonify({
@@ -85,7 +85,6 @@ def actualizar_medico(medico_id):
         }), codigo
 
     try:
-
         values = validar_medico(
             request.get_json(silent=True),
             partial=True
@@ -99,7 +98,7 @@ def actualizar_medico(medico_id):
 @medicos_bp.route('/medicos/<int:medico_id>', methods=['DELETE'])
 def eliminar_medico(medico_id):
 
-    _, error_token, codigo = token_required(PERSONAL_ROLES)
+    _, error_token, codigo = token_required(["admin"])
 
     if error_token is not None:
         return jsonify({

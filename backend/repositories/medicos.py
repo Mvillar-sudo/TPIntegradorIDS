@@ -8,7 +8,7 @@ def listar_medicos(especialidad_id=None):
     if especialidad_id is not None:
         query += ' WHERE m.id_especialidad = %s'
         params = (especialidad_id,)
-    query += ' ORDER BY m.apellido_medico, m.nombre_medico, m.id_medico'
+    query += ' ORDER BY u.apellido_usuario, u.nombre_usuario, m.id_medico'
     return ejecutar_consulta(query, params)
 
 
@@ -34,15 +34,27 @@ def matricula_existe(matricula, excluding=None):
     return bool(ejecutar_consulta(query, tuple(params)))
 
 
+def usuario_es_medico(usuario_id):
+    rows = ejecutar_consulta(
+        "SELECT id_usuario FROM usuarios WHERE id_usuario = %s AND rol_usuario = 'medico'",
+        (usuario_id,),
+    )
+    return bool(rows)
+
+
+def usuario_tiene_perfil_medico(usuario_id):
+    rows = ejecutar_consulta(
+        'SELECT id_medico FROM medicos WHERE id_usuario = %s',
+        (usuario_id,),
+    )
+    return bool(rows)
+
+
 def crear_medico(values):
     return ejecutar_consulta(
-        'INSERT INTO medicos '
-        '(id_especialidad, nombre_medico, apellido_medico, matricula) '
-        'VALUES (%s, %s, %s, %s)',
-        (
-            values['id_especialidad'], values['nombre_medico'],
-            values['apellido_medico'], values['matricula'],
-        ),
+        'INSERT INTO medicos (id_usuario, id_especialidad, matricula) '
+        'VALUES (%s, %s, %s)',
+        (values['id_usuario'], values['id_especialidad'], values['matricula']),
     )
 
 

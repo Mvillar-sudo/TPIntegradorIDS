@@ -17,8 +17,8 @@ def _validar_recurso(recurso):
 @admin_bp.route('/<recurso>', methods=['GET'])
 def listar_catalogos(recurso):
 
-    _, error_token, codigo = token_required()
-
+    _, error_token, codigo = token_required(["admin"])
+    
     if error_token is not None:
         return jsonify({
             "error": error_token
@@ -37,7 +37,7 @@ def listar_catalogos(recurso):
 def crear_catalogo(recurso):
 
 
-    _, error_token, codigo = token_required(PERSONAL_ROLES)
+    _, error_token, codigo = token_required(["admin"])
 
     if error_token is not None:
         return jsonify({
@@ -59,7 +59,7 @@ def crear_catalogo(recurso):
 @admin_bp.route('/<recurso>/<int:item_id>', methods=['GET'])
 def obtener_catalogo(recurso, item_id):
 
-    _, error_token, codigo = token_required()
+    _, error_token, codigo = token_required(["admin"])
 
     if error_token is not None:
         return jsonify({
@@ -77,8 +77,7 @@ def obtener_catalogo(recurso, item_id):
 
 @admin_bp.route('/<recurso>/<int:item_id>', methods=['PATCH'])
 def actualizar_catalogo(recurso, item_id):
-
-    _, error_token, codigo = token_required(PERSONAL_ROLES)
+    _, error_token, codigo = token_required(["admin"])
 
     if error_token is not None:
         return jsonify({
@@ -87,7 +86,6 @@ def actualizar_catalogo(recurso, item_id):
 
     try:
         _validar_recurso(recurso)
-        
         values = validar_catalogo(
             recurso,
             request.get_json(silent=True),
@@ -103,8 +101,8 @@ def actualizar_catalogo(recurso, item_id):
 @admin_bp.route('/<recurso>/<int:item_id>', methods=['DELETE'])
 def eliminar_catalogo(recurso, item_id):
 
-    _, error_token, codigo = token_required(PERSONAL_ROLES)
-
+    _, error_token, codigo = token_required(["admin"])
+    
     if error_token is not None:
         return jsonify({
             "error": error_token
@@ -112,8 +110,6 @@ def eliminar_catalogo(recurso, item_id):
 
     try:
         _validar_recurso(recurso)
-
-        
         
         admin.eliminar(recurso, item_id)
 
