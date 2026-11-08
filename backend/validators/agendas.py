@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from constants import MAX_DIAS_AGENDA, MAX_DURACION_MINUTOS
+from tiempo import obtener_ahora_gmt3
 from utils import validar_entero_positivo, validar_objeto_json
 
 
@@ -39,7 +40,7 @@ def validar_agenda(body):
     result['agenda_fecha_hora_fin'] = _datetime(
         body.get('agenda_fecha_hora_fin'), 'agenda_fecha_hora_fin'
     )
-    if result['agenda_fecha_hora_inicio'] <= datetime.now():
+    if result['agenda_fecha_hora_inicio'] <= obtener_ahora_gmt3():
         raise ValueError('agenda_fecha_hora_inicio debe ser futura')
     if result['agenda_fecha_hora_fin'] <= result['agenda_fecha_hora_inicio']:
         raise ValueError('agenda_fecha_hora_fin debe ser posterior al inicio')
