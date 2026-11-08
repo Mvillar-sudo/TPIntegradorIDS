@@ -1,5 +1,8 @@
 from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, render_template, request, redirect, url_for, flash, Blueprint
+
+from datetime import timedelta
+from constants import FRONTEND_SECRET_KEY
 
 from routes.recepcion import recepcion_bp
 from routes.auth import auth_bp
@@ -14,6 +17,7 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = FRONTEND_SECRET_KEY
+app.permanent_session_lifetime = timedelta(hours=2)
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(medico_bp)
