@@ -13,7 +13,7 @@ agendas_bp = Blueprint('agendas', __name__)
 @agendas_bp.route('/agendas', methods=['GET', 'POST'])
 def coleccion_agendas():
 
-    user_data, error_token, codigo = token_required(["admin"])
+    user_data, error_token, codigo = token_required(["admin", "recepcionista"])
 
     if error_token is not None:
         return jsonify({
