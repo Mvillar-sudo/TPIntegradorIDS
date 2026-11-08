@@ -3,6 +3,10 @@
 -- =============================================
 USE centro_medico;
 
+-- Las fechas relativas (NOW()) de estos datos se calculan en hora de Argentina (GMT-3), que es la
+-- que usa el backend, sin importar en qué zona horaria esté configurado el servidor MySQL.
+SET time_zone = '-03:00';
+
 -- 1. Coberturas
 INSERT INTO coberturas (nombre_cobertura) VALUES 
 ('Particular'),
