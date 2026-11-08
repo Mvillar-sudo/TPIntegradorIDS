@@ -1,12 +1,12 @@
 import html
 import logging
-import os
 import smtplib
 from email.message import EmailMessage
 from email.utils import make_msgid
 
 from mysql.connector import Error as MySQLError
 
+from config import obtener_configuracion_mail
 from repositories.notificaciones_repositories import obtener_detalle_turno
 from services.qr import generar_qr_png
 
@@ -16,7 +16,7 @@ def construir_url_cancelacion(id_turno):
     Pre: 'id_turno' es un entero positivo.
     Post: Devuelve la URL del frontend desde la que el paciente puede cancelar el turno.
     """
-    base = os.getenv("FRONTEND_URL", "http://127.0.0.1:3000").rstrip("/")
+    base = obtener_configuracion_mail()["url_frontend"]
     return f"{base}/turnos/{id_turno}/cancelar"
 
 
@@ -97,7 +97,7 @@ def armar_mail_confirmacion(turno):
 
     mensaje = EmailMessage()
     mensaje["Subject"] = "Turno reservado - Centro Médico Salud Integral"
-    mensaje["From"] = os.getenv("MAIL_FROM") or os.getenv("SMTP_USER") or ""
+    mensaje["From"] = obtener_configuracion_mail()["remitente"]
     mensaje["To"] = turno["paciente_email"]
     mensaje.set_content(armar_texto_plano(datos, url_cancelar))
     mensaje.add_alternative(armar_html(datos, url_cancelar, cid_qr[1:-1]), subtype="html")
@@ -114,12 +114,11 @@ def enviar_mail(mensaje):
     Post: Envía el mensaje por SMTP con STARTTLS. Lanza OSError (o una subclase, como
           smtplib.SMTPException) si no se pudo enviar.
     """
-    host = os.getenv("SMTP_HOST", "")
-    puerto = int(os.getenv("SMTP_PORT", "587"))
+    configuracion = obtener_configuracion_mail()
 
-    with smtplib.SMTP(host, puerto, timeout=10) as servidor:
+    with smtplib.SMTP(configuracion["host"], configuracion["puerto"], timeout=10) as servidor:
         servidor.starttls()
-        servidor.login(os.getenv("SMTP_USER", ""), os.getenv("SMTP_PASSWORD", ""))
+        servidor.login(configuracion["usuario"], configuracion["password"])
         servidor.send_message(mensaje)
 
 

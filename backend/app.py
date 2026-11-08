@@ -1,4 +1,6 @@
 from flask import Flask, jsonify
+
+from config import validar_configuracion
 from routes.admin import admin_bp
 from routes.agendas import agendas_bp
 from routes.turnos import turnos_bp  # Importación desde la carpeta local routes
@@ -10,6 +12,8 @@ from routes.auth import auth_bp
 from routes.usuarios import usuarios_bp
 from routes.estadisticas import estadisticas_bp
 
+
+validar_configuracion()
 
 app = Flask(__name__)
 
