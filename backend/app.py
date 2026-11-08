@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 from routes.admin import admin_bp
 from routes.agendas import agendas_bp
 from routes.turnos import turnos_bp  # Importación desde la carpeta local routes
+from routes.especialidades import especialidades_bp
 from routes.checkin_qr import checkin_qr_bp
 from routes.medico import medico_bp
 from routes.medicos import medicos_bp
@@ -16,6 +17,7 @@ app.json.ensure_ascii = False
 app.json.sort_keys = False
 # Registro del Blueprint
 app.register_blueprint(turnos_bp, url_prefix='/api/v1')
+app.register_blueprint(especialidades_bp, url_prefix='/api/v1')
 app.register_blueprint(admin_bp, url_prefix='/api/v1')
 app.register_blueprint(agendas_bp, url_prefix='/api/v1')
 app.register_blueprint(checkin_qr_bp, url_prefix='/api/v1')
