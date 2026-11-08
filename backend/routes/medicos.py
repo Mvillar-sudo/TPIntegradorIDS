@@ -6,7 +6,7 @@ from validators.medicos import validar_medico
 
 from services import medicos
 
-from constants import GESTION_ROLES, LECTORES_ROLES, PERSONAL_ROLES
+from constants import GESTION_ROLES, LECTORES_ROLES
 from utils import respuesta_error, validar_entero_positivo
 
 
