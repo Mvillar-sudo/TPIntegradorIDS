@@ -106,7 +106,7 @@ def listar_turnos_disponibles():
         fecha_hora = row["fecha_hora"]
 
         if hasattr(fecha_hora, "strftime"):
-            fecha_hora = fecha_hora.strftime("%Y-%m-%d %H:%M:%S")
+            fecha_hora = fecha_hora.strftime("%Y-%m-%dT%H:%M:%S")
         else:
             fecha_hora = str(fecha_hora)
 
@@ -181,13 +181,13 @@ def reservar_turno_endpoint():
     if estado == "no_disponible":
         return jsonify({
             "error": "El turno ya no se encuentra disponible."
-        }), 409
+        }), 400
 
     if estado == "solapamiento":
         return jsonify({
             "error": (
-                "El paciente ya posee un turno activo reservado "
-                "con este médico en la misma franja horaria."
+                "El paciente ya posee un turno activo con este medico "
+                "o en la misma franja horaria."
             )
         }), 409
 
@@ -200,13 +200,16 @@ def reservar_turno_endpoint():
     fecha_hora = turno["fecha_hora"]
 
     if hasattr(fecha_hora, "strftime"):
-        fecha_hora = fecha_hora.strftime("%Y-%m-%d %H:%M:%S")
+        fecha_hora = fecha_hora.strftime("%Y-%m-%dT%H:%M:%S")
     else:
         fecha_hora = str(fecha_hora)
 
     email_enviado = notificar_reserva(id_turno)
 
     return jsonify({
+        "id_turno": id_turno,
+        "estado": "reservado",
+        "codigo_qr_hash": codigo_qr_hash,
         "mensaje": "Turno reservado exitosamente.",
         "email_enviado": email_enviado,
         "reserva": {
