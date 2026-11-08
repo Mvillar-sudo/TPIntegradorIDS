@@ -2,8 +2,8 @@ from repositories.consultas_repositories import ejecutar_consulta
 from constants import CATALOGO
 
 
-def _contar(query):
-    return ejecutar_consulta("SELECT COUNT (*) AS total FROM medicos")
+def _contar(query, params=None):
+    return ejecutar_consulta(query, params, fetch_all=False)["total"]
 
 
 def listar_catalogo(resource):

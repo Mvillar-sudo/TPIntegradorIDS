@@ -4,12 +4,12 @@
 		{% for texto, endpoint in menu_admin %}
 		<li>
 			<a href="{{ url_for(endpoint) }}"
-			   class="button fit {% if request.endpoint == endpoint %}primary{% endif %}">
+			   class="button admin-boton fit {% if request.endpoint == endpoint %}activo{% endif %}">
 				{{ texto }}
 			</a>
 		</li>
 		{% endfor %}
 	</ul>
 	<hr />
-	<a href="{{ url_for('auth.cerrar_sesion') }}" class="button fit">Cerrar sesión</a>
+	<a href="{{ url_for('auth.cerrar_sesion') }}" class="button admin-boton fit">Cerrar sesión</a>
 </nav>

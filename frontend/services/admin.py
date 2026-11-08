@@ -3,6 +3,7 @@ from flask import abort, flash, redirect, render_template, session, url_for
 # Cada ítem del menú lateral: (texto, endpoint). Agregar un ABM nuevo = una línea acá.
 MENU_ADMIN = [
     ('Inicio', 'admin.dashboard'),
+    ('Resumen', 'admin.resumen'),
     ('Médicos', 'admin.listado_medicos'),
 ]
 
@@ -30,6 +31,6 @@ def redirigir_por_sesion_vencida():
     return redirect(url_for('auth.iniciar_sesion'))
 
 
-def renderizar_admin(plantilla, titulo=''):
+def renderizar_admin(plantilla, titulo='', resumen=None):
     """Renderiza una plantilla de admin inyectando el menú lateral."""
-    return render_template(plantilla, menu_admin=MENU_ADMIN, titulo=titulo)
+    return render_template(plantilla, menu_admin=MENU_ADMIN, titulo=titulo, resumen=resumen)

@@ -1,5 +1,6 @@
-from flask import Blueprint
-from services.admin import verificar_admin, renderizar_admin
+from flask import Blueprint, flash
+from services.admin import verificar_admin, renderizar_admin, redirigir_por_sesion_vencida
+from services.api_client import pedir
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -10,6 +11,24 @@ def dashboard():
     if bloqueo:
         return bloqueo
     return renderizar_admin('admin/dashboard.html')
+
+
+@admin_bp.route('/resumen')
+def resumen():
+    bloqueo = verificar_admin()
+    if bloqueo:
+        return bloqueo
+
+    datos, error, status = pedir('GET', '/admin/resumen')
+
+    if status == 401:
+        return redirigir_por_sesion_vencida()
+
+    if error:
+        flash(error, 'error')
+        datos = {}
+
+    return renderizar_admin('admin/resumen.html', resumen=datos)
 
 
 # Vistas solo visuales (sin conexión al backend todavía)

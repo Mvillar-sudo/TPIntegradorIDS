@@ -90,6 +90,39 @@ body.landing #main.admin-main {
 	opacity: 0.7;
 }
 
+/* Botón del panel: mismo estilo que el botón de login/registro (auth.css) */
+.button.admin-boton {
+	background-color: #1d5fa8;
+	color: #fff;
+	font-weight: 600;
+	border-radius: 999px;
+	box-shadow: none;
+}
+
+.button.admin-boton:hover {
+	background-color: #164a86;
+}
+
+/* Página actual en el menú lateral */
+.button.admin-boton.activo {
+	background-color: #164a86;
+	box-shadow: 0 0 0 2px #1d5fa8;
+}
+
+/* Formularios del panel: los <select> con el mismo aspecto que los campos de auth.css */
+.auth-cuerpo select {
+	height: 3.2em;
+	background: #fff;
+	border: 1px solid #9aa3ad;
+	border-radius: 6px;
+	margin-bottom: 1.5em;
+}
+
+.auth-cuerpo select:focus {
+	border-color: var(--azul);
+	box-shadow: 0 0 0 2px var(--azul);
+}
+
 /* Accesos rápidos */
 .admin-accesos {
 	display: flex;

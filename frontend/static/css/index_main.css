@@ -3008,7 +3008,8 @@
 						margin-left: 0;
 					}
 
-					#header nav > ul > li.active a:not(.button) {
+					#header nav > ul > li.active a:not(.button),
+					#header nav > ul > li > a:not(.button):hover {
 						background-color: rgba(153, 153, 153, 0.25);
 					}
 
@@ -3073,7 +3074,8 @@
 				color: rgba(255, 255, 255, 0.75);
 			}
 
-			#header.alt nav > ul > li.active a:not(.button) {
+			#header.alt nav > ul > li.active a:not(.button),
+			#header.alt nav > ul > li > a:not(.button):hover {
 				background-color: rgba(255, 255, 255, 0.2);
 			}
 
