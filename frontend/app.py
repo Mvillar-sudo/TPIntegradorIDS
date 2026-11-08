@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, redirect, url_for, flash, Blueprint
 from routes.recepcion import recepcion_bp
-
+from datetime import timedelta
 from constants import FRONTEND_SECRET_KEY
 from routes.auth import auth_bp
 from routes.medico import medico_bp
@@ -12,7 +12,7 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = FRONTEND_SECRET_KEY
-
+app.permanent_session_lifetime = timedelta(hours=2)
 
 
 
