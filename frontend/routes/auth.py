@@ -11,6 +11,7 @@ auth_bp = Blueprint("auth", __name__)
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def mostrar_registro():
     if request.method == 'GET':
+<<<<<<< HEAD
         return render_template('register.html', form={})
 
     form = request.form
@@ -25,10 +26,26 @@ def mostrar_registro():
         "email": form.get('email', '').strip(),
         "password": form.get('password', ''),
         "telefono": form.get('telefono', '').strip() or None,
+=======
+        return render_template('register.html')
+
+    if request.form['password'] != request.form['password_confirm']:
+        flash('Las contraseñas no coinciden', 'error')
+        return render_template('register.html')
+
+    payload = {
+        "nombre": request.form['nombre'],
+        "apellido": request.form['apellido'],
+        "dni": request.form['dni'],
+        "email": request.form['email'],
+        "password": request.form['password'],
+        "telefono": request.form.get('telefono') or None,
+>>>>>>> origin/develop
     }
 
     try:
         r = requests.post(f"{BACKEND_URL}/auth/register", json=payload, timeout=5)
+<<<<<<< HEAD
     except requests.exceptions.RequestException:
         flash('No se pudo conectar con el servidor', 'error')
         return render_template('register.html', form=form)
@@ -44,6 +61,19 @@ def mostrar_registro():
 
     flash(datos.get('error', 'No se pudo registrar el usuario'), 'error')
     return render_template('register.html', form=form)
+=======
+        datos = r.json()
+    except requests.exceptions.RequestException:
+        flash('No se pudo conectar con el servidor', 'error')
+        return render_template('register.html')
+
+    if r.status_code == 201:
+        flash(datos['mensaje'], 'success')
+        return redirect(url_for('index'))   # o a /login cuando exista
+
+    flash(datos.get('error', 'Error al registrar'), 'error')
+    return render_template('register.html')
+>>>>>>> origin/develop
 
 
 @auth_bp.route('/login', methods=['GET', 'POST'])

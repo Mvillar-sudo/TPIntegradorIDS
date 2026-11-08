@@ -1,5 +1,12 @@
 /* Panel de administrador: layout, menú lateral, tarjetas y tablas */
 
+/* La plantilla "landing" sube #main 14em para solaparlo con el banner; en el panel no hay banner */
+body.landing #main.admin-main {
+	margin-top: 0;
+	padding-top: 6em;
+	max-width: 90em;
+}
+
 .admin-layout {
 	display: flex;
 	gap: 2em;

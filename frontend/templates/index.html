@@ -6,42 +6,50 @@
 -->
 <html>
 	<head>
-		<title>Portal general</title>
+		<title>{% block title %}Portal general | Centro Medico Salud Integral{% endblock %}</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<link rel="stylesheet" href="static/css/index_main.css" />
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/index_main.css') }}" />
+		{% block head_extra %}{% endblock %}
 	</head>
 	<body class="landing is-preload">
 		<div id="page-wrapper">
 
 			<!-- Header -->
-				<header id="header" class="alt">
+				<header id="header" class="{% block header_class %}alt{% endblock %}">
 					<h1>Centro medico Salud Integral</h1>
 					<nav id="nav">
 						<ul>
-							<li><a href="/">Home</a></li>
+							<li><a href="/">Inicio</a></li>
 							<li>
 								<a href="#" class="icon solid fa-angle-down">Menú</a>
 								<ul>
-									<li><a href="medico">Medico</a></li>
-									<li><a href="turnos">Turnos</a></li>
-									<li><a href="elements">Base template</a></li>
-									<li>
-										<a href="#">Submenu</a>
-										<ul>
-											<li><a href="#">Option One</a></li>
-											<li><a href="#">Option Two</a></li>
-											<li><a href="#">Option Three</a></li>
-											<li><a href="#">Option Four</a></li>
-										</ul>
-									</li>
+									<li><a href="/medicos">Medicos</a></li>
+									<li><a href="/turnos">Reserva	 turno</a></li>
+									<li><a href="/mis-turnos">Mis turnos</a></li>
+									<li><a href="/especialidades">Especialidades</a></li>
 								</ul>
 							</li>
-							<li><a href="register" class="button">Sign Up</a></li>
+							{% if request.path == '/register' %}
+							<li><a href="/login" class="button">Iniciar sesión</a></li>
+							{% else %}
+							<li><a href="/register" class="button">Registrarse</a></li>
+							{% endif %}
 						</ul>
 					</nav>
 				</header>
 
+			{% with mensajes = get_flashed_messages(with_categories=true) %}
+				{% if mensajes %}
+				<div class="container" style="padding-top: 6em;">
+					{% for categoria, mensaje in mensajes %}
+						<p class="mensaje mensaje-{{ categoria }}">{{ mensaje }}</p>
+					{% endfor %}
+				</div>
+				{% endif %}
+			{% endwith %}
+
+			{% block content %}
 			<!-- Banner -->
 				<section id="banner">
 					<h2>Bienvenido</h2>
@@ -55,57 +63,47 @@
 						<header class="major">
 							<h2>Opciones</h2>
 						</header>
-						<span class="image featured"><img src="images/pic01.jpg" alt="" /></span>
 					</section>
 
 					<section class="box special features">
 						<div class="features-row">
 							<section>
-								<span class="icon solid major fa-bolt accent2"></span>
-								<h3>Magna etiam</h3>
-								<p>Integer volutpat ante et accumsan commophasellus sed aliquam feugiat lorem aliquet ut enim rutrum phasellus iaculis accumsan dolore magna aliquam veroeros.</p>
+								<h3>Conoce a nuestros medicos</h3>
+								<ul class="actions special">
+									<li><a href="/medicos" class="button alt">Medicos</a></li>
+								</ul>
 							</section>
 							<section>
-								<span class="icon solid major fa-chart-area accent3"></span>
-								<h3>Ipsum dolor</h3>
-								<p>Integer volutpat ante et accumsan commophasellus sed aliquam feugiat lorem aliquet ut enim rutrum phasellus iaculis accumsan dolore magna aliquam veroeros.</p>
+								<h3>Reserva tu turno</h3>
+								<ul class="actions special">
+									<li><a href="/turnos" class="button alt">Reservar turno</a></li>
+								</ul>
 							</section>
 						</div>
 						<div class="features-row">
 							<section>
-								<span class="icon solid major fa-cloud accent4"></span>
-								<h3>Sed feugiat</h3>
-								<p>Integer volutpat ante et accumsan commophasellus sed aliquam feugiat lorem aliquet ut enim rutrum phasellus iaculis accumsan dolore magna aliquam veroeros.</p>
+								<h3>Revisa tus turnos</h3>
+								<ul class="actions special">
+									<li><a href="/mis-turnos" class="button alt">Mis turnos</a></li>
+								</ul>
 							</section>
 							<section>
-								<span class="icon solid major fa-lock accent5"></span>
-								<h3>Enim phasellus</h3>
-								<p>Integer volutpat ante et accumsan commophasellus sed aliquam feugiat lorem aliquet ut enim rutrum phasellus iaculis accumsan dolore magna aliquam veroeros.</p>
+								<h3>Conoce nuestras especialidades</h3>
+								<ul class="actions special">
+									<li><a href="/especialidades" class="button alt">Conocer especialidades</a></li>
+								</ul>
 							</section>
 						</div>
 					</section>
 
-					<div class="row">
+					<div class="row aln-center">
 						<div class="col-6 col-12-narrower">
 
 							<section class="box special">
-								<span class="image featured"><img src="images/pic02.jpg" alt="" /></span>
-								<h3>Sed lorem adipiscing</h3>
-								<p>Integer volutpat ante et accumsan commophasellus sed aliquam feugiat lorem aliquet ut enim rutrum phasellus iaculis accumsan dolore magna aliquam veroeros.</p>
+								<h3>Sobre nosotros</h3>
+								<p>Haga click en el boton de debajo para saber más de nuestro centro medico</p>
 								<ul class="actions special">
-									<li><a href="#" class="button alt">Learn More</a></li>
-								</ul>
-							</section>
-
-						</div>
-						<div class="col-6 col-12-narrower">
-
-							<section class="box special">
-								<span class="image featured"><img src="images/pic03.jpg" alt="" /></span>
-								<h3>Accumsan integer</h3>
-								<p>Integer volutpat ante et accumsan commophasellus sed aliquam feugiat lorem aliquet ut enim rutrum phasellus iaculis accumsan dolore magna aliquam veroeros.</p>
-								<ul class="actions special">
-									<li><a href="#" class="button alt">Learn More</a></li>
+									<li><a href="/about-us" class="button alt">Saber más</a></li>
 								</ul>
 							</section>
 
@@ -113,29 +111,26 @@
 					</div>
 
 				</section>
+			{% endblock %}
 
 			<!-- Footer -->
 				<footer id="footer">
-					<ul class="icons">
-						<li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
-						<li><a href="#" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a></li>
-						<li><a href="#" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
-						<li><a href="#" class="icon brands fa-github"><span class="label">Github</span></a></li>
-						<li><a href="#" class="icon brands fa-dribbble"><span class="label">Dribbble</span></a></li>
-						<li><a href="#" class="icon brands fa-google-plus"><span class="label">Google+</span></a></li>
+					<ul class="copyright">
+						<li>Todos los derechos reservados</li><li>Autores : <a href="https://github.com/Mvillar-sudo/TPIntegradorIDS">404 Not Found Group</a></li>
 					</ul>
 				</footer>
 
 		</div>
 
 		<!-- Scripts -->
-			<script src="static/js/jquery.min.js"></script>
-			<script src="static/js/jquery.dropotron.min.js"></script>
-			<script src="static/js/jquery.scrollex.min.js"></script>
-			<script src="static/js/browser.min.js"></script>
-			<script src="static/js/breakpoints.min.js"></script>
-			<script src="static/js/util.js"></script>
-			<script src="static/js/main.js"></script>
+			<script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/jquery.dropotron.min.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/jquery.scrollex.min.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/browser.min.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/breakpoints.min.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/util.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+            {% block scripts %}{% endblock %}
 
 	</body>
 </html>

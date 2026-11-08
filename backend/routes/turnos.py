@@ -89,10 +89,16 @@ def listar_especialidades():
 
     return jsonify(especialidades), 200
 
-@turnos_bp.route("/turnos/disponibles", methods=["GET"])
-def listar_turnos_disponibles():
+@turnos_bp.route("/medicos", methods=["GET"])
+def listar_medicos():
+    especialidad_id_recibido = request.args.get("id_especialidad")
 
-    data_usuario, error_token, codigo = token_required()
+    especialidad_id, error = validar_especialidad_id(especialidad_id_recibido)
+
+    if error is not None:
+        return jsonify({"error": error}), 400
+
+    _, error_token, codigo = token_required()
 
     if error_token is not None:
         return jsonify({
@@ -100,7 +106,7 @@ def listar_turnos_disponibles():
         }), codigo
 
     medico_id_recibido = request.args.get("medico_id")
-    especialidad_id_recibido = request.args.get("especialidad_id")
+    especialidad_id_recibido = request.args.get("id_especialidad")
     fecha_recibida = request.args.get("fecha")
 
     # Validar medico_id
@@ -115,7 +121,7 @@ def listar_turnos_disponibles():
     # Validar especialidad_id
     especialidad_id, error = validar_id_opcional(
         especialidad_id_recibido,
-        "especialidad_id"
+        "id_especialidad"
     )
 
     if error is not None:
