@@ -33,6 +33,14 @@ def obtener_turnos_disponibles(medico_id=None, fecha=None, especialidad_id=None)
             INNER JOIN consultorios c
                 ON t.id_consultorio = c.id_consultorio
             WHERE t.estado = 'disponible'
+            AND NOT EXISTS (
+                    SELECT 1
+                    FROM turnos ocupado
+                    WHERE ocupado.id_medico = t.id_medico
+                        AND ocupado.fecha_hora = t.fecha_hora
+                        AND ocupado.id_turno <> t.id_turno
+                        AND ocupado.estado IN ('reservado', 'confirmado', 'atendido', 'ausente')
+                )
         """
 
         parametros = []
@@ -74,6 +82,8 @@ def reservar_turno(id_turno, id_paciente, codigo_qr_hash):
 
     try:
         conexion = get_connection()
+        if conexion is None:
+            return {"estado": "error"}
         cursor = conexion.cursor(dictionary=True)
 
         # 1. Consultar el turno.
@@ -90,6 +100,67 @@ def reservar_turno(id_turno, id_paciente, codigo_qr_hash):
             return {"estado": "no_encontrado"}
 
         if turno["estado"] != "disponible":
+            return {"estado": "no_disponible"}
+
+        #comprobar que existe el paciente
+        cursor.execute("""
+            SELECT 1
+            FROM usuarios
+            WHERE id_usuario = %s
+        """, (id_paciente,))
+
+        if cursor.fetchone() is None:
+            conexion.rollback()
+            return {"estado": "error"}
+
+        #comprobar que existe el medico.
+        cursor.execute("""
+            SELECT 1
+            FROM medicos
+            WHERE id_medico = %s
+        """, (turno["id_medico"],))
+
+        if cursor.fetchone() is None:
+            conexion.rollback()
+            return {"estado": "error"}
+
+        #comprobar que el paciente no tenga otro turno incompatible.
+        cursor.execute("""
+            SELECT 1
+            FROM turnos
+            WHERE id_turno <> %s
+              AND id_paciente = %s
+              AND estado IN ('reservado', 'confirmado')
+              AND (id_medico = %s OR fecha_hora = %s)
+            LIMIT 1
+        """, (
+            id_turno,
+            id_paciente,
+            turno["id_medico"],
+            turno["fecha_hora"]
+        ))
+
+        if cursor.fetchone() is not None:
+            conexion.rollback()
+            return {"estado": "solapamiento"}
+
+        #comprobar que el medico no tenga otro turno ocupado.
+        cursor.execute("""
+            SELECT 1
+            FROM turnos
+            WHERE id_turno <> %s
+              AND id_medico = %s
+              AND fecha_hora = %s
+              AND estado IN ('reservado', 'confirmado', 'atendido', 'ausente')
+            LIMIT 1
+        """, (
+            id_turno,
+            turno["id_medico"],
+            turno["fecha_hora"]
+        ))
+
+        if cursor.fetchone() is not None:
+            conexion.rollback()
             return {"estado": "no_disponible"}
 
         # 2. Reservar el turno.
