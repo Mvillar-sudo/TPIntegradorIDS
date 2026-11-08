@@ -1,4 +1,6 @@
-from datetime import datetime, timezone, timedelta
+from datetime import timedelta
+
+from tiempo import obtener_ahora_gmt3
 
 try:
     from repositories.checkin_qr import (
@@ -12,14 +14,6 @@ except ImportError:
         confirmar_checkin_turno,
         actualizar_turno_a_ausente,
     )
-
-"""
-Pre: -
-Post: Devuelve la fecha y hora actual en GMT-3 para comparar con el campo DATETIME de MySQL.
-"""
-def obtener_ahora_gmt3():
-    zona_gmt3 = timezone(timedelta(hours=-3))
-    return datetime.now(zona_gmt3).replace(tzinfo=None, microsecond=0)
 
 """
 Pre: 'dt' es un objeto datetime o None
