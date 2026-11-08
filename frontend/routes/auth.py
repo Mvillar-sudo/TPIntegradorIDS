@@ -11,22 +11,6 @@ auth_bp = Blueprint("auth", __name__)
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def mostrar_registro():
     if request.method == 'GET':
-<<<<<<< HEAD
-        return render_template('register.html', form={})
-
-    form = request.form
-    if form.get('password') != form.get('password_confirm'):
-        flash('Las contraseñas no coinciden', 'error')
-        return render_template('register.html', form=form)
-
-    payload = {
-        "nombre": form.get('nombre', '').strip(),
-        "apellido": form.get('apellido', '').strip(),
-        "dni": form.get('dni', '').strip(),
-        "email": form.get('email', '').strip(),
-        "password": form.get('password', ''),
-        "telefono": form.get('telefono', '').strip() or None,
-=======
         return render_template('register.html')
 
     if request.form['password'] != request.form['password_confirm']:
@@ -40,28 +24,10 @@ def mostrar_registro():
         "email": request.form['email'],
         "password": request.form['password'],
         "telefono": request.form.get('telefono') or None,
->>>>>>> origin/develop
     }
 
     try:
         r = requests.post(f"{BACKEND_URL}/auth/register", json=payload, timeout=5)
-<<<<<<< HEAD
-    except requests.exceptions.RequestException:
-        flash('No se pudo conectar con el servidor', 'error')
-        return render_template('register.html', form=form)
-
-    try:
-        datos = r.json()
-    except ValueError:
-        datos = {}
-
-    if r.status_code == 201:
-        flash('Cuenta creada. Ya podés iniciar sesión', 'success')
-        return redirect(url_for('auth.iniciar_sesion'))
-
-    flash(datos.get('error', 'No se pudo registrar el usuario'), 'error')
-    return render_template('register.html', form=form)
-=======
         datos = r.json()
     except requests.exceptions.RequestException:
         flash('No se pudo conectar con el servidor', 'error')
@@ -73,7 +39,6 @@ def mostrar_registro():
 
     flash(datos.get('error', 'Error al registrar'), 'error')
     return render_template('register.html')
->>>>>>> origin/develop
 
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
