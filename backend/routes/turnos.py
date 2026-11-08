@@ -5,7 +5,6 @@ from datetime import datetime
 from flask import Blueprint, jsonify, request
 from mysql.connector import Error as MySQLError
 
-from repositories.especialidades_repositories import obtener_especialidades
 from repositories.turnos_repositories import (obtener_turnos_disponibles, reservar_turno)
 
 from validators.turnos_validator import (validar_id_opcional,validar_fecha_opcional, validar_id_turno)
@@ -49,33 +48,6 @@ def cancelar_turno(id_turno):
     except MySQLError:
         return jsonify({"error": "No se pudo conectar a la base de datos o fallo la consulta"}), 500
 
-
-@turnos_bp.route("/especialidades", methods=["GET"])
-def listar_especialidades():
-
-    data_usuario, error_token, codigo = token_required()
-
-    if error_token is not None:
-        return jsonify({
-            "error": error_token
-        }), codigo
-
-    resultados = obtener_especialidades()
-
-    if resultados is None:
-        return jsonify({
-            "error": "No se pudieron obtener las especialidades."
-        }), 500
-
-    especialidades = [
-        {
-            "id_especialidad": row["id_especialidad"],
-            "nombre": row["nombre_especialidad"]
-        }
-        for row in resultados
-    ]
-
-    return jsonify(especialidades), 200
 
 @turnos_bp.route("/turnos/disponibles", methods=["GET"])
 def listar_turnos_disponibles():
