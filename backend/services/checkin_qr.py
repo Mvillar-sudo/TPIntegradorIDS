@@ -80,10 +80,17 @@ def registrar_checkin_por_qr(token_qr):
     apellido = turno.get("paciente_apellido") or ""
     nombre_paciente = f"{nombre} {apellido}".strip()
 
+    medico_nom = f"{turno.get('medico_nombre', '')} {turno.get('medico_apellido', '')}".strip()
+    medico = f"Dr. {medico_nom}" if medico_nom else "Profesional asignado"
+
+    consultorio = str(turno.get("numero_consultorio") or "Consultorio asignado")
+
     return {
         "id_turno": turno["id_turno"],
         "estado": "confirmado",
         "fecha_hora": formatear_fecha_iso(fecha_turno),
         "fecha_hora_checkin": formatear_fecha_iso(ahora),
         "paciente": nombre_paciente,
+        "medico": medico,
+        "consultorio": consultorio,
     }, 200
