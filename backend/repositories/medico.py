@@ -1,6 +1,7 @@
 from mysql.connector import Error as MySQLError
 
 from db import get_connection
+from tiempo import obtener_ahora_gmt3
 
 
 
@@ -53,10 +54,10 @@ def obtener_turnos_hoy_por_medico(id_medico):
                 u.dni_usuario AS paciente_dni
             FROM turnos t
             INNER JOIN usuarios u ON t.id_paciente = u.id_usuario
-            WHERE t.id_medico = %s AND DATE(t.fecha_hora) = CURDATE()
+            WHERE t.id_medico = %s AND DATE(t.fecha_hora) = %s
             ORDER BY t.fecha_hora ASC
         """
-        cursor.execute(query, (id_medico,))
+        cursor.execute(query, (id_medico, obtener_ahora_gmt3().date()))
         return cursor.fetchall()
     finally:
         if cursor is not None:

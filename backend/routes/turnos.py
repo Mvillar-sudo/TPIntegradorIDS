@@ -89,14 +89,8 @@ def listar_especialidades():
 
     return jsonify(especialidades), 200
 
-@turnos_bp.route("/medicos", methods=["GET"])
-def listar_medicos():
-    especialidad_id_recibido = request.args.get("id_especialidad")
-
-    especialidad_id, error = validar_especialidad_id(especialidad_id_recibido)
-
-    if error is not None:
-        return jsonify({"error": error}), 400
+@turnos_bp.route("/turnos/disponibles", methods=["GET"])
+def listar_turnos_disponibles():
 
     _, error_token, codigo = token_required()
 

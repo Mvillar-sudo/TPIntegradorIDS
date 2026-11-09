@@ -1,7 +1,8 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from constants import MAX_ESPACIOS_GENERADOS
 from repositories.consultas_repositories import ejecutar_consulta, get_connection
+from tiempo import obtener_ahora_gmt3
 
 
 def listar_agendas():
@@ -16,79 +17,6 @@ def listar_agendas():
      ORDER BY a.id_medico, a.agenda_fecha_hora_inicio
     """)
 
-
-def crear_agenda(values):
-    connection = get_connection()
-    if not connection:
-        raise RuntimeError('No se pudo conectar a la base de datos')
-
-    cursor = connection.cursor()
-    try:
-        cursor.execute(
-            'SELECT id_consultorio FROM consultorios WHERE id_consultorio = %s FOR UPDATE',
-            (values['id_consultorio'],),
-        )
-        if not cursor.fetchone():
-            raise ValueError('El consultorio indicado no existe')
-        cursor.execute(
-            'SELECT id_medico FROM medicos WHERE id_medico = %s FOR UPDATE',
-            (values['id_medico'],),
-        )
-        if not cursor.fetchone():
-            raise ValueError('El médico indicado no existe')
-
-        cursor.execute("""
-            SELECT a.id_agenda
-            FROM agendas AS a
-            WHERE a.agenda_fecha_hora_inicio < %s
-              AND a.agenda_fecha_hora_fin > %s
-              AND (a.id_consultorio = %s OR a.id_medico = %s)
-            LIMIT 1
-        """, (
-            values['agenda_fecha_hora_fin'], values['agenda_fecha_hora_inicio'],
-            values['id_consultorio'], values['id_medico'],
-        ))
-        if cursor.fetchone():
-            raise ValueError('El médico o consultorio ya tiene una agenda superpuesta')
-
-        cursor.execute("""
-            INSERT INTO agendas
-                (id_medico, id_consultorio, agenda_fecha_hora_inicio,
-                 agenda_fecha_hora_fin)
-            VALUES (%s, %s, %s, %s)
-        """, (
-            values['id_medico'], values['id_consultorio'],
-            values['agenda_fecha_hora_inicio'], values['agenda_fecha_hora_fin'],
-        ))
-        agenda_id = cursor.lastrowid
-
-        now = datetime.now()
-        slot_duration = timedelta(minutes=values['duracion_turno_minutos'])
-        created_count = 0
-        slot_start = values['agenda_fecha_hora_inicio']
-        schedule_end = values['agenda_fecha_hora_fin']
-        while slot_start + slot_duration <= schedule_end:
-            if slot_start > now:
-                cursor.execute("""
-                    INSERT INTO turnos
-                        (id_medico, id_paciente, id_consultorio, fecha_hora, estado)
-                    VALUES (%s, NULL, %s, %s, 'disponible')
-                """, (values['id_medico'], values['id_consultorio'], slot_start))
-                created_count += 1
-                if created_count > MAX_ESPACIOS_GENERADOS:
-                    raise ValueError('El período generaría más de 10.000 turnos')
-            slot_start += slot_duration
-
-        if created_count == 0:
-            raise ValueError('El período no contiene turnos futuros')
-        connection.commit()
-        return agenda_id, created_count
-    except Exception:
-        connection.rollback()
-        raise
-    finally:
-        cursor.close()
-        connection.close()
 
 def crear_agenda(values):
     connection = get_connection()
@@ -136,7 +64,7 @@ def crear_agenda(values):
 
         agenda_id = cursor.lastrowid
 
-        now = datetime.now()
+        now = obtener_ahora_gmt3()
         slot_start = inicio
         created_count = 0
 

@@ -74,11 +74,11 @@ def iniciar_sesion():
     session['token'] = datos['token']
     session['usuario'] = datos['usuario']
 
-    destino = RUTA_POR_ROL.get(datos['usuario']['rol'], 'index')
+    destino = RUTA_POR_ROL.get(datos['usuario']['rol'], 'public.index')
     return redirect(url_for(destino))
 
 
 @auth_bp.route('/logout')
 def cerrar_sesion():
     session.clear()
-    return redirect(url_for('index'))
+    return redirect(url_for('public.index'))
