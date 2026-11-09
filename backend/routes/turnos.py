@@ -1,15 +1,16 @@
 import uuid
 import hashlib
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from flask import Blueprint, jsonify, request
+from mysql.connector import Error as MySQLError
 
-from repositories.especialidades_repositories import obtener_especialidades
 from repositories.turnos_repositories import (obtener_turnos_disponibles, reservar_turno)
 
 from validators.turnos_validator import (validar_id_opcional,validar_fecha_opcional, validar_id_turno)
 from validators.validator_auth import token_required
 from services.notificaciones import notificar_reserva
+from services.turnos import cancelar_turno_servicio, listar_mis_turnos_servicio
 
 turnos_bp = Blueprint('turnos', __name__)
 
@@ -17,86 +18,39 @@ turnos_bp = Blueprint('turnos', __name__)
 @turnos_bp.route('/turnos/mis-turnos', methods=['GET'])
 def obtener_mis_turnos():
 
-    data_usuario, error_token, codigo = token_required()
+    data_usuario, error_token, codigo = token_required(["paciente"])
 
     if error_token is not None:
         return jsonify({
             "error": error_token
         }), codigo
 
-    usuario = data_usuario
-    id_usuario = usuario.get("id_usuario") or usuario.get("id")
-    
-    return jsonify({
-        "status": "success",
-        "mensaje": f"Lista de turnos para el usuario {id_usuario}"
-    }), 200
+    try:
+        respuesta, status_code = listar_mis_turnos_servicio(data_usuario["id_usuario"])
+        return jsonify(respuesta), status_code
+    except MySQLError:
+        return jsonify({"error": "No se pudo conectar a la base de datos o fallo la consulta"}), 500
 
 
 @turnos_bp.route('/turnos/<int:id_turno>/cancelar', methods=['POST'])
 def cancelar_turno(id_turno):
 
-    data_usuario, error_token, codigo = token_required()
+    data_usuario, error_token, codigo = token_required(["paciente", "admin"])
 
     if error_token is not None:
         return jsonify({
             "error": error_token
         }), codigo
 
-    fecha_turno_simulada = datetime.now() + timedelta(hours=5) 
-    
-    ahora = datetime.now()
-    
-    diferencia = fecha_turno_simulada - ahora
-    
-    
-    if diferencia.total_seconds() < 7200:
-        return jsonify({
-            "status": "error",
-            "error": "No se puede cancelar el turno si faltan menos de 2 horas."
-        }), 400
-        
-    
-    return jsonify({
-        "status": "success",
-        "mensaje": f"El turno {id_turno} fue cancelado exitosamente."
-    }), 200
+    try:
+        respuesta, status_code = cancelar_turno_servicio(data_usuario, id_turno)
+        return jsonify(respuesta), status_code
+    except MySQLError:
+        return jsonify({"error": "No se pudo conectar a la base de datos o fallo la consulta"}), 500
 
-@turnos_bp.route("/especialidades", methods=["GET"])
-def listar_especialidades():
 
-    data_usuario, error_token, codigo = token_required()
-
-    if error_token is not None:
-        return jsonify({
-            "error": error_token
-        }), codigo
-
-    resultados = obtener_especialidades()
-
-    if resultados is None:
-        return jsonify({
-            "error": "No se pudieron obtener las especialidades."
-        }), 500
-
-    especialidades = [
-        {
-            "id_especialidad": row["id_especialidad"],
-            "nombre": row["nombre_especialidad"]
-        }
-        for row in resultados
-    ]
-
-    return jsonify(especialidades), 200
-
-@turnos_bp.route("/medicos", methods=["GET"])
-def listar_medicos():
-    especialidad_id_recibido = request.args.get("id_especialidad")
-
-    especialidad_id, error = validar_especialidad_id(especialidad_id_recibido)
-
-    if error is not None:
-        return jsonify({"error": error}), 400
+@turnos_bp.route("/turnos/disponibles", methods=["GET"])
+def listar_turnos_disponibles():
 
     _, error_token, codigo = token_required()
 

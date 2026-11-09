@@ -36,3 +36,7 @@ Los carga `database/seeds.sql`. Todos tienen la contraseña `Prueba1234`. **Solo
 | laura@test.com | paciente |
 
 Para loguearse: `POST /api/v1/auth/login` con `{"email": "...", "password": "Prueba1234"}`. Devuelve un token que se manda en el encabezado `Authorization: Bearer <token>`.
+
+## Fecha y hora
+
+Todo el sistema trabaja en hora de Argentina (GMT-3). Las fechas se guardan en un único campo `DATETIME` sin zona horaria y el backend las compara con `tiempo.obtener_ahora_gmt3()`, así que no depende de la zona horaria de la computadora o del servidor.
