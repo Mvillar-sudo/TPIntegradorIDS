@@ -1,6 +1,6 @@
 from flask import Blueprint, Response, abort, flash, redirect, render_template, session, url_for
 
-from routes.admin import redirigir_por_sesion_vencida
+from services.admin import redirigir_por_sesion_vencida
 from services import turnos as turnos_service
 from services.api_client import SIN_CONEXION
 
@@ -19,7 +19,7 @@ def exigir_paciente():
 
     if session.get('usuario', {}).get('rol') != 'paciente':
         flash('Esta pantalla es solo para pacientes', 'error')
-        return redirect(url_for('index'))
+        return redirect(url_for('public.index'))
 
     return None
 
@@ -37,7 +37,7 @@ def mis_turnos():
 
     if error is not None:
         flash(error, 'error')
-        return redirect(url_for('index'))
+        return redirect(url_for('public.index'))
 
     return render_template(
         'turnos/mis_turnos.html', proximos=datos['proximos'], anteriores=datos['anteriores']
@@ -73,7 +73,7 @@ def confirmar_cancelacion(id_turno):
 
     if status == SIN_CONEXION or (error is not None and status != 404):
         flash(error, 'error')
-        return redirect(url_for('index'))
+        return redirect(url_for('public.index'))
 
     return render_template('turnos/cancelar.html', turno=turno, error=error)
 
