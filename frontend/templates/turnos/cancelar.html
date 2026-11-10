@@ -14,7 +14,7 @@
 		{% if turno is none %}
 		<p>{{ error }}. Revisá que el link del mail sea el correcto o entrá con la cuenta con la que reservaste.</p>
 		<ul class="actions special">
-			<li><a href="/" class="button">Volver al inicio</a></li>
+			<li><a href="{{ url_for('turnos.mis_turnos') }}" class="button">Volver a mis turnos</a></li>
 		</ul>
 
 		{% else %}
@@ -35,20 +35,20 @@
 		<form method="post" action="{{ url_for('turnos.cancelar', id_turno=turno.id_turno) }}">
 			<ul class="actions special">
 				<li><input type="submit" value="Sí, cancelar turno" class="button primary" /></li>
-				<li><a href="/" class="button">No, volver</a></li>
+				<li><a href="{{ url_for('turnos.mis_turnos') }}" class="button">No, volver</a></li>
 			</ul>
 		</form>
 
 		{% elif turno.estado == 'cancelado' %}
 		<p>Este turno ya está cancelado.</p>
 		<ul class="actions special">
-			<li><a href="/" class="button">Volver al inicio</a></li>
+			<li><a href="{{ url_for('turnos.mis_turnos') }}" class="button">Volver a mis turnos</a></li>
 		</ul>
 
 		{% else %}
 		<p>Este turno ya no se puede cancelar porque su estado es «{{ turno.estado }}».</p>
 		<ul class="actions special">
-			<li><a href="/" class="button">Volver al inicio</a></li>
+			<li><a href="{{ url_for('turnos.mis_turnos') }}" class="button">Volver a mis turnos</a></li>
 		</ul>
 		{% endif %}
 		{% endif %}

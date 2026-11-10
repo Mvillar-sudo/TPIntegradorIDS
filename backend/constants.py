@@ -34,6 +34,7 @@ GESTION_ROLES = ('admin', 'recepcionista')
 ROLES_PERSONAL_CREABLES = ('recepcionista', 'medico')
 
 MIN_HORAS_CANCELACION = 2
+ESTADOS_CON_QR = ('reservado', 'confirmado')
 MAX_ESPACIOS_GENERADOS = 10000
 MAX_DIAS_AGENDA = 365
 MAX_DURACION_MINUTOS = 60
