@@ -5,40 +5,48 @@
 {% block admin_content %}
 <div class="admin-titulo">
 	<h2>{{ titulo }}</h2>
-	<a href="{{ url_for('admin.listado_medicos') }}" class="button">Volver</a>
+	<a href="{{ url_for('admin.listado_medicos') }}" class="button admin-boton">Volver</a>
 </div>
 
-<form method="post">
-	<div class="row gtr-uniform gtr-50">
-		<div class="col-6 col-12-xsmall">
-			<input type="text" name="nombre" placeholder="Nombre" required />
-		</div>
-		<div class="col-6 col-12-xsmall">
-			<input type="text" name="apellido" placeholder="Apellido" required />
-		</div>
-		<div class="col-6 col-12-xsmall">
-			<input type="text" name="dni" placeholder="DNI" inputmode="numeric" pattern="[0-9]{7,8}" required />
-		</div>
-		<div class="col-6 col-12-xsmall">
-			<input type="email" name="email" placeholder="Email" required />
-		</div>
-		<div class="col-6 col-12-xsmall">
-			<input type="tel" name="telefono" placeholder="Teléfono" />
-		</div>
-		<div class="col-6 col-12-xsmall">
-			<select name="especialidad" required>
-				<option value="">- Especialidad -</option>
+<div class="auth-box auth-registro">
+
+	<div class="auth-cabecera">Datos del médico</div>
+
+	<div class="auth-cuerpo">
+		<form method="post">
+			<div class="auth-fila">
+				<div>
+					<label for="nombre">Nombre</label>
+					<input type="text" name="nombre" id="nombre" required />
+				</div>
+				<div>
+					<label for="apellido">Apellido</label>
+					<input type="text" name="apellido" id="apellido" required />
+				</div>
+			</div>
+
+			<label for="dni">DNI</label>
+			<input type="text" name="dni" id="dni" inputmode="numeric" pattern="[0-9]{7,8}" required />
+
+			<label for="email">Email</label>
+			<input type="email" name="email" id="email" required />
+
+			<label for="telefono">Teléfono (opcional)</label>
+			<input type="tel" name="telefono" id="telefono" />
+
+			<label for="especialidad">Especialidad</label>
+			<select name="especialidad" id="especialidad" required>
+				<option value="">- Elegí una especialidad -</option>
 				<option>Cardiología</option>
 				<option>Pediatría</option>
 				<option>Dermatología</option>
 			</select>
-		</div>
-		<div class="col-12">
-			<ul class="actions">
-				<li><input type="submit" value="Guardar" class="button primary" /></li>
-				<li><a href="{{ url_for('admin.listado_medicos') }}" class="button">Cancelar</a></li>
-			</ul>
-		</div>
+
+			<input type="submit" value="Guardar" class="auth-boton" />
+		</form>
+
+		<p class="auth-subtitulo"><a href="{{ url_for('admin.listado_medicos') }}">Cancelar</a></p>
 	</div>
-</form>
+
+</div>
 {% endblock %}

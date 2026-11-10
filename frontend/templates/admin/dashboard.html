@@ -5,30 +5,11 @@
 {% block admin_content %}
 <div class="admin-titulo">
 	<h2>Panel de administrador</h2>
-</div>
-
-<div class="admin-tarjetas">
-	<div class="admin-tarjeta">
-		<span class="numero">24</span>
-		<span class="etiqueta">Médicos</span>
-	</div>
-	<div class="admin-tarjeta">
-		<span class="numero">12</span>
-		<span class="etiqueta">Especialidades</span>
-	</div>
-	<div class="admin-tarjeta">
-		<span class="numero">58</span>
-		<span class="etiqueta">Turnos hoy</span>
-	</div>
-	<div class="admin-tarjeta">
-		<span class="numero">310</span>
-		<span class="etiqueta">Pacientes</span>
-	</div>
+	<a href="{{ url_for('admin.resumen') }}" class="button admin-boton">Ver resumen</a>
 </div>
 
 <h3>Accesos rápidos</h3>
 <div class="admin-accesos">
-	<a href="{{ url_for('admin.listado_medicos') }}" class="button primary">Gestionar médicos</a>
-	<a href="{{ url_for('admin.nuevo_medico') }}" class="button">Agregar médico</a>
+	<a href="{{ url_for('admin.listado_medicos') }}" class="button admin-boton">Gestionar médicos</a>
 </div>
 {% endblock %}

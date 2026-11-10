@@ -2,6 +2,10 @@ from repositories.consultas_repositories import ejecutar_consulta
 from constants import CATALOGO
 
 
+def _contar(query, params=None):
+    return ejecutar_consulta(query, params, fetch_all=False)["total"]
+
+
 def listar_catalogo(resource):
     spec = CATALOGO[resource]
     columns = ', '.join((spec['id'], *spec['columns']))
@@ -48,3 +52,16 @@ def eliminar_catalogo(resource, item_id):
         f"DELETE FROM {spec['table']} WHERE {spec['id']} = %s",
         (item_id,),
     )
+
+
+def contar_medicos():
+    return _contar("SELECT COUNT(*) AS total FROM medicos")
+
+def contar_especialidades():
+    return _contar("SELECT COUNT(*) AS total FROM especialidades")
+
+def contar_pacientes():
+    return _contar("SELECT COUNT(*) AS total FROM usuarios WHERE rol_usuario = %s", ('paciente',),)
+
+def contar_turnos_hoy():
+    return _contar("SELECT COUNT(*) AS total FROM turnos WHERE DATE(fecha_hora) = CURDATE()")

@@ -117,3 +117,19 @@ def eliminar_catalogo(recurso, item_id):
 
     except (ValueError, LookupError, Error) as error:
         return respuesta_error(error)
+
+@admin_bp.route('/admin/resumen', methods=['GET'])
+def obtener_resumen():
+
+    _, error_token, codigo = token_required(["admin"])
+
+    if error_token is not None:
+        return jsonify({
+            "error": error_token
+        }), codigo
+
+    try:
+        return jsonify(admin.resumen()), 200
+
+    except Error as error:
+        return respuesta_error(error)
