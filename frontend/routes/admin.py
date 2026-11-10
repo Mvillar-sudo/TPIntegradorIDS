@@ -5,10 +5,14 @@ from services.admin import verificar_admin, renderizar_admin, redirigir_por_sesi
 from services.api_client import pedir
 
 # Creamos el Blueprint para las rutas de admin del frontend
-admin_bp = Blueprint('admin', __name__)
+admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
-@admin_bp.route('/admin/agendas/nueva', methods=['GET', 'POST'])
+@admin_bp.route('/agendas/nueva', methods=['GET', 'POST'])
 def nueva_agenda():
+    bloqueo = verificar_admin()
+    if bloqueo:
+        return bloqueo
+
     # --- MÉTODO GET: Mostrar el formulario ---
     usuario_actual = session.get('usuario') 
 

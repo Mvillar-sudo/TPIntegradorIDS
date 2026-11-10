@@ -47,5 +47,3 @@ def marcar_atendido(id_turno):
         return jsonify(respuesta), status_code
     except MySQLError:
         return jsonify({"error": "No se pudo conectar a la base de datos o fallo la consulta"}), 500
-     
-    

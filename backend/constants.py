@@ -47,5 +47,4 @@ MEDICOS_BASE_SELECT = """
     FROM medicos AS m
     JOIN usuarios AS u ON u.id_usuario = m.id_usuario
     JOIN especialidades AS e ON e.id_especialidad = m.id_especialidad
-    JOIN usuarios AS u ON u.id_usuario = m.id_usuario
 """
