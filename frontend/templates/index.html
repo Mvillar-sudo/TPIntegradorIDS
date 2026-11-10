@@ -50,7 +50,6 @@
 									<li><a href="/medicos">Médicos</a></li>
 									<li><a href="/turnos">Reservar turno</a></li>
 									<li><a href="/especialidades">Especialidades</a></li>
-									<li><a href="/about-us">Sobre nosotros</a></li>
 								</ul>
 							</li>
 							{% if request.path == '/register' %}
@@ -167,13 +166,6 @@
 										<li><a href="/mis-turnos" class="button alt">Mis turnos</a></li>
 									</ul>
 								</section>
-								{% else %}
-								<section>
-									<h3>Sobre nosotros</h3>
-									<ul class="actions special">
-										<li><a href="/about-us" class="button alt">Saber más</a></li>
-									</ul>
-								</section>
 								{% endif %}
 								<section>
 									<h3>Conocé nuestras especialidades</h3>
@@ -184,23 +176,6 @@
 							</div>
 						{% endif %}
 					</section>
-
-					{% if not session.get('usuario') or session.usuario.rol == 'paciente' %}
-					<div class="row aln-center">
-						<div class="col-6 col-12-narrower">
-
-							<section class="box special">
-								<h3>Sobre nosotros</h3>
-								<p>Haga click en el boton de debajo para saber más de nuestro centro medico</p>
-								<ul class="actions special">
-									<li><a href="/about-us" class="button alt">Saber más</a></li>
-								</ul>
-							</section>
-
-						</div>
-					</div>
-					{% endif %}
-
 				</section>
 			{% endblock %}
 
