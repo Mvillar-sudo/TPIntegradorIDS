@@ -1,16 +1,18 @@
 import uuid
 import hashlib
-from datetime import datetime, timedelta
+from datetime import datetime
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, Response, jsonify, request
+from mysql.connector import Error as MySQLError
 
-from repositories.especialidades_repositories import obtener_especialidades
-from repositories.medico import obtener_medicos_por_especialidad
 from repositories.turnos_repositories import (obtener_turnos_disponibles, reservar_turno)
 
 from validators.turnos_validator import (validar_id_opcional,validar_fecha_opcional, validar_id_turno)
-from validators.medico import validar_especialidad_id
 from validators.validator_auth import token_required
+from services.notificaciones import notificar_reserva
+from services.turnos import (
+    cancelar_turno_servicio, listar_mis_turnos_servicio, obtener_qr_turno_servicio
+)
 
 turnos_bp = Blueprint('turnos', __name__)
 
@@ -18,92 +20,70 @@ turnos_bp = Blueprint('turnos', __name__)
 @turnos_bp.route('/turnos/mis-turnos', methods=['GET'])
 def obtener_mis_turnos():
 
-    data_usuario, error_token, codigo = token_required()
+    data_usuario, error_token, codigo = token_required(["paciente"])
 
     if error_token is not None:
         return jsonify({
             "error": error_token
         }), codigo
 
-    usuario = request.user_data
-    id_usuario = usuario.get("id_usuario") or usuario.get("id")
-    
-    return jsonify({
-        "status": "success",
-        "mensaje": f"Lista de turnos para el usuario {id_usuario}"
-    }), 200
+    try:
+        respuesta, status_code = listar_mis_turnos_servicio(data_usuario["id_usuario"])
+        return jsonify(respuesta), status_code
+    except MySQLError:
+        return jsonify({"error": "No se pudo conectar a la base de datos o fallo la consulta"}), 500
+
+
+@turnos_bp.route('/turnos/<int:id_turno>/qr', methods=['GET'])
+def obtener_qr_turno(id_turno):
+
+    data_usuario, error_token, codigo = token_required(["paciente"])
+
+    if error_token is not None:
+        return jsonify({
+            "error": error_token
+        }), codigo
+
+    try:
+        png, error, status_code = obtener_qr_turno_servicio(data_usuario, id_turno)
+    except MySQLError:
+        return jsonify({"error": "No se pudo conectar a la base de datos o fallo la consulta"}), 500
+
+    if error is not None:
+        return jsonify({"error": error}), status_code
+
+    return Response(png, mimetype="image/png")
 
 
 @turnos_bp.route('/turnos/<int:id_turno>/cancelar', methods=['POST'])
 def cancelar_turno(id_turno):
 
-    data_usuario, error_token, codigo = token_required()
+    data_usuario, error_token, codigo = token_required(["paciente", "admin"])
 
     if error_token is not None:
         return jsonify({
             "error": error_token
         }), codigo
 
-    fecha_turno_simulada = datetime.now() + timedelta(hours=5) 
-    
-    ahora = datetime.now()
-    
-    diferencia = fecha_turno_simulada - ahora
-    
-    
-    if diferencia.total_seconds() < 7200:
-        return jsonify({
-            "status": "error",
-            "error": "No se puede cancelar el turno si faltan menos de 2 horas."
-        }), 400
-        
-    
-    return jsonify({
-        "status": "success",
-        "mensaje": f"El turno {id_turno} fue cancelado exitosamente."
-    }), 200
+    try:
+        respuesta, status_code = cancelar_turno_servicio(data_usuario, id_turno)
+        return jsonify(respuesta), status_code
+    except MySQLError:
+        return jsonify({"error": "No se pudo conectar a la base de datos o fallo la consulta"}), 500
 
-@turnos_bp.route("/especialidades", methods=["GET"])
-def listar_especialidades():
-    resultados = obtener_especialidades()
-
-    if resultados is None:
-        return jsonify({
-            "error": "No se pudieron obtener las especialidades."
-        }), 500
-
-    especialidades = [
-        {
-            "id_especialidad": row["id_especialidad"],
-            "nombre": row["nombre_especialidad"]
-        }
-        for row in resultados
-    ]
-
-    return jsonify(especialidades), 200
-
-@turnos_bp.route("/medicos", methods=["GET"])
-def listar_medicos():
-    especialidad_id_recibido = request.args.get("especialidad_id")
-
-    especialidad_id, error = validar_especialidad_id(especialidad_id_recibido)
-
-    if error is not None:
-        return jsonify({"error": error}), 400
-
-    resultados = obtener_medicos_por_especialidad(especialidad_id)
-
-    if resultados is None:
-        return jsonify({
-            "error": "No se pudieron obtener los médicos."
-        }), 500
-
-    return jsonify(resultados), 200
 
 @turnos_bp.route("/turnos/disponibles", methods=["GET"])
 def listar_turnos_disponibles():
+
+    _, error_token, codigo = token_required()
+
+    if error_token is not None:
+        return jsonify({
+            "error": error_token
+        }), codigo
+
     medico_id_recibido = request.args.get("medico_id")
-    especialidad_id_recibido = request.args.get("especialidad_id")
+    especialidad_id_recibido = request.args.get("id_especialidad")
     fecha_recibida = request.args.get("fecha")
 
     # Validar medico_id
@@ -118,7 +98,7 @@ def listar_turnos_disponibles():
     # Validar especialidad_id
     especialidad_id, error = validar_id_opcional(
         especialidad_id_recibido,
-        "especialidad_id"
+        "id_especialidad"
     )
 
     if error is not None:
@@ -180,16 +160,13 @@ def reservar_turno_endpoint():
             "error": error_token
         }), codigo
 
-    # 1. Obtener el usuario autenticado desde el token.
-    user_data = getattr(request, "user_data", {})
-    id_paciente = user_data.get("id_usuario")
+    id_paciente = data_usuario.get("id_usuario")
 
     if not id_paciente:
         return jsonify({
             "error": "El token no contiene un id_usuario válido."
         }), 401
 
-    # 2. Obtener y validar el cuerpo de la petición.
     data = request.get_json(silent=True)
 
     if not isinstance(data, dict) or "id_turno" not in data:
@@ -202,7 +179,6 @@ def reservar_turno_endpoint():
     if error is not None:
         return jsonify({"error": error}), 400
 
-    # 3. Generar el hash que se utilizará como token del QR.
     semilla = (
         f"TURNO-{id_turno}-PACIENTE-{id_paciente}-"
         f"{datetime.now().isoformat()}-{uuid.uuid4().hex}"
@@ -212,7 +188,6 @@ def reservar_turno_endpoint():
         semilla.encode("utf-8")
     ).hexdigest()
 
-    # 4. Intentar realizar la reserva.
     resultado = reservar_turno(
         id_turno=id_turno,
         id_paciente=id_paciente,
@@ -244,7 +219,6 @@ def reservar_turno_endpoint():
             "error": "No se pudo completar la reserva por un error interno."
         }), 500
 
-    # 5. Preparar la respuesta.
     turno = resultado["turno"]
     fecha_hora = turno["fecha_hora"]
 
@@ -253,8 +227,11 @@ def reservar_turno_endpoint():
     else:
         fecha_hora = str(fecha_hora)
 
+    email_enviado = notificar_reserva(id_turno)
+
     return jsonify({
         "mensaje": "Turno reservado exitosamente.",
+        "email_enviado": email_enviado,
         "reserva": {
             "id_turno": id_turno,
             "id_paciente": id_paciente,

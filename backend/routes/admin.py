@@ -14,16 +14,15 @@ def _validar_recurso(recurso):
     if recurso not in CATALOGO_CAMPOS:
         raise LookupError('El catálogo solicitado no existe')
 
-
 @admin_bp.route('/<recurso>', methods=['GET'])
 def listar_catalogos(recurso):
 
-    user_data, error_token, codigo = token_required(["admin"])
+    _, error_token, codigo = token_required(["admin"])
+    
     if error_token is not None:
         return jsonify({
             "error": error_token
         }), codigo
-    
 
     try:
         _validar_recurso(recurso)
@@ -36,16 +35,17 @@ def listar_catalogos(recurso):
 
 @admin_bp.route('/<recurso>', methods=['POST'])
 def crear_catalogo(recurso):
+
+
+    _, error_token, codigo = token_required(["admin"])
+
+    if error_token is not None:
+        return jsonify({
+            "error": error_token
+        }), codigo
+
     try:
         _validar_recurso(recurso)
-
-        user_data, error_token, codigo = token_required(["admin"])
-        if error_token is not None:
-            return jsonify({
-                "error": error_token
-            }), codigo
-
-        
         values = validar_catalogo(
             recurso,
             request.get_json(silent=True)
@@ -59,7 +59,8 @@ def crear_catalogo(recurso):
 @admin_bp.route('/<recurso>/<int:item_id>', methods=['GET'])
 def obtener_catalogo(recurso, item_id):
 
-    user_data, error_token, codigo = token_required(["admin"])
+    _, error_token, codigo = token_required(["admin"])
+
     if error_token is not None:
         return jsonify({
             "error": error_token
@@ -76,13 +77,12 @@ def obtener_catalogo(recurso, item_id):
 
 @admin_bp.route('/<recurso>/<int:item_id>', methods=['PATCH'])
 def actualizar_catalogo(recurso, item_id):
+    _, error_token, codigo = token_required(["admin"])
 
-    user_data, error_token, codigo = token_required(["admin"])
     if error_token is not None:
         return jsonify({
             "error": error_token
         }), codigo
-
 
     try:
         _validar_recurso(recurso)
@@ -101,7 +101,8 @@ def actualizar_catalogo(recurso, item_id):
 @admin_bp.route('/<recurso>/<int:item_id>', methods=['DELETE'])
 def eliminar_catalogo(recurso, item_id):
 
-    user_data, error_token, codigo = token_required(["admin"])
+    _, error_token, codigo = token_required(["admin"])
+    
     if error_token is not None:
         return jsonify({
             "error": error_token

@@ -1,4 +1,4 @@
-from .consultas_repositories import ejecutar_consulta
+from repositories.consultas_repositories import ejecutar_consulta
 from constants import CATALOGO
 
 

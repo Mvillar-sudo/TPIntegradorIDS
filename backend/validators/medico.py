@@ -15,17 +15,3 @@ def validar_id_turno(id_turno):
         raise ValueError("El identificador del turno debe ser un entero positivo")
 
     return id_int
-
-def validar_especialidad_id(valor):
-    if valor is None:
-        return None, None
-
-    try:
-        especialidad_id = int(valor)
-    except ValueError:
-        return None, "El parámetro especialidad_id debe ser un número entero válido."
-
-    if especialidad_id <= 0:
-        return None, "El parámetro especialidad_id debe ser un entero positivo."
-
-    return especialidad_id, None

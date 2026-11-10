@@ -1,26 +1,40 @@
 from flask import Flask, jsonify
+
+from config import validar_configuracion
+
 from routes.admin import admin_bp
 from routes.agendas import agendas_bp
-from routes.turnos import turnos_bp  # Importación desde la carpeta local routes
+from routes.turnos import turnos_bp
+from routes.especialidades import especialidades_bp
 from routes.checkin_qr import checkin_qr_bp
 from routes.medico import medico_bp
 from routes.medicos import medicos_bp
 from routes.auth import auth_bp
-from routes.agendas_routes import agendas_bp
+from routes.usuarios import usuarios_bp
+from routes.recepcion import recepcion_bp
+from routes.estadisticas import estadisticas_bp
+
+
+validar_configuracion()
 
 app = Flask(__name__)
 
 # Para las tildes y caracteres especiales en JSON
 app.json.ensure_ascii = False
 app.json.sort_keys = False
+
 # Registro del Blueprint
 app.register_blueprint(turnos_bp, url_prefix='/api/v1')
+app.register_blueprint(especialidades_bp, url_prefix='/api/v1')
 app.register_blueprint(admin_bp, url_prefix='/api/v1')
 app.register_blueprint(agendas_bp, url_prefix='/api/v1')
 app.register_blueprint(checkin_qr_bp, url_prefix='/api/v1')
 app.register_blueprint(medico_bp, url_prefix='/api/v1')
 app.register_blueprint(medicos_bp, url_prefix="/api/v1")
 app.register_blueprint(auth_bp, url_prefix="/api/v1")
+app.register_blueprint(usuarios_bp, url_prefix="/api/v1")
+app.register_blueprint(recepcion_bp, url_prefix="/api/v1")
+app.register_blueprint(estadisticas_bp, url_prefix='/api/v1')
 
 
 # Ruta base de prueba

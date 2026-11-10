@@ -13,11 +13,15 @@ def obtener(medico_id):
 
 
 def crear(values):
+    if not medicos.usuario_es_medico(values['id_usuario']):
+        raise ValueError('El usuario indicado no existe o no tiene rol de médico')
+    if medicos.usuario_tiene_perfil_medico(values['id_usuario']):
+        raise ValueError('El usuario indicado ya está registrado como médico')
     if not medicos.especialidad_existe(values['id_especialidad']):
         raise ValueError('La especialidad indicada no existe')
     if medicos.matricula_existe(values['matricula']):
         raise ValueError('La matrícula ingresada ya existe')
-    return medicos.crear(values)
+    return medicos.crear_medico(values)
 
 
 def actualizar(medico_id, values):
@@ -34,4 +38,4 @@ def eliminar(medico_id):
     obtener(medico_id)
     if medicos.tiene_dependencias(medico_id):
         raise ValueError('No se puede eliminar un médico con agendas o turnos asociados')
-    medicos.eliminar_medico(medico_id)
+    medicos.eliminar(medico_id)

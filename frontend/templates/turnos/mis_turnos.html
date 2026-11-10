@@ -1,0 +1,67 @@
+{% extends "index.html" %}
+
+{% block title %}Mis turnos | Centro Medico Salud Integral{% endblock %}
+
+{% block header_class %}{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/turnos.css') }}" />
+{% endblock %}
+
+{% block content %}
+<section id="main" class="container" style="padding-top: 8em;">
+	<section class="box">
+		<header class="major special">
+			<h2>Mis turnos</h2>
+		</header>
+
+		{% if not proximos and not anteriores %}
+		<p>Todavía no tenés turnos.</p>
+		<ul class="actions special">
+			<li><a href="/turnos" class="button primary">Reservar turno</a></li>
+		</ul>
+		{% endif %}
+
+		{% if proximos %}
+		<h3>Próximos turnos</h3>
+		{% for turno in proximos %}
+		<section class="box turno turno-{{ turno.estado }}">
+			<div class="row">
+				<div class="col-8 col-12-narrower">
+					<h4>{{ turno.fecha_hora_texto }} <span class="estado estado-{{ turno.estado }}">{{ turno.estado | capitalize }}</span></h4>
+					<p>
+						<strong>Médico:</strong> {{ turno.medico }}<br />
+						<strong>Especialidad:</strong> {{ turno.especialidad }}<br />
+						<strong>Lugar:</strong> {{ turno.consultorio }}
+					</p>
+					{% if turno.estado == 'reservado' %}
+					<ul class="actions">
+						<li><a href="{{ url_for('turnos.confirmar_cancelacion', id_turno=turno.id_turno) }}" class="button">Cancelar turno</a></li>
+					</ul>
+					{% endif %}
+				</div>
+				<div class="col-4 col-12-narrower">
+					<img class="qr" src="{{ url_for('turnos.imagen_qr', id_turno=turno.id_turno) }}" alt="Código QR del turno del {{ turno.fecha_hora_texto }}" />
+					<p class="qr-ayuda">Mostrá este código en recepción al llegar.</p>
+				</div>
+			</div>
+		</section>
+		{% endfor %}
+		{% endif %}
+
+		{% if anteriores %}
+		<h3>Turnos anteriores</h3>
+		{% for turno in anteriores %}
+		<section class="box turno turno-{{ turno.estado }}">
+			<h4>{{ turno.fecha_hora_texto }} <span class="estado estado-{{ turno.estado }}">{{ turno.estado | capitalize }}</span></h4>
+			<p>
+				<strong>Médico:</strong> {{ turno.medico }}<br />
+				<strong>Especialidad:</strong> {{ turno.especialidad }}<br />
+				<strong>Lugar:</strong> {{ turno.consultorio }}
+			</p>
+		</section>
+		{% endfor %}
+		{% endif %}
+	</section>
+</section>
+{% endblock %}

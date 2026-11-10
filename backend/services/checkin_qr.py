@@ -1,4 +1,6 @@
-from datetime import datetime, timezone, timedelta
+from datetime import timedelta
+
+from tiempo import obtener_ahora_gmt3
 
 try:
     from repositories.checkin_qr import (
@@ -12,14 +14,6 @@ except ImportError:
         confirmar_checkin_turno,
         actualizar_turno_a_ausente,
     )
-
-"""
-Pre: -
-Post: Devuelve la fecha y hora actual en GMT-3 para comparar con el campo DATETIME de MySQL.
-"""
-def obtener_ahora_gmt3():
-    zona_gmt3 = timezone(timedelta(hours=-3))
-    return datetime.now(zona_gmt3).replace(tzinfo=None, microsecond=0)
 
 """
 Pre: 'dt' es un objeto datetime o None
@@ -80,10 +74,17 @@ def registrar_checkin_por_qr(token_qr):
     apellido = turno.get("paciente_apellido") or ""
     nombre_paciente = f"{nombre} {apellido}".strip()
 
+    medico_nom = f"{turno.get('medico_nombre', '')} {turno.get('medico_apellido', '')}".strip()
+    medico = f"Dr. {medico_nom}" if medico_nom else "Profesional asignado"
+
+    consultorio = str(turno.get("numero_consultorio") or "Consultorio asignado")
+
     return {
         "id_turno": turno["id_turno"],
         "estado": "confirmado",
         "fecha_hora": formatear_fecha_iso(fecha_turno),
         "fecha_hora_checkin": formatear_fecha_iso(ahora),
         "paciente": nombre_paciente,
+        "medico": medico,
+        "consultorio": consultorio,
     }, 200

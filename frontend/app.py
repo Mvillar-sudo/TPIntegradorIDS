@@ -9,8 +9,7 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv('FRONTEND_SECRET_KEY', 'clave_secreta_mockup_centro_medico')
-
-medico_bp = Blueprint('medico', __name__)
+app.permanent_session_lifetime = timedelta(hours=2)
 
 """
 Pre: -
@@ -35,8 +34,12 @@ def atender_turno(id_turno):
         flash(str(e), 'danger')
     return redirect(url_for('medico.agenda'))
 
+app.register_blueprint(auth_bp)
 app.register_blueprint(medico_bp)
 app.register_blueprint(recepcion_bp)
+app.register_blueprint(admin_bp)
+app.register_blueprint(public_bp)
+app.register_blueprint(turnos_bp)
 
 # --- ISSUE 3: RUTAS DEL ADMINISTRADOR / MÉDICO (Agendas) ---
 """
