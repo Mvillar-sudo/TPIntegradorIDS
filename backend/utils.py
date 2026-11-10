@@ -1,6 +1,6 @@
 from flask import jsonify
 from mysql.connector import Error
-
+from datetime import datetime, timedelta
 
 def respuesta_error(error):
     if isinstance(error, LookupError):
@@ -45,3 +45,14 @@ def validar_objeto_json(body):
     if not isinstance(body, dict):
         raise ValueError('El cuerpo debe ser un objeto JSON')
     return body
+
+def generar_intervalos_turnos(fecha_str, hora_inicio_str, hora_fin_str):
+    formato = "%Y-%m-%d %H:%M:%S"
+    inicio_dt = datetime.strptime(f"{fecha_str} {hora_inicio_str}", formato)
+    fin_dt = datetime.strptime(f"{fecha_str} {hora_fin_str}", formato)
+    turnos = []
+    turno_actual = inicio_dt 
+    while turno_actual + timedelta(hours=1) <= fin_dt:
+        turnos.append(turno_actual)
+        turno_actual += timedelta(hours=1)
+    return turnos

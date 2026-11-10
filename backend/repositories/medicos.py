@@ -3,6 +3,7 @@ from constants import MEDICOS_BASE_SELECT
 
 
 def listar_medicos(especialidad_id=None):
+    print("Ejecutando consulta para listar agendas")
     query = MEDICOS_BASE_SELECT
     params = ()
     if especialidad_id is not None:
@@ -13,6 +14,7 @@ def listar_medicos(especialidad_id=None):
 
 
 def obtener_medico(medico_id):
+    print("Ejecutando consulta para listar agendas")
     rows = ejecutar_consulta(MEDICOS_BASE_SELECT + ' WHERE m.id_medico = %s', (medico_id,))
     return rows[0] if rows else None
 

@@ -8,7 +8,7 @@ from services.medico import (listar_turnos_hoy_servicio, marcar_atendido_servici
 medico_bp = Blueprint("medico", __name__)
 
 
-@medico_bp.route("/turnos/hoy", methods=["GET"])
+@medico_bp.route("/medicos/turnos/hoy", methods=["GET"])
 def ver_turnos_hoy():
 
     user_data, error_token, codigo = token_required(["admin", "medico"])
@@ -26,7 +26,7 @@ def ver_turnos_hoy():
         return jsonify({"error": "No se pudo conectar a la base de datos o fallo la consulta"}), 500
 
 
-@medico_bp.route("/turnos/<id_turno>/atendido", methods=["PATCH"])
+@medico_bp.route("/medicos/turnos/<id_turno>/atendido", methods=["PATCH"])
 def marcar_atendido(id_turno):
 
     user_data, error_token, codigo = token_required(["admin", "medico"])
@@ -47,3 +47,5 @@ def marcar_atendido(id_turno):
         return jsonify(respuesta), status_code
     except MySQLError:
         return jsonify({"error": "No se pudo conectar a la base de datos o fallo la consulta"}), 500
+     
+    
