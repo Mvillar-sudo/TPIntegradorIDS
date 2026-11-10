@@ -1,4 +1,4 @@
-from flask import Blueprint, flash, redirect, render_template, session, url_for
+from flask import Blueprint, Response, abort, flash, redirect, render_template, session, url_for
 
 from routes.admin import redirigir_por_sesion_vencida
 from services import turnos as turnos_service
@@ -14,7 +14,7 @@ def exigir_paciente():
           (una redirección con un mensaje) que la ruta tiene que devolver.
     """
     if 'token' not in session:
-        flash('Iniciá sesión para cancelar tu turno', 'error')
+        flash('Iniciá sesión para continuar', 'error')
         return redirect(url_for('auth.iniciar_sesion'))
 
     if session.get('usuario', {}).get('rol') != 'paciente':
@@ -22,6 +22,42 @@ def exigir_paciente():
         return redirect(url_for('index'))
 
     return None
+
+
+@turnos_bp.route('/mis-turnos', methods=['GET'])
+def mis_turnos():
+    rechazo = exigir_paciente()
+    if rechazo is not None:
+        return rechazo
+
+    datos, error, status = turnos_service.listar_mis_turnos()
+
+    if status == 401:
+        return redirigir_por_sesion_vencida()
+
+    if error is not None:
+        flash(error, 'error')
+        return redirect(url_for('index'))
+
+    return render_template(
+        'turnos/mis_turnos.html', proximos=datos['proximos'], anteriores=datos['anteriores']
+    )
+
+
+@turnos_bp.route('/turnos/<int:id_turno>/qr.png', methods=['GET'])
+def imagen_qr(id_turno):
+    if 'token' not in session:
+        abort(401)
+
+    if session.get('usuario', {}).get('rol') != 'paciente':
+        abort(403)
+
+    imagen, error, status = turnos_service.obtener_qr(id_turno)
+
+    if error is not None:
+        abort(status if status in (400, 401, 403, 404) else 502)
+
+    return Response(imagen, mimetype='image/png')
 
 
 @turnos_bp.route('/turnos/<int:id_turno>/cancelar', methods=['GET'])
@@ -55,7 +91,7 @@ def cancelar(id_turno):
 
     if error is not None:
         flash(error, 'error')
-    else:
-        flash('Tu turno fue cancelado. Podés reservar otro cuando quieras.', 'success')
+        return redirect(url_for('turnos.confirmar_cancelacion', id_turno=id_turno))
 
-    return redirect(url_for('turnos.confirmar_cancelacion', id_turno=id_turno))
+    flash('Tu turno fue cancelado. Podés reservar otro cuando quieras.', 'success')
+    return redirect(url_for('turnos.mis_turnos'))
