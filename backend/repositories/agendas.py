@@ -1,12 +1,13 @@
 from datetime import datetime, timedelta
 
 from constants import MAX_ESPACIOS_GENERADOS
-from consultas_repositories import ejecutar_consulta, get_connection
+from .consultas_repositories import ejecutar_consulta, get_connection
 
 
 def listar_agendas():
+    print("Ejecutando consulta para listar agendas")
     return ejecutar_consulta("""
-     SELECT a.id_agenda, a.id_medico, m.nombre_medico,
+     SELECT a.id_agenda, a.id_medico, 
          m.apellido_medico, a.id_consultorio, c.numero_consultorio,
          c.piso, a.agenda_fecha_hora_inicio, a.agenda_fecha_hora_fin
         FROM agendas AS a

@@ -1,18 +1,20 @@
 from .consultas_repositories import ejecutar_consulta
-from ..constants import MEDICOS_BASE_SELECT
+from constants import MEDICOS_BASE_SELECT
 
 
 def listar_medicos(especialidad_id=None):
+    print("Ejecutando consulta para listar agendas")
     query = MEDICOS_BASE_SELECT
     params = ()
     if especialidad_id is not None:
         query += ' WHERE m.id_especialidad = %s'
         params = (especialidad_id,)
-    query += ' ORDER BY m.apellido_medico, m.nombre_medico, m.id_medico'
+    query += ' ORDER BY m.apellido_medico, m.id_medico'
     return ejecutar_consulta(query, params)
 
 
 def obtener_medico(medico_id):
+    print("Ejecutando consulta para listar agendas")
     rows = ejecutar_consulta(MEDICOS_BASE_SELECT + ' WHERE m.id_medico = %s', (medico_id,))
     return rows[0] if rows else None
 

@@ -1,7 +1,7 @@
 from flask import (Blueprint, jsonify, request, render_template, url_for, flash, redirect)
 from mysql.connector import Error as MySQLError
 
-from services.medico import (obtener_perfil_medico, obtener_turnos_hoy, registrar_turno_atendido)
+#from services.medico import (obtener_perfil_medico, obtener_turnos_hoy, registrar_turno_atendido)
 
 from validators.validator_auth import token_required
 from validators.medico import validar_id_turno

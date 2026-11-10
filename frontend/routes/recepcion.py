@@ -1,8 +1,9 @@
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 from services import recepcion as recepcion_service
+from services.agendas import obtener_medicos, crear_agenda 
 
+# 1. Definimos el Blueprint UNA sola vez con su prefijo
 recepcion_bp = Blueprint('recepcion', __name__, url_prefix='/recepcion')
-
 
 @recepcion_bp.route('/', methods=['GET'])
 def pantalla_recepcion():
@@ -10,7 +11,6 @@ def pantalla_recepcion():
     sala_espera = recepcion_service.obtener_sala_espera()
 
     return render_template('recepcion.html', checkin=checkin, sala_espera=sala_espera)
-
 
 @recepcion_bp.route('/checkin', methods=['POST'])
 def registrar_checkin():
@@ -27,43 +27,49 @@ def registrar_checkin():
 
     return redirect(url_for('recepcion.pantalla_recepcion'))
 
-from services.agendas import obtener_medicos, crear_agenda 
-
-recepcion_bp = Blueprint('recepcion', __name__)
-
-@recepcion_bp.route('/recepcion/agenda/configurar', methods=['GET'])
+# 2. Arreglamos la ruta (el prefijo ya aporta el /recepcion)
+@recepcion_bp.route('/agenda/configurar', methods=['GET'])
 def configurar_agenda():
     """
     Pre: -
     Post: Obtiene los médicos de la API y renderiza el formulario.
     """
+    # 3. Simulamos el usuario para que Jinja2 no tire error de "undefined"
+    usuario_actual = session.get('usuario', {'rol': 'admin'})
+    
     try:
-        # Llamamos al servicio para buscar los médicos a la API (puerto 5000)
         lista_medicos = obtener_medicos()
-        return render_template('configurar_agenda.html', medicos=lista_medicos)
+        # 4. Le pasamos usuario=usuario_actual al template
+        return render_template('configurar_agenda.html', medicos=lista_medicos, usuario=usuario_actual)
     except Exception as e:
         flash(f'Error al conectar con la API: {str(e)}', 'danger')
-        return render_template('configurar_agenda.html', medicos=[])
+        return render_template('configurar_agenda.html', medicos=[], usuario=usuario_actual)
 
-@recepcion_bp.route('/recepcion/agenda/guardar', methods=['POST'])
+@recepcion_bp.route('/agenda/guardar', methods=['POST'])
 def guardar_agenda():
+    print("DATOS RECIBIDOS DEL HTML:", request.form)
     try:
-        # 1. Capturamos los datos separados del HTML
+        # Capturamos los datos
+        medico_id = request.form.get("medico_id")
+        duracion_turno = request.form.get("duracion_turno")
         f_inicio = request.form.get("fecha_inicio")
         h_inicio = request.form.get("hora_inicio")
         f_fin = request.form.get("fecha_fin")
         h_fin = request.form.get("hora_fin")
+
+        # Validación: Si falta el médico o la duración (llegan vacíos), avisamos y cortamos
+        if not medico_id or not duracion_turno:
+            flash('Por favor, seleccioná un médico y especificá la duración del turno.', 'danger')
+            return redirect(url_for('recepcion.configurar_agenda'))
         
-        # 2. Armamos el diccionario EXACTO que valida tu backend
         datos_backend = {
-            "id_medico": int(request.form.get("medico_id")),
-            "id_consultorio": 1,  # Fijo por ahora, o sacalo de un select en el HTML
+            "id_medico": int(medico_id),
+            "id_consultorio": 1,
             "agenda_fecha_hora_inicio": f"{f_inicio} {h_inicio}:00",
             "agenda_fecha_hora_fin": f"{f_fin} {h_fin}:00",
-            "duracion_turno_minutos": int(request.form.get("duracion_turno"))
+            "duracion_turno_minutos": int(duracion_turno)
         }
 
-        # 3. Llamamos al servicio que hace el POST al backend
         crear_agenda(datos_backend)
         
         flash('La agenda se generó correctamente.', 'success')

@@ -1,11 +1,11 @@
 {% extends "base.html" %}
-
 {% block content %}
-<div class="container mt-4">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/configurar_agenda.css') }}">
+<div class="main-container">
     <h2>Configurar Agenda Médica</h2>
     
     <!-- La acción apunta a la ruta de tu front-end que procesará el formulario -->
-    <form method="POST" action="{{ url_for('recepcion.guardar_agenda') }}">
+    <form method="POST" action="{{ url_for('recepcion.guardar_agenda') }}" onsubmit="document.getElementById('btn-submit').disabled=true;">
         
         <!-- Selector de Médico -->
         <div class="mb-3">
@@ -16,7 +16,7 @@
         <select class="form-select" id="medico" name="medico_id" required>
             <option value="" selected disabled>Seleccione un médico...</option>
             {% for medico in medicos %}
-                <option value="{{ medico.id }}">{{ medico.apellido }}, {{ medico.nombre }}</option>
+                <option value="{{ medico.id_medico }}">{{ medico.apellido }}, {{ medico.nombre }}</option>
             {% endfor %}
         </select>
     
@@ -72,8 +72,8 @@
             {% endfor %}
         </div>
 
-        <button type="submit" class="btn btn-primary">Generar Agenda</button>
-        <a href="/" class="btn btn-secondary">Cancelar</a>
+        <button type="submit" id="btn-submit" class="btn btn-primary">Generar Agenda</button>
+    <a href="/" class="btn btn-secondary">Cancelar</a>
     </form>
 </div>
 {% endblock %}

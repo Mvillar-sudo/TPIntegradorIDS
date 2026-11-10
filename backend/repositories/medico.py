@@ -137,13 +137,15 @@ def obtener_medicos_por_especialidad(especialidad_id=None):
         query = """
             SELECT
                 m.id_medico,
-                m.nombre_medico AS nombre,
-                m.apellido_medico AS apellido,
+                u.nombre_usuario AS nombre,
+                u.apellido_usuario AS apellido,
                 m.id_especialidad,
                 e.nombre_especialidad AS especialidad
             FROM medicos m
             INNER JOIN especialidades e
                 ON m.id_especialidad = e.id_especialidad
+            INNER JOIN usuarios u
+                ON m.id_usuario = u.id_usuario
         """
 
         parametros = ()
@@ -153,7 +155,7 @@ def obtener_medicos_por_especialidad(especialidad_id=None):
             parametros = (especialidad_id,)
 
         query += """
-            ORDER BY m.apellido_medico ASC, m.nombre_medico ASC;
+            ORDER BY u.apellido_usuario ASC, u.nombre_usuario ASC;
         """
 
         cursor.execute(query, parametros)

@@ -21,7 +21,7 @@ app.register_blueprint(checkin_qr_bp, url_prefix='/api/v1')
 app.register_blueprint(medico_bp, url_prefix='/api/v1')
 app.register_blueprint(medicos_bp, url_prefix="/api/v1")
 app.register_blueprint(auth_bp, url_prefix="/api/v1")
-app.register_blueprint(agendas_bp)
+
 
 # Ruta base de prueba
 @app.route("/")
@@ -49,4 +49,4 @@ def internal_error(e):
   
 # Clave para mantener el servidor escuchando en el puerto 5000
 if __name__ == "__main__":
-    app.run(debug=True, host="127.0.0.1", port=5000)
+    app.run(debug=True, host="127.0.0.1", port=5001)

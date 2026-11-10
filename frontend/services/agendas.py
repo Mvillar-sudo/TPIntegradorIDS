@@ -1,13 +1,30 @@
 import requests
 import os
-from flask import session # Asumiendo que guardas el token en la sesión
+from flask import session 
 
-API_BASE_URL = os.getenv('API_BASE_URL', 'http://127.0.0.1:5000')
+def obtener_medicos():
+    
+    url = f"{API_BASE_URL}/api/v1/medicos" 
+    
+
+    token = session.get('token', '')
+    headers = {
+        'Authorization': f'Bearer {token}'
+    }
+    
+    
+    respuesta = requests.get(url, headers=headers)
+    
+    
+    respuesta.raise_for_status()
+    
+   
+    return respuesta.json()
+
+API_BASE_URL = os.getenv('API_BASE_URL', 'http://127.0.0.1:5001')
 
 def crear_agenda(datos_formateados):
     url = f"{API_BASE_URL}/api/v1/agendas/generar"
-    
-    # Recuperamos el token de la sesión del usuario (ajusta esto a cómo manejes tu auth)
     token = session.get('token', '')
     headers = {
         'Authorization': f'Bearer {token}',

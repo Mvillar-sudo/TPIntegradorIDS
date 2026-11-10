@@ -1,4 +1,4 @@
-from ..utils import validar_entero_positivo, validar_objeto_json, validar_texto
+from utils import validar_entero_positivo, validar_objeto_json, validar_texto
 
 
 def validar_medico(body, partial=False):

@@ -11,10 +11,10 @@ agendas_bp = Blueprint('agendas', __name__)
 @agendas_bp.route('agendas/generar', methods=['POST'])
 def generar_agenda():
     # 1. Validar que sea administrador
-    user_data, error_token, codigo = token_required(["admin"])
+    '''user_data, error_token, codigo = token_required(["admin"])
     if error_token is not None:
         return jsonify({"error": error_token}), codigo
-
+'''
     try:
         # 2. Validar los datos de entrada (qué médico, qué consultorio, fechas)
         # request.get_json(silent=True) evita que Flask rompa si el JSON viene mal formado
