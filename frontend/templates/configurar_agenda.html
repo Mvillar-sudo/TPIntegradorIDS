@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/configurar_agenda.css') }}">
+<div class="main-container">
+    <h2>Configurar Agenda Médica</h2>
+    
+    <!-- La acción apunta a la ruta de tu front-end que procesará el formulario -->
+    <form method="POST" action="{{ url_for('recepcion.guardar_agenda') }}" onsubmit="document.getElementById('btn-submit').disabled=true;">
+        
+        <!-- Selector de Médico -->
+        <div class="mb-3">
+    <label for="medico" class="form-label">Médico Profesional</label>
+    
+    {% if usuario.rol == 'admin' %}
+        <!-- Vista Administrador: Puede elegir cualquier médico -->
+        <select class="form-select" id="medico" name="medico_id" required>
+            <option value="" selected disabled>Seleccione un médico...</option>
+            {% for medico in medicos %}
+                <option value="{{ medico.id_medico }}">{{ medico.apellido }}, {{ medico.nombre }}</option>
+            {% endfor %}
+        </select>
+    
+    {% elif usuario.rol == 'medico' %}
+        <!-- Vista Médico: Solo ve su nombre bloqueado -->
+        <input type="text" class="form-control" value="{{ usuario.apellido }}, {{ usuario.nombre }}" disabled>
+        <!-- Enviamos su propio ID sin que pueda modificarlo -->
+        <input type="hidden" name="medico_id" value="{{ usuario.id_medico }}">
+    {% endif %}
+</div>
+
+        <!-- Periodo de la agenda -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="fecha_inicio" class="form-label">Periodo (Desde)</label>
+                <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" required>
+            </div>
+            <div class="col-md-6">
+                <label for="fecha_fin" class="form-label">Periodo (Hasta)</label>
+                <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" required>
+            </div>
+        </div>
+
+        <!-- Horarios de atención -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="hora_inicio" class="form-label">Horario de Inicio</label>
+                <input type="time" class="form-control" id="hora_inicio" name="hora_inicio" required>
+            </div>
+            <div class="col-md-6">
+                <label for="hora_fin" class="form-label">Horario de Fin</label>
+                <input type="time" class="form-control" id="hora_fin" name="hora_fin" required>
+            </div>
+        </div>
+
+        <!-- Duración del turno (Fija: 1 hora) -->
+        <div class="mb-4">
+            <label for="duracion_turno" class="form-label">Duración de cada turno</label>
+            <input type="text" class="form-control" value="1 hora" disabled>
+            <!-- Campo oculto para enviar el valor fijo de 60 minutos al servidor -->
+            <input type="hidden" name="duracion_turno" value="60">
+        </div>
+
+        <!-- Días de la semana -->
+        <div class="mb-4">
+            <label class="form-label">Días de atención</label><br>
+            {% set dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'] %}
+            {% for dia in dias %}
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" name="dias_atencion" id="dia_{{ loop.index }}" value="{{ dia }}">
+                <label class="form-check-label" for="dia_{{ loop.index }}">{{ dia }}</label>
+            </div>
+            {% endfor %}
+        </div>
+
+        <button type="submit" id="btn-submit" class="btn btn-primary">Generar Agenda</button>
+    <a href="/" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

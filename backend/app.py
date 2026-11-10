@@ -1,6 +1,7 @@
 from flask import Flask, jsonify
 
 from config import validar_configuracion
+
 from routes.admin import admin_bp
 from routes.agendas import agendas_bp
 from routes.turnos import turnos_bp
@@ -62,4 +63,4 @@ def internal_error(e):
   
 # Clave para mantener el servidor escuchando en el puerto 5000
 if __name__ == "__main__":
-    app.run(debug=True, host="127.0.0.1", port=5000)
+    app.run(debug=True, host="127.0.0.1", port=5001)

@@ -6,6 +6,7 @@ from tiempo import obtener_ahora_gmt3
 
 
 def listar_agendas():
+    print("Ejecutando consulta para listar agendas")
     return ejecutar_consulta("""
      SELECT a.id_agenda, a.id_medico, u.nombre_usuario AS nombre_medico,
          u.apellido_usuario AS apellido_medico, a.id_consultorio, c.numero_consultorio,
