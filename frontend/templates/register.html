@@ -1,4 +1,4 @@
-{% extends "index.html" %}
+{% extends "base_template.html" %}
 
 {% block title %}Registrarse | Centro Medico Salud Integral{% endblock %}
 
@@ -12,29 +12,25 @@
 			<h2>Crear cuenta</h2>
 			<p>Completá tus datos para registrarte como paciente.</p>
 		</header>
-
 		<form method="post" action="/register">
 			<div class="row gtr-uniform gtr-50">
 				<div class="col-6 col-12-xsmall">
-					<input type="text" name="nombre" id="nombre" placeholder="Nombre" required />
+					<input type="text" name="nombre" id="nombre" placeholder="Nombre" value="{{ form.get('nombre', '') if form else '' }}" required />
 				</div>
 				<div class="col-6 col-12-xsmall">
-					<input type="text" name="apellido" id="apellido" placeholder="Apellido" required />
+					<input type="text" name="apellido" id="apellido" placeholder="Apellido" value="{{ form.get('apellido', '') if form else '' }}" required />
 				</div>
 				<div class="col-6 col-12-xsmall">
-					<input type="text" name="dni" id="dni" placeholder="DNI" inputmode="numeric" pattern="[0-9]{7,8}" required />
+					<input type="text" name="dni" id="dni" placeholder="DNI (7 u 8 dígitos)" inputmode="numeric" pattern="[0-9]{7,8}" value="{{ form.get('dni', '') if form else '' }}" required />
 				</div>
 				<div class="col-6 col-12-xsmall">
-					<input type="date" name="fecha_nacimiento" id="fecha_nacimiento" required />
+					<input type="email" name="email" id="email" placeholder="Email (ej. usuario@gmail.com)" value="{{ form.get('email', '') if form else '' }}" required />
+				</div>
+				<div class="col-12">
+					<input type="tel" name="telefono" id="telefono" placeholder="Teléfono (opcional)" value="{{ form.get('telefono', '') if form else '' }}" />
 				</div>
 				<div class="col-6 col-12-xsmall">
-					<input type="email" name="email" id="email" placeholder="Email" required />
-				</div>
-				<div class="col-6 col-12-xsmall">
-					<input type="tel" name="telefono" id="telefono" placeholder="Teléfono" />
-				</div>
-				<div class="col-6 col-12-xsmall">
-					<input type="password" name="password" id="password" placeholder="Contraseña" minlength="8" required />
+					<input type="password" name="password" id="password" placeholder="Contraseña (mínimo 8 caracteres)" minlength="8" required />
 				</div>
 				<div class="col-6 col-12-xsmall">
 					<input type="password" name="password_confirm" id="password_confirm" placeholder="Repetir contraseña" minlength="8" required />
@@ -42,7 +38,8 @@
 				<div class="col-12">
 					<ul class="actions special">
 						<li><input type="submit" value="Registrarse" class="button primary" /></li>
-						<li><input type="reset" value="Limpiar" /></li>
+						<li><input type="reset" value="Limpiar" class="button" /></li>
+						<li><a href="/login" class="button alt">Iniciar sesión</a></li>
 					</ul>
 				</div>
 			</div>
