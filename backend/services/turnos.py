@@ -1,11 +1,12 @@
 from datetime import timedelta
 
-from constants import MIN_HORAS_CANCELACION
+from constants import ESTADOS_CON_QR, MIN_HORAS_CANCELACION
 from repositories.medico import buscar_turno_por_id
 from repositories.turnos_repositories import (
     registrar_cancelacion_turno, obtener_turnos_de_paciente
 )
 from services.checkin_qr import obtener_ahora_gmt3, formatear_fecha_iso
+from services.qr import generar_qr_png
 
 
 def _formatear_mi_turno(turno):
@@ -79,3 +80,24 @@ def cancelar_turno_servicio(usuario, id_turno):
         "fecha_hora_cancelacion": formatear_fecha_iso(ahora),
         "mensaje": "Turno cancelado con éxito"
     }, 200
+
+
+def obtener_qr_turno_servicio(usuario, id_turno):
+    """
+    Pre: 'usuario' es el contenido del token (con id_usuario) e 'id_turno' es un entero positivo.
+    Post: Devuelve una tupla (png, error, status). Si el turno es del paciente y sigue vigente
+          (reservado o confirmado), 'png' son los bytes de la imagen del QR y 'error' es None.
+          Si no, 'png' es None y 'error' explica el motivo.
+    """
+    turno = buscar_turno_por_id(id_turno)
+
+    if turno is None:
+        return None, "Turno no encontrado", 404
+
+    if turno["id_paciente"] != usuario["id_usuario"]:
+        return None, "El turno no pertenece al paciente autenticado", 403
+
+    if turno["estado"] not in ESTADOS_CON_QR:
+        return None, f"El turno está en estado '{turno['estado']}' y ya no tiene un QR vigente", 400
+
+    return generar_qr_png(turno["token_qr"]), None, 200

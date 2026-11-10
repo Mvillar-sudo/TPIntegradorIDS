@@ -1,3 +1,4 @@
+import os
 import requests
 from flask import (request, Blueprint, render_template, flash, redirect, url_for, session)
 
@@ -6,6 +7,11 @@ from constants import BACKEND_URL, RUTA_POR_ROL
 auth_bp = Blueprint("auth", __name__)
 
 
+"""
+Pre: -
+Post: Si la petición es GET, renderiza el formulario de registro. Si es POST, valida los datos,
+      registra al paciente en el backend y redirige al login ante el éxito, o muestra el error.
+"""
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def mostrar_registro():
     if request.method == 'GET':
@@ -44,13 +50,19 @@ def mostrar_registro():
     return render_template('register.html', form=form)
 
 
+"""
+Pre: -
+Post: Si la petición es GET, renderiza el formulario de inicio de sesión. Si es POST, valida
+      las credenciales contra el backend, guarda el token y usuario en sesión, emite una
+      notificación de bienvenida y redirige a la página de inicio.
+"""
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def iniciar_sesion():
     if request.method == 'GET':
         return render_template('login.html')
 
     payload = {
-        "email": request.form.get('email', ''),
+        "email": request.form.get('email', '').strip(),
         "password": request.form.get('password', ''),
     }
 
@@ -78,7 +90,12 @@ def iniciar_sesion():
     return redirect(url_for(destino))
 
 
+"""
+Pre: -
+Post: Limpia la sesión actual del usuario y redirige a la página principal.
+"""
 @auth_bp.route('/logout')
 def cerrar_sesion():
     session.clear()
+    flash('Has cerrado sesión correctamente.', 'info')
     return redirect(url_for('public.index'))

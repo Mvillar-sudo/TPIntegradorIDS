@@ -2,7 +2,7 @@ import uuid
 import hashlib
 from datetime import datetime
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, Response, jsonify, request
 from mysql.connector import Error as MySQLError
 
 from repositories.turnos_repositories import (obtener_turnos_disponibles, reservar_turno)
@@ -10,7 +10,9 @@ from repositories.turnos_repositories import (obtener_turnos_disponibles, reserv
 from validators.turnos_validator import (validar_id_opcional,validar_fecha_opcional, validar_id_turno)
 from validators.validator_auth import token_required
 from services.notificaciones import notificar_reserva
-from services.turnos import cancelar_turno_servicio, listar_mis_turnos_servicio
+from services.turnos import (
+    cancelar_turno_servicio, listar_mis_turnos_servicio, obtener_qr_turno_servicio
+)
 
 turnos_bp = Blueprint('turnos', __name__)
 
@@ -30,6 +32,27 @@ def obtener_mis_turnos():
         return jsonify(respuesta), status_code
     except MySQLError:
         return jsonify({"error": "No se pudo conectar a la base de datos o fallo la consulta"}), 500
+
+
+@turnos_bp.route('/turnos/<int:id_turno>/qr', methods=['GET'])
+def obtener_qr_turno(id_turno):
+
+    data_usuario, error_token, codigo = token_required(["paciente"])
+
+    if error_token is not None:
+        return jsonify({
+            "error": error_token
+        }), codigo
+
+    try:
+        png, error, status_code = obtener_qr_turno_servicio(data_usuario, id_turno)
+    except MySQLError:
+        return jsonify({"error": "No se pudo conectar a la base de datos o fallo la consulta"}), 500
+
+    if error is not None:
+        return jsonify({"error": error}), status_code
+
+    return Response(png, mimetype="image/png")
 
 
 @turnos_bp.route('/turnos/<int:id_turno>/cancelar', methods=['POST'])

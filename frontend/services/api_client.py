@@ -5,11 +5,11 @@ from constants import BACKEND_URL
 SIN_CONEXION = 0
 
 
-def pedir(metodo, ruta, json=None, params=None):
+def pedir(metodo, ruta, json=None, params=None, binario=False):
     """Llama al backend con el token de la sesión.
 
     Devuelve (datos, error, status):
-      - ok:             (datos, None, status)
+      - ok:             (datos, None, status)   # con binario=True, datos son los bytes de la respuesta
       - error backend:  (None, mensaje, status)   # status 401 = token vencido
       - sin conexión:   (None, mensaje, SIN_CONEXION)
     """
@@ -31,5 +31,8 @@ def pedir(metodo, ruta, json=None, params=None):
     if not r.ok:
         mensaje = datos.get("error") if isinstance(datos, dict) else None
         return None, mensaje or "Error en el servidor", r.status_code
+
+    if binario:
+        return r.content, None, r.status_code
 
     return datos, None, r.status_code
