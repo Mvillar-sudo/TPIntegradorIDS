@@ -109,3 +109,33 @@ def actualizar_turno_a_ausente(id_turno):
             cursor.close()
         if conn is not None and conn.is_connected():
             conn.close()
+
+"""
+Pre: 'limite' es un objeto datetime (hora de Argentina, sin zona horaria).
+Post: Pasa a 'ausente' todos los turnos en estado 'reservado' cuya fecha_hora es anterior a
+      'limite'. Los turnos confirmados, atendidos, cancelados o ausentes no se tocan, por lo que
+      se puede llamar varias veces sin problema. Devuelve la cantidad de turnos que cambió.
+"""
+def marcar_ausentes_vencidos(limite):
+    conn = None
+    cursor = None
+    try:
+        conn = _obtener_conexion()
+        cursor = conn.cursor()
+        query = """
+            UPDATE turnos
+            SET estado = 'ausente'
+            WHERE estado = 'reservado' AND fecha_hora < %s
+        """
+        cursor.execute(query, (limite,))
+        conn.commit()
+        return cursor.rowcount
+    except Exception:
+        if conn is not None and conn.is_connected():
+            conn.rollback()
+        raise
+    finally:
+        if cursor is not None:
+            cursor.close()
+        if conn is not None and conn.is_connected():
+            conn.close()
