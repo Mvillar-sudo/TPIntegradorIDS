@@ -12,7 +12,10 @@ from routes.public import public_bp
 from routes.turnos import turnos_bp
 from routes.errores import errores_bp
 
-from constants import FRONTEND_SECRET_KEY
+
+from services.agendas import obtener_medicos, crear_agenda
+from services.medico import (obtener_perfil_medico, obtener_turnos_hoy, registrar_turno_atendido)
+from datetime import timedelta
 
 load_dotenv()
 
