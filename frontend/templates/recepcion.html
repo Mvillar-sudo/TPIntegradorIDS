@@ -1,99 +1,84 @@
-{% extends "base_template.html" %}
+{% extends "index.html" %}
 
-{% block title %}Recepción | Centro Medico Salud Integral{% endblock %}
-
-{% block header_class %}{% endblock %}
-
-{% block head_extra %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/recepcion.css') }}" />
-{% endblock %}
+{% block title %}Recepción | Centro Médico Salud Integral{% endblock %}
 
 {% block content %}
-<section id="main" class="container recepcion-main">
-
-    <header class="major" style="margin-bottom: 2em;">
-        <h2>Backoffice Recepción</h2>
-        <p>Registro de llegada de pacientes y control de acceso por código QR</p>
+<section id="main" class="container">
+    <header class="major">
+        <h2>Recepción - Check-in QR</h2>
+        <p>Registro de llegada de pacientes y control de sala de espera</p>
     </header>
 
-    <section class="box recepcion-checkin-box">
-        <div class="titulo-seccion-wrapper">
-            <h3>Registro de Llegada</h3>
-        </div>
+    {% with messages = get_flashed_messages(category_filter=["error", "danger"]) %}
+        {% if messages %}
+            <div class="box" style="background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; margin-bottom: 2em;">
+                {% for message in messages %}
+                    <p style="margin: 0;">⚠ {{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
 
-        <form method="POST" action="{{ url_for('recepcion.registrar_checkin') }}">
-            <div class="row gtr-uniform gtr-50 aln-bottom">
-                <div class="col-8 col-12-xsmall">
-                    <label for="token_qr" class="label-checkin">Código QR / Token del Turno</label>
-                    <input type="text" id="token_qr" name="token_qr" maxlength="255"
-                           placeholder="Escaneá el código o ingresá el token"
-                           autocomplete="off" autofocus required />
+    {% if checkin %}
+        <div class="box" style="background-color: #d4edda; border-color: #c3e6cb; color: #155724; margin-bottom: 2em;">
+            <h3 style="color: #155724; margin-bottom: 0.5em;">✓ Check-in registrado con éxito</h3>
+            <ul style="list-style: none; padding-left: 0; margin-bottom: 0;">
+                <li><strong>Paciente:</strong> {{ checkin.paciente }}</li>
+                <li><strong>Médico:</strong> {{ checkin.medico }}</li>
+                <li><strong>Consultorio:</strong> {{ checkin.consultorio }}</li>
+                <li><strong>Hora de Llegada:</strong> {{ checkin.hora_llegada }}</li>
+            </ul>
+        </div>
+    {% endif %}
+
+    <div class="box">
+        <form action="{{ url_for('recepcion.registrar_checkin') }}" method="POST">
+            <div class="row gtr-50 gtr-uniform">
+                <div class="col-8 col-12-mobilep">
+                    <input 
+                        type="text" 
+                        name="token_qr" 
+                        id="token_qr" 
+                        placeholder="Ingrese o escanee el token / código QR..." 
+                        required 
+                        autofocus 
+                    />
                 </div>
-                <div class="col-4 col-12-xsmall btn-checkin-col">
-                    <button type="submit" class="button primary fit">Registrar Check-in</button>
+                <div class="col-4 col-12-mobilep">
+                    <button type="submit" class="button primary fit">Procesar Check-in</button>
                 </div>
             </div>
         </form>
+    </div>
 
-        {% if checkin %}
-            <div class="checkin-exitoso-card">
-                <div class="checkin-header-strip">
-                    <span class="checkin-badge">Check-in Exitoso</span>
-                    <span class="checkin-hora">Hora de llegada: <strong>{{ checkin.hora_llegada }} hs</strong></span>
-                </div>
-                <div class="row gtr-uniform">
-                    <div class="col-4 col-12-xsmall info-item-col">
-                        <span class="info-label">Paciente</span>
-                        <span class="info-valor">{{ checkin.paciente }}</span>
-                    </div>
-                    <div class="col-4 col-12-xsmall info-item-col">
-                        <span class="info-label">Médico Asignado</span>
-                        <span class="info-valor">{{ checkin.medico }}</span>
-                    </div>
-                    <div class="col-4 col-12-xsmall info-item-col">
-                        <span class="info-label">Consultorio</span>
-                        <span class="info-valor">{{ checkin.consultorio }}</span>
-                    </div>
-                </div>
+    <div class="box">
+        <h3>Pacientes en Sala de Espera</h3>
+        {% if sala_espera %}
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Paciente</th>
+                            <th>Consultorio</th>
+                            <th>Llegada</th>
+                            <th>Tiempo de Espera</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for turno in sala_espera %}
+                            <tr>
+                                <td>{{ turno.paciente }}</td>
+                                <td>{{ turno.consultorio }}</td>
+                                <td>{{ turno.hora_llegada }}</td>
+                                <td>{{ turno.minutos_espera }} min</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
+        {% else %}
+            <p>No hay pacientes en sala de espera en este momento.</p>
         {% endif %}
-    </section>
-
-    <section class="box recepcion-espera-box">
-        <div class="titulo-seccion-wrapper">
-            <h3>Sala de Espera</h3>
-            <span class="total-turnos">{{ sala_espera|length }} en sala</span>
-        </div>
-
-        <div class="table-wrapper">
-            <table class="alt">
-                <thead>
-                    <tr>
-                        <th style="width: 15%;">Llegada</th>
-                        <th style="width: 30%;">Paciente</th>
-                        <th style="width: 25%;">Médico</th>
-                        <th style="width: 15%;">Consultorio</th>
-                        <th style="width: 15%;">Espera</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for turno in sala_espera %}
-                        <tr>
-                            <td><strong>{{ turno.hora_llegada }} hs</strong></td>
-                            <td>{{ turno.paciente }}</td>
-                            <td>{{ turno.medico }}</td>
-                            <td>{{ turno.consultorio }}</td>
-                            <td><span class="badge-espera">{{ turno.minutos_espera }} min</span></td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="5" class="sin-pacientes">No hay pacientes en la sala de espera.</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </section>
-
+    </div>
 </section>
 {% endblock %}
