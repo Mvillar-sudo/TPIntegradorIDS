@@ -1,5 +1,3 @@
-import os
-
 CATALOGO = {
     'especialidades': {
         'table': 'especialidades',
