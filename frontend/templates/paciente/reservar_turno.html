@@ -7,124 +7,126 @@
 {% endblock %}
 
 {% block content %}
-<!-- Banner -->
-<section id="banner">
-    <h2>Reservar turno</h2>
-    <p>Elegí una especialidad, encontrá un horario y confirmá tu consulta.</p>
-</section>
+<section class="booking-shell" id="booking-app"
+    data-medicos-url="{{ url_for('reservar_turno.obtener_medicos') }}"
+    data-disponibles-url="{{ url_for('reservar_turno.obtener_turnos_disponibles') }}"
+    data-success="{{ 'true' if reserva else 'false' }}">
+    <header class="booking-heading">
+        <p class="booking-kicker">Atención médica</p>
+        <h1>Reservá tu turno</h1>
+        <p>Elegí una especialidad, encontrá un horario y confirmá tu consulta.</p>
+    </header>
 
-<!-- Main -->
-<section id="main" class="container">
-    <section class="reservar-estructura box" id="booking-app"
-        data-medicos-url="{{ url_for('reservar_turno.obtener_medicos') }}"
-        data-disponibles-url="{{ url_for('reservar_turno.obtener_turnos_disponibles') }}"
-        data-success="{{ 'true' if reserva else 'false' }}">
-
-        {% if reserva %}
-        <section class="reservar-exito" aria-live="polite">
-            <span class="success-mark" aria-hidden="true">✓</span>
-            <p class="reservar-clausula">Reserva confirmada</p>
-            <h2>Tu turno ya está reservado</h2>
-            <p>{{ reserva.get('mensaje', 'La reserva se realizó correctamente.') }}</p>
-            {% if reserva.get('reserva') %}
-            <dl class="detalles-exito">
-                <div><dt>Número de turno</dt><dd>#{{ reserva.reserva.id_turno }}</dd></div>
-                <div><dt>Fecha y hora</dt><dd>{{ reserva.reserva.fecha_hora | replace('T', ' ') }}</dd></div>
-            </dl>
-            {% endif %}
-            <a class="reservar-boton button" href="{{ url_for('reservar_turno.reservar_pantalla') }}">Reservar otro turno</a>
-        </section>
-        {% else %}
-        <nav class="reservar-progreso" aria-label="Progreso de reserva">
-            <div class="progress-step is-current" data-progress="1"><span>1</span><strong>Profesional</strong></div>
-            <span class="progress-line" aria-hidden="true"></span>
-            <div class="progress-step" data-progress="2"><span>2</span><strong>Horario</strong></div>
-            <span class="progress-line" aria-hidden="true"></span>
-            <div class="progress-step" data-progress="3"><span>3</span><strong>Confirmación</strong></div>
-        </nav>
-    
-        {% if error_carga %}
-        <p class="reservar-alerta" role="alert">{{ error_carga }} No pudimos cargar las especialidades.</p>
+    {% if reserva %}
+    <section class="booking-success box" aria-live="polite">
+        <span class="success-mark" aria-hidden="true">✓</span>
+        <p class="booking-kicker">Reserva confirmada</p>
+        <h2>Tu turno ya está reservado</h2>
+        <p>{{ reserva.get('mensaje', 'La reserva se realizó correctamente.') }}</p>
+        {% if reserva.get('reserva') %}
+        <dl class="success-details">
+            <div><dt>Número de turno</dt><dd>#{{ reserva.reserva.id_turno }}</dd></div>
+            <div><dt>Fecha y hora</dt><dd>{{ reserva.reserva.fecha_hora | replace('T', ' ') }}</dd></div>
+        </dl>
         {% endif %}
-    
-        <div class="reservar-alerta" id="booking-message" role="status" hidden></div>
-    
-        <section class="reservar-panel" data-panel="1">
-            <div class="panel-intro">
-                <p class="reservar-clausula">Paso 1 de 3</p>
-                <h2>¿Qué tipo de consulta necesitás?</h2>
-            </div>
-            <div class="field-grid">
-                <label class="reservar-campo" for="specialty-select">
-                    <span>Especialidad</span>
-                    <select id="specialty-select" required {% if not especialidades %}disabled{% endif %}>
-                        <option value="">Seleccioná una especialidad</option>
-                        {% for especialidad in especialidades %}
-                        <option value="{{ especialidad.id_especialidad }}">{{ especialidad.nombre }}</option>
-                        {% endfor %}
-                    </select>
-                </label>
-                <label class="reservar-campo" for="doctor-select">
-                    <span>Médico</span>
-                    <select id="doctor-select" required disabled>
-                        <option value="">Primero elegí una especialidad</option>
-                    </select>
-                </label>
-            </div>
-            <p class="field-hint" id="doctor-hint">La lista de médicos se filtra según la especialidad elegida.</p>
-            <div class="panel-actions">
-                <button class="reservar-boton button" id="to-schedule" type="button" disabled>Ver horarios <span aria-hidden="true">→</span></button>
-            </div>
-        </section>
-    
-        <section class="reservar-panel" data-panel="2" hidden>
-            <div class="panel-intro">
-                <p class="reservar-clausula">Paso 2 de 3</p>
-                <h2>Elegí el día y el horario</h2>
-                <p id="selected-doctor-label"></p>
-            </div>
-            <label class="reservar-campo date-field" for="date-select">
-                <span>Fecha de consulta</span>
-                <input id="date-select" type="date" required>
-            </label>
-            <div class="availability-heading">
-                <h3>Horarios disponibles</h3>
-                <span id="availability-count" aria-live="polite"></span>
-            </div>
-            <div class="time-grid" id="time-grid" aria-live="polite">
-                <p class="empty-state">Elegí una fecha para consultar los horarios.</p>
-            </div>
-            <aside class="office-note" id="office-note" hidden>
-                <span class="office-icon" aria-hidden="true">⌂</span>
-                <span><strong id="office-doctor"></strong><small id="office-name"></small></span>
-            </aside>
-            <div class="panel-actions panel-actions-split">
-                <button class="reservar-boton button alt" id="back-to-professional" type="button"><span aria-hidden="true">←</span> Cambiar médico</button>
-                <button class="reservar-boton button" id="to-confirmation" type="button" disabled>Revisar reserva <span aria-hidden="true">→</span></button>
-            </div>
-        </section>
-    
-        <section class="reservar-panel" data-panel="3" hidden>
-            <div class="panel-intro">
-                <p class="reservar-clausula">Paso 3 de 3</p>
-                <h2>Confirmá los datos de tu consulta</h2>
-            </div>
-            <dl class="reservation-summary">
-                <div><dt>Especialidad</dt><dd id="summary-specialty"></dd></div>
-                <div><dt>Médico</dt><dd id="summary-doctor"></dd></div>
-                <div><dt>Consultorio</dt><dd id="summary-office"></dd></div>
-                <div><dt>Fecha y hora</dt><dd id="summary-datetime"></dd></div>
-            </dl>
-            <form action="{{ url_for('reservar_turno.confirmar_reserva') }}" method="post" id="reservation-form">
-                <input type="hidden" name="id_turno" id="selected-turno-id">
-                <div class="panel-actions panel-actions-split">
-                    <button class="reservar-boton button alt" id="back-to-schedule" type="button"><span aria-hidden="true">←</span> Cambiar horario</button>
-                    <button class="reservar-boton button" type="submit">Confirmar turno <span aria-hidden="true">✓</span></button>
-                </div>
-            </form>
-        </section>
-        {% endif %}
+        <a class="booking-button button" href="{{ url_for('reservar_turno.reservar_pantalla') }}">Reservar otro turno</a>
     </section>
+    {% else %}
+    <nav class="booking-progress" aria-label="Progreso de reserva">
+        <div class="progress-step is-current" data-progress="1"><span>1</span><strong>Profesional</strong></div>
+        <span class="progress-line" aria-hidden="true"></span>
+        <div class="progress-step" data-progress="2"><span>2</span><strong>Horario</strong></div>
+        <span class="progress-line" aria-hidden="true"></span>
+        <div class="progress-step" data-progress="3"><span>3</span><strong>Confirmación</strong></div>
+    </nav>
+
+    {% if error_carga %}
+    <p class="booking-alert" role="alert">{{ error_carga }} No pudimos cargar las especialidades.</p>
+    {% endif %}
+
+    {% with mensajes = get_flashed_messages(with_categories=true) %}
+    {% for categoria, mensaje in mensajes %}
+    <div class="booking-alert" role="alert">{{ mensaje }}</div>
+    {% endfor %}
+    {% endwith %}
+
+    <div class="booking-alert" id="booking-message" role="status" hidden></div>
+
+    <section class="booking-panel box" data-panel="1">
+        <div class="panel-intro">
+            <p class="booking-kicker">Paso 1 de 3</p>
+            <h2>¿Qué tipo de consulta necesitás?</h2>
+        </div>
+        <div class="field-grid">
+            <label class="booking-field" for="specialty-select">
+                <span>Especialidad</span>
+                <select id="specialty-select" required {% if not especialidades %}disabled{% endif %}>
+                    <option value="">Seleccioná una especialidad</option>
+                    {% for especialidad in especialidades %}
+                    <option value="{{ especialidad.id_especialidad }}">{{ especialidad.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label class="booking-field" for="doctor-select">
+                <span>Médico</span>
+                <select id="doctor-select" required disabled>
+                    <option value="">Primero elegí una especialidad</option>
+                </select>
+            </label>
+        </div>
+        <p class="field-hint" id="doctor-hint">La lista de médicos se filtra según la especialidad elegida.</p>
+        <div class="panel-actions">
+            <button class="booking-button button" id="to-schedule" type="button" disabled>Ver horarios <span aria-hidden="true">→</span></button>
+        </div>
+    </section>
+
+    <section class="booking-panel box" data-panel="2" hidden>
+        <div class="panel-intro">
+            <p class="booking-kicker">Paso 2 de 3</p>
+            <h2>Elegí el día y el horario</h2>
+            <p id="selected-doctor-label"></p>
+        </div>
+        <label class="booking-field date-field" for="date-select">
+            <span>Fecha de consulta</span>
+            <input id="date-select" type="date" required>
+        </label>
+        <div class="availability-heading">
+            <h3>Horarios disponibles</h3>
+            <span id="availability-count" aria-live="polite"></span>
+        </div>
+        <div class="time-grid" id="time-grid" aria-live="polite">
+            <p class="empty-state">Elegí una fecha para consultar los horarios.</p>
+        </div>
+        <aside class="office-note" id="office-note" hidden>
+            <span class="office-icon" aria-hidden="true">⌂</span>
+            <span><strong id="office-doctor"></strong><small id="office-name"></small></span>
+        </aside>
+        <div class="panel-actions panel-actions-split">
+            <button class="booking-button button alt" id="back-to-professional" type="button"><span aria-hidden="true">←</span> Cambiar médico</button>
+            <button class="booking-button button" id="to-confirmation" type="button" disabled>Revisar reserva <span aria-hidden="true">→</span></button>
+        </div>
+    </section>
+
+    <section class="booking-panel box" data-panel="3" hidden>
+        <div class="panel-intro">
+            <p class="booking-kicker">Paso 3 de 3</p>
+            <h2>Confirmá los datos de tu consulta</h2>
+        </div>
+        <dl class="reservation-summary">
+            <div><dt>Especialidad</dt><dd id="summary-specialty"></dd></div>
+            <div><dt>Médico</dt><dd id="summary-doctor"></dd></div>
+            <div><dt>Consultorio</dt><dd id="summary-office"></dd></div>
+            <div><dt>Fecha y hora</dt><dd id="summary-datetime"></dd></div>
+        </dl>
+        <form action="{{ url_for('reservar_turno.confirmar_reserva') }}" method="post" id="reservation-form">
+            <input type="hidden" name="id_turno" id="selected-turno-id">
+            <div class="panel-actions panel-actions-split">
+                <button class="booking-button button alt" id="back-to-schedule" type="button"><span aria-hidden="true">←</span> Cambiar horario</button>
+                <button class="booking-button button" type="submit">Confirmar turno <span aria-hidden="true">✓</span></button>
+            </div>
+        </form>
+    </section>
+    {% endif %}
 </section>
 {% endblock %}
 

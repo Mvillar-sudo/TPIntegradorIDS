@@ -1,17 +1,27 @@
-.reservar-estructura {
+.booking-shell {
     max-width: 920px;
     margin: 0 auto;
+    padding: 7em 1.5rem 4em;
 }
 
-.reservar-panel h2,
-.reservar-exito h2 {
+.booking-heading {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.booking-heading h1,
+.booking-panel h2,
+.booking-success h2 {
     color: #646464;
     font-weight: 300;
     line-height: 1.2;
-    font-size: 1.8rem;
 }
 
-.reservar-clausula {
+.booking-heading h1 { font-size: 2.5rem; }
+.booking-panel h2,
+.booking-success h2 { font-size: 1.8rem; }
+
+.booking-kicker {
     margin: 0 0 .5rem;
     color: #7fcdb8;
     font-size: .8rem;
@@ -21,6 +31,7 @@
     text-transform: uppercase;
 }
 
+.booking-heading > p:not(.booking-kicker),
 .panel-intro p:last-child {
     margin-bottom: 0;
     color: #777;
@@ -28,7 +39,7 @@
 }
 
 /* Pasos de la reserva */
-.reservar-progreso {
+.booking-progress {
     display: flex;
     align-items: center;
     margin: 0 auto 2rem;
@@ -71,13 +82,13 @@
 }
 
 /* Campos y distribución de los paneles */
-.reservar-panel,
-.reservar-exito {
-    padding: 0;
+.booking-panel,
+.booking-success {
+    padding: 2.5rem;
 }
 
-.reservar-panel h2,
-.reservar-exito h2 { margin-bottom: .5rem; }
+.booking-panel h2,
+.booking-success h2 { margin-bottom: .5rem; }
 .panel-intro { margin-bottom: 1.5rem; }
 
 .field-grid {
@@ -86,7 +97,7 @@
     gap: 1.2rem;
 }
 
-.reservar-campo {
+.booking-field {
     display: flex;
     flex-direction: column;
     gap: .4rem;
@@ -94,8 +105,8 @@
     font-size: .95rem;
 }
 
-.reservar-campo select,
-.reservar-campo input {
+.booking-field select,
+.booking-field input {
     width: 100%;
     min-height: 3rem;
     padding: .5rem .8rem;
@@ -106,9 +117,9 @@
     font: inherit;
 }
 
-.reservar-campo select:focus,
-.reservar-campo input:focus,
-.reservar-boton:focus-visible,
+.booking-field select:focus,
+.booking-field input:focus,
+.booking-button:focus-visible,
 .time-option:focus-visible {
     border-color: #e89980;
     outline: 2px solid #e89980;
@@ -129,13 +140,13 @@
 }
 .panel-actions-split { justify-content: space-between; }
 
-.reservar-boton {
+.booking-button {
     padding: 0 1.2rem;
     font-family: inherit;
     font-size: .9rem;
 }
 
-.reservar-boton:disabled {
+.booking-button:disabled {
     background: #ccc;
     color: #fff;
     cursor: not-allowed;
@@ -215,10 +226,10 @@
 
 /* Resumen y mensajes */
 .reservation-summary,
-.detalles-exito { margin: 0; border-top: 1px solid #e5e5e5; }
+.success-details { margin: 0; border-top: 1px solid #e5e5e5; }
 
 .reservation-summary > div,
-.detalles-exito > div {
+.success-details > div {
     display: grid;
     grid-template-columns: 1fr 1.5fr;
     gap: 1rem;
@@ -227,11 +238,11 @@
 }
 
 .reservation-summary dt,
-.detalles-exito dt { color: #999; }
+.success-details dt { color: #999; }
 .reservation-summary dd,
-.detalles-exito dd { margin: 0; color: #646464; }
+.success-details dd { margin: 0; color: #646464; }
 
-.reservar-alerta {
+.booking-alert {
     margin: 0 0 1rem;
     padding: .8rem 1rem;
     border-left: 3px solid #e89980;
@@ -239,14 +250,14 @@
     color: #646464;
 }
 
-.reservar-exito {
+.booking-success {
     max-width: 680px;
     margin: 0 auto;
     text-align: center;
 }
 
-.reservar-exito > p:not(.reservar-clausula) { color: #777; }
-.detalles-exito { margin: 1.5rem 0; text-align: left; }
+.booking-success > p:not(.booking-kicker) { color: #777; }
+.success-details { margin: 1.5rem 0; text-align: left; }
 
 .success-mark {
     display: grid;
@@ -263,10 +274,13 @@
 [hidden] { display: none !important; }
 
 @media (max-width: 600px) {
+    .booking-shell { padding: 6rem 1rem 3rem; }
+    .booking-heading h1 { font-size: 2rem; }
+    .booking-panel, .booking-success { padding: 1.3rem; }
     .progress-step { flex-direction: column; gap: .25rem; font-size: .75rem; }
     .progress-line { margin: 0 .3rem .9rem; }
     .field-grid { grid-template-columns: 1fr; }
-    .reservar-boton { padding: 0 .8rem; font-size: .82rem; }
+    .booking-button { padding: 0 .8rem; font-size: .82rem; }
     .reservation-summary > div,
-    .detalles-exito > div { grid-template-columns: 1fr; gap: .2rem; }
+    .success-details > div { grid-template-columns: 1fr; gap: .2rem; }
 }
