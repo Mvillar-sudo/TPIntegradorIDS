@@ -7,10 +7,7 @@
 {% endblock %}
 
 {% block content %}
-<section class="booking-shell" id="booking-app"
-    data-medicos-url="{{ url_for('reservar_turno.obtener_medicos') }}"
-    data-disponibles-url="{{ url_for('reservar_turno.obtener_turnos_disponibles') }}"
-    data-success="{{ 'true' if reserva else 'false' }}">
+<section class="booking-shell" id="booking-app">
     <header class="booking-heading">
         <p class="booking-kicker">Atención médica</p>
         <h1>Reservá tu turno</h1>
@@ -33,15 +30,19 @@
     </section>
     {% else %}
     <nav class="booking-progress" aria-label="Progreso de reserva">
-        <div class="progress-step is-current" data-progress="1"><span>1</span><strong>Profesional</strong></div>
+        <div class="progress-step {% if paso == 1 %}is-current{% elif paso > 1 %}is-complete{% endif %}" data-progress="1"><span>1</span><strong>Profesional</strong></div>
         <span class="progress-line" aria-hidden="true"></span>
-        <div class="progress-step" data-progress="2"><span>2</span><strong>Horario</strong></div>
+        <div class="progress-step {% if paso == 2 %}is-current{% elif paso > 2 %}is-complete{% endif %}" data-progress="2"><span>2</span><strong>Horario</strong></div>
         <span class="progress-line" aria-hidden="true"></span>
-        <div class="progress-step" data-progress="3"><span>3</span><strong>Confirmación</strong></div>
+        <div class="progress-step {% if paso == 3 %}is-current{% endif %}" data-progress="3"><span>3</span><strong>Confirmación</strong></div>
     </nav>
 
     {% if error_carga %}
     <p class="booking-alert" role="alert">{{ error_carga }} No pudimos cargar las especialidades.</p>
+    {% endif %}
+
+    {% if error %}
+    <p class="booking-alert" role="alert">{{ error }}</p>
     {% endif %}
 
     {% with mensajes = get_flashed_messages(with_categories=true) %}
@@ -50,78 +51,120 @@
     {% endfor %}
     {% endwith %}
 
-    <div class="booking-alert" id="booking-message" role="status" hidden></div>
-
-    <section class="booking-panel box" data-panel="1">
+    <section class="booking-panel box" {% if paso != 1 %}hidden{% endif %}>
         <div class="panel-intro">
             <p class="booking-kicker">Paso 1 de 3</p>
             <h2>¿Qué tipo de consulta necesitás?</h2>
         </div>
-        <div class="field-grid">
+        <form action="{{ url_for('reservar_turno.obtener_medicos') }}" method="post">
             <label class="booking-field" for="specialty-select">
                 <span>Especialidad</span>
-                <select id="specialty-select" required {% if not especialidades %}disabled{% endif %}>
+                <select id="specialty-select" name="id_especialidad" required {% if not especialidades %}disabled{% endif %}>
                     <option value="">Seleccioná una especialidad</option>
                     {% for especialidad in especialidades %}
-                    <option value="{{ especialidad.id_especialidad }}">{{ especialidad.nombre }}</option>
+                    <option value="{{ especialidad.id_especialidad }}" {% if especialidad_id == especialidad.id_especialidad|string %}selected{% endif %}>{{ especialidad.nombre }}</option>
                     {% endfor %}
                 </select>
             </label>
+            <div class="panel-actions">
+                <button class="booking-button button" type="submit">Buscar médicos <span aria-hidden="true">→</span></button>
+            </div>
+        </form>
+        {% if especialidad_id and medicos %}
+        <form action="{{ url_for('reservar_turno.paso_horarios') }}" method="post">
+            <input type="hidden" name="id_especialidad" value="{{ especialidad_id }}">
             <label class="booking-field" for="doctor-select">
                 <span>Médico</span>
-                <select id="doctor-select" required disabled>
-                    <option value="">Primero elegí una especialidad</option>
+                <select id="doctor-select" name="medico_id" required>
+                    <option value="">Seleccioná un médico</option>
+                    {% for medico in medicos %}
+                    <option value="{{ medico.id_medico }}">{{ medico.nombre_medico }} {{ medico.apellido_medico }}</option>
+                    {% endfor %}
                 </select>
             </label>
-        </div>
-        <p class="field-hint" id="doctor-hint">La lista de médicos se filtra según la especialidad elegida.</p>
-        <div class="panel-actions">
-            <button class="booking-button button" id="to-schedule" type="button" disabled>Ver horarios <span aria-hidden="true">→</span></button>
-        </div>
+            <div class="panel-actions">
+                <button class="booking-button button" type="submit">Ver horarios <span aria-hidden="true">→</span></button>
+            </div>
+        </form>
+        {% elif especialidad_id %}
+        <p class="field-hint">No hay médicos registrados para esta especialidad.</p>
+        {% else %}
+        <p class="field-hint">La lista de médicos se filtra según la especialidad elegida.</p>
+        {% endif %}
     </section>
 
-    <section class="booking-panel box" data-panel="2" hidden>
+    <section class="booking-panel box" {% if paso != 2 %}hidden{% endif %}>
         <div class="panel-intro">
             <p class="booking-kicker">Paso 2 de 3</p>
             <h2>Elegí el día y el horario</h2>
-            <p id="selected-doctor-label"></p>
+            <p>{{ medico_seleccionado }}</p>
         </div>
-        <label class="booking-field date-field" for="date-select">
-            <span>Fecha de consulta</span>
-            <input id="date-select" type="date" required>
-        </label>
+        <form action="{{ url_for('reservar_turno.obtener_turnos_disponibles') }}" method="post">
+            <input type="hidden" name="id_especialidad" value="{{ especialidad_id }}">
+            <input type="hidden" name="medico_id" value="{{ medico_id }}">
+            <label class="booking-field date-field" for="date-select">
+                <span>Fecha de consulta</span>
+                <input id="date-select" name="fecha" type="date" min="{{ fecha_minima }}" value="{{ fecha }}" required>
+            </label>
+            <div class="panel-actions">
+                <button class="booking-button button" type="submit">Consultar horarios <span aria-hidden="true">→</span></button>
+            </div>
+        </form>
         <div class="availability-heading">
             <h3>Horarios disponibles</h3>
-            <span id="availability-count" aria-live="polite"></span>
+            <span>{% if turnos %}{{ turnos|length }} horario(s){% elif fecha %}Sin disponibilidad{% endif %}</span>
         </div>
-        <div class="time-grid" id="time-grid" aria-live="polite">
-            <p class="empty-state">Elegí una fecha para consultar los horarios.</p>
-        </div>
-        <aside class="office-note" id="office-note" hidden>
-            <span class="office-icon" aria-hidden="true">⌂</span>
-            <span><strong id="office-doctor"></strong><small id="office-name"></small></span>
-        </aside>
-        <div class="panel-actions panel-actions-split">
-            <button class="booking-button button alt" id="back-to-professional" type="button"><span aria-hidden="true">←</span> Cambiar médico</button>
-            <button class="booking-button button" id="to-confirmation" type="button" disabled>Revisar reserva <span aria-hidden="true">→</span></button>
-        </div>
+        {% if turnos %}
+        <form action="{{ url_for('reservar_turno.revisar_reserva') }}" method="post">
+            <input type="hidden" name="id_especialidad" value="{{ especialidad_id }}">
+            <input type="hidden" name="medico_id" value="{{ medico_id }}">
+            <input type="hidden" name="fecha" value="{{ fecha }}">
+            <div class="time-grid">
+                {% for turno_disponible in turnos %}
+                <label class="time-option">
+                    <input type="radio" name="id_turno" value="{{ turno_disponible.id_turno }}" required>
+                    {{ turno_disponible.fecha_hora | replace('T', ' ') }}
+                </label>
+                {% endfor %}
+            </div>
+            <div class="panel-actions">
+                <button class="booking-button button" type="submit">Revisar reserva <span aria-hidden="true">→</span></button>
+            </div>
+        </form>
+        {% elif fecha %}
+        <p class="empty-state">No hay horarios disponibles para este día. Probá con otra fecha.</p>
+        {% else %}
+        <p class="empty-state">Elegí una fecha desde mañana para consultar los horarios.</p>
+        {% endif %}
+        <form action="{{ url_for('reservar_turno.obtener_medicos') }}" method="post" class="panel-actions">
+            <input type="hidden" name="id_especialidad" value="{{ especialidad_id }}">
+            <button class="booking-button button alt" type="submit">Cambiar médico</button>
+        </form>
     </section>
 
-    <section class="booking-panel box" data-panel="3" hidden>
+    <section class="booking-panel box" {% if paso != 3 %}hidden{% endif %}>
         <div class="panel-intro">
             <p class="booking-kicker">Paso 3 de 3</p>
             <h2>Confirmá los datos de tu consulta</h2>
         </div>
         <dl class="reservation-summary">
-            <div><dt>Especialidad</dt><dd id="summary-specialty"></dd></div>
-            <div><dt>Médico</dt><dd id="summary-doctor"></dd></div>
-            <div><dt>Consultorio</dt><dd id="summary-office"></dd></div>
-            <div><dt>Fecha y hora</dt><dd id="summary-datetime"></dd></div>
+            <div><dt>Especialidad</dt><dd>{{ turno.especialidad }}</dd></div>
+            <div><dt>Médico</dt><dd>{{ turno.medico }}</dd></div>
+            <div><dt>Consultorio</dt><dd>{{ turno.consultorio }}</dd></div>
+            <div><dt>Fecha y hora</dt><dd>{{ turno.fecha_hora | replace('T', ' ') }}</dd></div>
         </dl>
         <form action="{{ url_for('reservar_turno.confirmar_reserva') }}" method="post" id="reservation-form">
-            <input type="hidden" name="id_turno" id="selected-turno-id">
+            <input type="hidden" name="id_turno" value="{{ turno.id_turno }}">
+            <input type="hidden" name="detalle_id_turno" value="{{ turno.id_turno }}">
+            <input type="hidden" name="detalle_especialidad" value="{{ turno.especialidad }}">
+            <input type="hidden" name="detalle_medico" value="{{ turno.medico }}">
+            <input type="hidden" name="detalle_consultorio" value="{{ turno.consultorio }}">
+            <input type="hidden" name="detalle_fecha_hora" value="{{ turno.fecha_hora }}">
+            <input type="hidden" name="id_especialidad" value="{{ especialidad_id }}">
+            <input type="hidden" name="medico_id" value="{{ medico_id }}">
+            <input type="hidden" name="fecha" value="{{ fecha }}">
             <div class="panel-actions panel-actions-split">
-                <button class="booking-button button alt" id="back-to-schedule" type="button"><span aria-hidden="true">←</span> Cambiar horario</button>
+                <button class="booking-button button alt" type="submit" formaction="{{ url_for('reservar_turno.obtener_turnos_disponibles') }}">Cambiar horario</button>
                 <button class="booking-button button" type="submit">Confirmar turno <span aria-hidden="true">✓</span></button>
             </div>
         </form>
@@ -130,8 +173,4 @@
 </section>
 {% endblock %}
 
-{% block scripts %}
-{% if not reserva %}
-<script src="{{ url_for('static', filename='js/reservar_turno.js') }}" defer></script>
-{% endif %}
-{% endblock %}
+{% block scripts %}{% endblock %}

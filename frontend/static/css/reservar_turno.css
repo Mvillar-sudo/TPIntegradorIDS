@@ -193,7 +193,7 @@
 }
 
 .time-option:hover,
-.time-option.is-selected {
+.time-option:has(input[type="radio"]:checked) {
     border-color: #7fcdb8;
     background: #7fcdb8;
     color: #fff;
