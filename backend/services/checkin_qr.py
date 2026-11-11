@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from constants import MINUTOS_CHECKIN_ANTES, MINUTOS_CHECKIN_DESPUES
 from tiempo import obtener_ahora_gmt3
 
 try:
@@ -7,14 +8,15 @@ try:
         buscar_turno_por_qr,
         confirmar_checkin_turno,
         actualizar_turno_a_ausente,
+        marcar_ausentes_vencidos,
     )
 except ImportError:
     from backend.repositories.checkin_qr import (
         buscar_turno_por_qr,
         confirmar_checkin_turno,
         actualizar_turno_a_ausente,
+        marcar_ausentes_vencidos,
     )
-
 """
 Pre: 'dt' es un objeto datetime o None
 Post: Formatea 'dt' como 'YYYY-MM-DDTHH:MM:SS'.
@@ -52,12 +54,12 @@ def registrar_checkin_por_qr(token_qr):
     ahora = obtener_ahora_gmt3()
     fecha_turno = turno["fecha_hora"].replace(tzinfo=None)
 
-    inicio_ventana = fecha_turno - timedelta(minutes=30)
-    fin_ventana = fecha_turno + timedelta(minutes=15)
+    inicio_ventana = fecha_turno - timedelta(minutes=MINUTOS_CHECKIN_ANTES)
+    fin_ventana = fecha_turno + timedelta(minutes=MINUTOS_CHECKIN_DESPUES)
 
     if ahora < inicio_ventana:
         return {
-            "error": "Aún no se encuentra habilitada la ventana de check-in (30 minutos antes del turno)"
+            "error": f"Aún no se encuentra habilitada la ventana de check-in ({MINUTOS_CHECKIN_ANTES} minutos antes del turno)"
         }, 400
 
     if ahora > fin_ventana:
@@ -88,3 +90,14 @@ def registrar_checkin_por_qr(token_qr):
         "medico": medico,
         "consultorio": consultorio,
     }, 200
+
+"""
+Pre: -
+Post: Pasa a 'ausente' todos los turnos 'reservados' cuya ventana de check-in ya cerró, es decir,
+      los que empezaron hace más de MINUTOS_CHECKIN_DESPUES minutos. Usa la hora de Argentina
+      (obtener_ahora_gmt3). Devuelve la cantidad de turnos que marcó como ausentes.
+"""
+def marcar_ausentes():
+    ahora = obtener_ahora_gmt3()
+    limite = ahora - timedelta(minutes=MINUTOS_CHECKIN_DESPUES)
+    return marcar_ausentes_vencidos(limite)

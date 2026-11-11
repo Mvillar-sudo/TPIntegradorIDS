@@ -4,7 +4,7 @@ from mysql.connector import Error as MySQLError
 from validators.validator_auth import token_required
 from validators.medico import validar_id_turno
 from services.medico import (listar_turnos_hoy_servicio, marcar_atendido_servicio)
-
+from services.checkin_qr import marcar_ausentes
 medico_bp = Blueprint("medico", __name__)
 
 
@@ -20,6 +20,7 @@ def ver_turnos_hoy():
 
     id_usuario = user_data["id_usuario"]
     try:
+        marcar_ausentes()
         respuesta, status_code = listar_turnos_hoy_servicio(id_usuario)
         return jsonify(respuesta), status_code
     except MySQLError:

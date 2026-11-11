@@ -1,5 +1,3 @@
-from datetime import datetime
-
 try:
     from repositories.recepcion import obtener_turnos_sala_espera as repo_obtener_turnos_sala_espera
 except ImportError:
