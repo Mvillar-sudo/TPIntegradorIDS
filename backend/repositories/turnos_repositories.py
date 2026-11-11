@@ -1,5 +1,7 @@
 from db import get_connection
+from datetime import datetime, time, timedelta
 from repositories.consultas_repositories import ejecutar_consulta
+from tiempo import obtener_ahora_gmt3
 
 
 def obtener_turnos_disponibles(medico_id=None, fecha=None, especialidad_id=None):
@@ -9,6 +11,9 @@ def obtener_turnos_disponibles(medico_id=None, fecha=None, especialidad_id=None)
     try:
         conexion = get_connection()
         cursor = conexion.cursor(dictionary=True)
+        fecha_minima = datetime.combine(
+            obtener_ahora_gmt3().date() + timedelta(days=1), time.min
+        )
 
         query = """
             SELECT
@@ -33,6 +38,7 @@ def obtener_turnos_disponibles(medico_id=None, fecha=None, especialidad_id=None)
             INNER JOIN consultorios c
                 ON t.id_consultorio = c.id_consultorio
             WHERE t.estado = 'disponible'
+            AND t.fecha_hora >= %s
             AND NOT EXISTS (
                     SELECT 1
                     FROM turnos ocupado
@@ -43,7 +49,7 @@ def obtener_turnos_disponibles(medico_id=None, fecha=None, especialidad_id=None)
                 )
         """
 
-        parametros = []
+        parametros = [fecha_minima]
 
         if medico_id is not None:
             query += " AND t.id_medico = %s"
