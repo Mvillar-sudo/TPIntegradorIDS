@@ -10,6 +10,7 @@ from routes.medico import medico_bp
 from routes.admin import admin_bp
 from routes.public import public_bp
 from routes.turnos import turnos_bp
+from routes.reservar_turno import reservar_turno_bp
 
 from constants import FRONTEND_SECRET_KEY
 
@@ -25,6 +26,7 @@ app.register_blueprint(recepcion_bp)
 app.register_blueprint(admin_bp)
 app.register_blueprint(public_bp)
 app.register_blueprint(turnos_bp)
+app.register_blueprint(reservar_turno_bp)
 
 
 if __name__ == "__main__":
