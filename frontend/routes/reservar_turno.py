@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 
-from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, session, url_for
 
 from services import reservar_turno
 
@@ -96,8 +96,8 @@ def exigir_paciente():
         flash("Iniciá sesión como paciente para reservar un turno.", "error")
         return redirect(url_for("auth.iniciar_sesion"))
 
-    """if session.get("usuario", {}).get("rol") != "paciente":
-        abort(403)"""
+    if session.get("usuario", {}).get("rol") != "paciente":
+        abort(403)
 
 
 @reservar_turno_bp.route("/reservar_turno", methods=["GET"])
