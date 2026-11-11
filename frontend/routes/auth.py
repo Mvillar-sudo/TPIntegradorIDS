@@ -81,13 +81,14 @@ def iniciar_sesion():
         flash(datos.get('error', 'Error al iniciar sesión'), 'error')
         return render_template('login.html')
 
+    pagina_pedida = session.get('proxima_pagina')
     session.clear()
     session.permanent = True
     session['token'] = datos['token']
     session['usuario'] = datos['usuario']
 
     destino = RUTA_POR_ROL.get(datos['usuario']['rol'], 'public.index')
-    return redirect(url_for(destino))
+    return redirect(pagina_pedida or url_for(destino))
 
 
 """

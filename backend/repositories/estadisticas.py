@@ -1,4 +1,3 @@
-from db import get_connection
 from repositories.consultas_repositories import ejecutar_consulta
 
 

@@ -19,7 +19,7 @@ def exigir_recepcionista():
     rol = session.get('usuario', {}).get('rol')
     if rol not in ('recepcionista', 'admin'):
         flash('Acceso denegado: Se requiere rol de recepción o administración.', 'danger')
-        return redirect(url_for('index'))
+        return redirect(url_for('public.index'))
 
 
 """

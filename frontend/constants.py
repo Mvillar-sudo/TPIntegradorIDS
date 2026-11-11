@@ -10,5 +10,5 @@ RUTA_POR_ROL = {
     'admin': 'admin.dashboard',
     'recepcionista': 'recepcion.pantalla_recepcion',
     'medico': 'medico.agenda',
-    'paciente': 'index',
+    'paciente': 'public.index',
 }

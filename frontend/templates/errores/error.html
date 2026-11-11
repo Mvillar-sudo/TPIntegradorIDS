@@ -1,0 +1,25 @@
+{% extends "base_template.html" %}
+
+{% block title %}{{ titulo }} | Centro Medico Salud Integral{% endblock %}
+
+{% block header_class %}{% endblock %}
+
+{% block content %}
+<section id="main" class="container" style="padding-top: 8em;">
+	<section class="box">
+		<header class="major special">
+			<h2 style="font-size: 4em; margin-bottom: 0.2em;">{{ codigo }}</h2>
+			<p>{{ titulo }}</p>
+		</header>
+		<p style="text-align: center;">{{ mensaje }}</p>
+		<ul class="actions special">
+			<li><a href="/" class="button primary">Volver al inicio</a></li>
+			{% if session.get('usuario') %}
+			<li><a href="{{ url_for('auth.cerrar_sesion') }}" class="button">Cerrar sesión</a></li>
+			{% else %}
+			<li><a href="{{ url_for('auth.iniciar_sesion') }}" class="button">Iniciar sesión</a></li>
+			{% endif %}
+		</ul>
+	</section>
+</section>
+{% endblock %}

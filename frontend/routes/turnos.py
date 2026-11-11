@@ -1,8 +1,8 @@
 from flask import Blueprint, Response, abort, flash, redirect, render_template, session, url_for
 
-from routes.admin import redirigir_por_sesion_vencida
 from services import turnos as turnos_service
 from services.api_client import SIN_CONEXION
+from services.sesion import ir_al_login
 
 turnos_bp = Blueprint('turnos', __name__)
 
@@ -14,12 +14,11 @@ def exigir_paciente():
           (una redirección con un mensaje) que la ruta tiene que devolver.
     """
     if 'token' not in session:
-        flash('Iniciá sesión para continuar', 'error')
-        return redirect(url_for('auth.iniciar_sesion'))
+        return ir_al_login('Iniciá sesión para continuar')
 
     if session.get('usuario', {}).get('rol') != 'paciente':
         flash('Esta pantalla es solo para pacientes', 'error')
-        return redirect(url_for('index'))
+        return redirect(url_for('public.index'))
 
     return None
 
@@ -33,11 +32,11 @@ def mis_turnos():
     datos, error, status = turnos_service.listar_mis_turnos()
 
     if status == 401:
-        return redirigir_por_sesion_vencida()
+        return ir_al_login('Tu sesión expiró, iniciá sesión nuevamente')
 
     if error is not None:
         flash(error, 'error')
-        return redirect(url_for('index'))
+        return redirect(url_for('public.index'))
 
     return render_template(
         'turnos/mis_turnos.html', proximos=datos['proximos'], anteriores=datos['anteriores']
@@ -69,11 +68,11 @@ def confirmar_cancelacion(id_turno):
     turno, error, status = turnos_service.obtener_mi_turno(id_turno)
 
     if status == 401:
-        return redirigir_por_sesion_vencida()
+        return ir_al_login('Tu sesión expiró, iniciá sesión nuevamente')
 
     if status == SIN_CONEXION or (error is not None and status != 404):
         flash(error, 'error')
-        return redirect(url_for('index'))
+        return redirect(url_for('public.index'))
 
     return render_template('turnos/cancelar.html', turno=turno, error=error)
 
@@ -87,7 +86,7 @@ def cancelar(id_turno):
     _, error, status = turnos_service.cancelar_turno(id_turno)
 
     if status == 401:
-        return redirigir_por_sesion_vencida()
+        return ir_al_login('Tu sesión expiró, iniciá sesión nuevamente')
 
     if error is not None:
         flash(error, 'error')

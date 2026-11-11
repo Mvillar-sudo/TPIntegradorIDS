@@ -2,7 +2,6 @@ from flask import Blueprint, jsonify, request
 from mysql.connector import Error
 
 from validators.validator_auth import token_required
-from constants import ADMIN_ROLES
 from services import agendas
 from utils import respuesta_error
 from validators.agendas import validar_agenda
@@ -13,7 +12,7 @@ agendas_bp = Blueprint('agendas', __name__)
 @agendas_bp.route('/agendas', methods=['GET', 'POST'])
 def coleccion_agendas():
 
-    user_data, error_token, codigo = token_required(["admin"])
+    user_data, error_token, codigo = token_required(["admin", "recepcionista"])
 
     if error_token is not None:
         return jsonify({
