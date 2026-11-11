@@ -21,6 +21,7 @@ Backend y frontend en Flask, base de datos MySQL con SQL escrito a mano (sin ORM
 - **Iniciar sesión**: Ir a `/login` con cualquiera de los usuarios de prueba (contraseña: `Prueba1234`).
 - **Check-in y Sala de espera**: Iniciar sesión como recepcionista (`ana@test.com`) o admin (`maria@test.com`) e ingresar a `/recepcion/`.
   - Códigos QR de prueba para registrar llegada: `qr_valido_123` y `qr_confirmado_456`.
+- **Reservar un turno**: usar `pedro@test.com`, que no tiene turnos (Juan y Laura ya tienen uno activo con cada médico y el sistema no deja reservar un segundo turno activo con el mismo médico). Los seeds dejan 6 turnos disponibles para mañana y pasado; Carlos y Jose tienen uno a las 09:00 de mañana, para probar el solapamiento de horario.
 
 ## Usuarios de prueba
 
@@ -33,7 +34,8 @@ Los carga `database/seeds.sql`. Todos tienen la contraseña `Prueba1234`. **Solo
 | carlos@test.com | médico (Cardiología) |
 | jose@test.com | médico (Dermatología) |
 | juan@test.com | paciente |
-| laura@test.com | paciente |
+| laura@test.com | paciente (tiene turnos con los dos médicos) |
+| pedro@test.com | paciente (sin turnos: sirve para probar la reserva) |
 
 Para loguearse: `POST /api/v1/auth/login` con `{"email": "...", "password": "Prueba1234"}`. Devuelve un token que se manda en el encabezado `Authorization: Bearer <token>`.
 
