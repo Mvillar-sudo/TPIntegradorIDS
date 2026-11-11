@@ -4,7 +4,7 @@ from mysql.connector import Error
 from services.estadisticas import obtener_estadisticas
 from validators.estadisticas import validar_filtros_estadisticas
 from validators.validator_auth import token_required
-
+from services.checkin_qr import marcar_ausentes
 estadisticas_bp = Blueprint('estadisticas', __name__)
 
 
@@ -16,6 +16,7 @@ def consultar_estadisticas():
 
     try:
         desde, hasta = validar_filtros_estadisticas(request.args)
+        marcar_ausentes()
         return jsonify(obtener_estadisticas(desde, hasta)), 200
     except ValueError as error:
         return jsonify({'error': str(error)}), 400
