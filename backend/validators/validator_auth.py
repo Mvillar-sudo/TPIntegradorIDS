@@ -1,6 +1,5 @@
-from functools import wraps
 import jwt
-from flask import jsonify, request
+from flask import request
 
 from config import SECRET_KEY
 

@@ -1,0 +1,18 @@
+<div class="admin-tarjetas">
+	<div class="admin-tarjeta">
+		<span class="numero">{{ resumen.get('medicos', '-') }}</span>
+		<span class="etiqueta">Médicos</span>
+	</div>
+	<div class="admin-tarjeta">
+		<span class="numero">{{ resumen.get('especialidades', '-') }}</span>
+		<span class="etiqueta">Especialidades</span>
+	</div>
+	<div class="admin-tarjeta">
+		<span class="numero">{{ resumen.get('turnos_hoy', '-') }}</span>
+		<span class="etiqueta">Turnos hoy</span>
+	</div>
+	<div class="admin-tarjeta">
+		<span class="numero">{{ resumen.get('pacientes', '-') }}</span>
+		<span class="etiqueta">Pacientes</span>
+	</div>
+</div>
