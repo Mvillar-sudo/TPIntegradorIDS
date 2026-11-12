@@ -1,16 +1,9 @@
-from datetime import datetime, timedelta, timezone
-
 from flask import Blueprint, abort, flash, redirect, render_template, request, session, url_for
 
 from services import reservar_turno
 
 
 reservar_turno_bp = Blueprint("reservar_turno", __name__)
-
-
-def _fecha_minima():
-    zona_gmt3 = timezone(timedelta(hours=-3))
-    return (datetime.now(zona_gmt3).date() + timedelta(days=1)).isoformat()
 
 
 def _render_reserva(paso=1, especialidad_id="", medicos=None, medico_id="",
@@ -28,18 +21,11 @@ def _render_reserva(paso=1, especialidad_id="", medicos=None, medico_id="",
         medicos=medicos or [],
         medico_id=str(medico_id),
         fecha=fecha,
-        fecha_minima=_fecha_minima(),
+        fecha_minima=reservar_turno.fecha_minima(),
         turnos=turnos or [],
         turno=turno,
         medico_seleccionado=medico_seleccionado,
     )
-
-
-def _obtener_medicos(id_especialidad):
-    medicos, error, status = reservar_turno.listar_medicos(id_especialidad)
-    if error:
-        return None, error, status
-    return medicos or [], None, status
 
 
 def _contexto_paso_horarios():
@@ -53,7 +39,7 @@ def _contexto_paso_horarios():
     except (TypeError, ValueError):
         return None, _render_reserva(error="Seleccioná una especialidad y un médico válidos.")
 
-    medicos, error_medicos, status = _obtener_medicos(especialidad_id)
+    medicos, error_medicos, status = reservar_turno.obtener_medicos(especialidad_id)
     if error_medicos:
         if status == 401:
             session.clear()
@@ -82,14 +68,6 @@ def _mostrar_paso_horarios(error=None, turnos=None):
     return _render_reserva(paso=2, turnos=turnos, error=error, **contexto)
 
 
-def _fecha_valida_para_busqueda(fecha):
-    try:
-        fecha_parseada = datetime.strptime(fecha, "%Y-%m-%d")
-    except (TypeError, ValueError):
-        return False
-    return fecha_parseada.strftime("%Y-%m-%d") == fecha and fecha >= _fecha_minima()
-
-
 @reservar_turno_bp.before_request
 def exigir_paciente():
     if "token" not in session:
@@ -111,7 +89,7 @@ def obtener_medicos():
     if not id_especialidad or id_especialidad < 1:
         return _render_reserva(error="Seleccioná una especialidad válida.")
 
-    medicos, error, status = _obtener_medicos(id_especialidad)
+    medicos, error, status = reservar_turno.obtener_medicos(id_especialidad)
     if error:
         if status == 401:
             session.clear()
@@ -129,7 +107,7 @@ def paso_horarios():
 @reservar_turno_bp.route("/reservar_turno/disponibles", methods=["POST"])
 def obtener_turnos_disponibles():
     fecha = request.form.get("fecha", "").strip()
-    if not _fecha_valida_para_busqueda(fecha):
+    if not reservar_turno.fecha_valida_para_busqueda(fecha):
         return _mostrar_paso_horarios("Elegí una fecha desde mañana en adelante.")
 
     contexto, respuesta = _contexto_paso_horarios()
@@ -155,7 +133,7 @@ def obtener_turnos_disponibles():
 def revisar_reserva():
     fecha = request.form.get("fecha", "").strip()
     id_turno = request.form.get("id_turno", type=int)
-    if not _fecha_valida_para_busqueda(fecha):
+    if not reservar_turno.fecha_valida_para_busqueda(fecha):
         return _mostrar_paso_horarios("Elegí una fecha desde mañana en adelante.")
 
     contexto, respuesta = _contexto_paso_horarios()
