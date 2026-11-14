@@ -4,8 +4,6 @@ import smtplib
 from email.message import EmailMessage
 from email.utils import make_msgid
 
-from mysql.connector import Error as MySQLError
-
 from config import obtener_configuracion_mail
 from repositories.notificaciones_repositories import obtener_detalle_turno
 from services.qr import generar_qr_png
@@ -126,8 +124,9 @@ def notificar_reserva(id_turno):
     """
     Pre: 'id_turno' es un entero positivo y el turno ya fue reservado (commit hecho).
     Post: Envía al paciente el mail de confirmación con el QR y el botón de cancelar.
-          Devuelve True si el mail salió y False si falló. Nunca lanza por un problema de mail,
-          para que un error de SMTP no invalide una reserva que ya quedó guardada.
+          Devuelve True si el mail salió y False si falló. Nunca lanza por un problema de mail
+          (SMTP caído, .env mal completado, etc.), para que un error de mail no responda 500
+          sobre una reserva que ya quedó guardada.
     """
     try:
         turno = obtener_detalle_turno(id_turno)
@@ -135,6 +134,6 @@ def notificar_reserva(id_turno):
             return False
         enviar_mail(armar_mail_confirmacion(turno))
         return True
-    except (OSError, MySQLError) as error:
-        logging.warning("No se pudo enviar el mail del turno %s: %s", id_turno, error)
+    except Exception as error:  # cualquier falla del mail: la reserva ya está guardada
+        logging.warning("No se pudo enviar el mail del turno %s: %s: %s", id_turno, type(error).__name__, error)
         return False
