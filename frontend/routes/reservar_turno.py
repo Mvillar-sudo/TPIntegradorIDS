@@ -148,7 +148,7 @@ def confirmar_reserva():
         flash("Elegí un horario antes de confirmar.", "error")
         return redirect(url_for("reservar_turno.reservar_pantalla"))
 
-    reserva, error, status = reservar_turno.reservar_turno(id_turno)
+    reserva, error, status = reservar_turno(id_turno)
     if error:
         if status == 401:
             session.clear()
