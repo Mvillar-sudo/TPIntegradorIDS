@@ -1,4 +1,7 @@
 from datetime import datetime
+
+from flask import session
+
 from .api_client import pedir
 
 FORMATO_HORA = '%H:%M'
@@ -15,7 +18,7 @@ def formatear_turno_medico(turno: dict) -> dict:
     return {
         'id_turno': turno.get('id_turno') or turno.get('id'),
         'paciente': turno.get('paciente'),
-        'dni': turno.get('dni'),
+        'dni': turno.get('paciente_dni'),
         'hora': formatear_hora(turno.get('fecha_hora')),
         'hora_llegada': formatear_hora(turno.get('fecha_hora_checkin')),
         'estado': turno.get('estado'),
@@ -23,16 +26,17 @@ def formatear_turno_medico(turno: dict) -> dict:
     }
 
 def obtener_perfil_medico() -> dict:
+    usuario = session.get('usuario', {})
     return {
-        'nombre': 'Médico de Guardia'
+        'nombre': f"{usuario.get('nombre', '')} {usuario.get('apellido', '')}".strip() or 'Médico'
     }
 
 def obtener_turnos_hoy():
     datos, error, status = pedir('GET', '/medicos/turnos/hoy')
-    if error or not datos:
-        return [], error or "No se pudieron obtener los turnos", status
-    
-    turnos_formateados = [formatear_turno_medico(turno) for turno in datos]
+    if error:
+        return [], error, status
+
+    turnos_formateados = [formatear_turno_medico(turno) for turno in datos['turnos_hoy']]
     return turnos_formateados, None, status
 
 def registrar_turno_atendido(id_turno: int):
