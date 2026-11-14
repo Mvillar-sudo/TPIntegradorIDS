@@ -3,7 +3,7 @@ from mysql.connector import Error as MySQLError
 
 from validators.validator_auth import token_required
 from services.recepcion import obtener_sala_espera
-
+from services.checkin_qr import marcar_ausentes
 recepcion_bp = Blueprint("recepcion", __name__)
 
 
@@ -20,7 +20,9 @@ def consultar_sala_espera():
         return jsonify({"error": error_token}), codigo
 
     try:
+        marcar_ausentes()
         turnos = obtener_sala_espera()
         return jsonify(turnos), 200
     except MySQLError:
         return jsonify({"error": "No se pudo conectar a la base de datos o fallo la consulta"}), 500
+

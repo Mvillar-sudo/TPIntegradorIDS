@@ -1,5 +1,7 @@
 from flask import abort, flash, redirect, render_template, session, url_for
 
+from services.api_client import pedir
+
 # Cada ítem del menú lateral: (texto, endpoint). Agregar un ABM nuevo = una línea acá.
 MENU_ADMIN = [
     ('Inicio', 'admin.dashboard'),
@@ -29,6 +31,16 @@ def redirigir_por_sesion_vencida():
     session.clear()
     flash('Tu sesión expiró, iniciá sesión nuevamente', 'error')
     return redirect(url_for('auth.iniciar_sesion'))
+
+
+def obtener_resumen():
+    """Pide al backend los totales del panel (médicos, especialidades, turnos de hoy y pacientes).
+
+    Devuelve (datos, error, status). Si hay error, datos queda como {} para que la
+    plantilla muestre "-" en cada tarjeta.
+    """
+    datos, error, status = pedir('GET', '/admin/resumen')
+    return (datos if not error else {}), error, status
 
 
 def renderizar_admin(plantilla, titulo='', resumen=None):

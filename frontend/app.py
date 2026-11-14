@@ -16,7 +16,8 @@ from routes.errores import errores_bp
 
 from constants import FRONTEND_SECRET_KEY
 
-load_dotenv()
+from services.agendas import obtener_medicos, crear_agenda
+from services.medico import (obtener_perfil_medico, obtener_turnos_hoy, registrar_turno_atendido)
 
 app = Flask(__name__)
 app.secret_key = FRONTEND_SECRET_KEY
