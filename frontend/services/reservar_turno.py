@@ -41,12 +41,14 @@ def listar_turnos_disponibles(medico_id, id_especialidad, fecha):
 
 def reservar_turno(id_turno):
     """
-    crea un nuevo turno con estado reservado, codigo qr hash y datos del turno
+    crea un nuevo turno con estado reservado, codigo qr hash y datos del turno.
+    Espera hasta 30 segundos porque el backend manda el mail de confirmación antes de responder.
     """
     return pedir(
         "POST",
         "/turnos/reservar",
         json={"id_turno": id_turno},
+        timeout=30,
     )
 
 

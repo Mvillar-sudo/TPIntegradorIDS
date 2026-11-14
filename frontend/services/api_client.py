@@ -5,8 +5,8 @@ from constants import BACKEND_URL
 SIN_CONEXION = 0
 
 
-def pedir(metodo, ruta, json=None, params=None, binario=False):
-    """Llama al backend con el token de la sesión.
+def pedir(metodo, ruta, json=None, params=None, binario=False, timeout=5):
+    """Llama al backend con el token de la sesión. 'timeout' son los segundos que espera la respuesta.
 
     Devuelve (datos, error, status):
       - ok:             (datos, None, status)   # con binario=True, datos son los bytes de la respuesta
@@ -18,7 +18,7 @@ def pedir(metodo, ruta, json=None, params=None, binario=False):
     try:
         r = requests.request(
             metodo, f"{BACKEND_URL}{ruta}",
-            json=json, params=params, headers=headers, timeout=5
+            json=json, params=params, headers=headers, timeout=timeout
         )
     except requests.exceptions.RequestException:
         return None, "No se pudo conectar con el servidor", SIN_CONEXION
