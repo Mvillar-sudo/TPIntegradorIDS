@@ -3,7 +3,7 @@
 {% block title %}Recepción | Centro Médico Salud Integral{% endblock %}
 
 {% block content %}
-<section id="main" class="container">
+<section id="main" class="container" style="margin-top: 0; padding-top: 6em;">
     <header class="major">
         <h2>Recepción - Check-in QR</h2>
         <p>Registro de llegada de pacientes y control de sala de espera</p>
@@ -32,16 +32,27 @@
     {% endif %}
 
     <div class="box">
+        <h3>Escanear el QR del paciente</h3>
+        <p>Tocá el botón, permití el uso de la cámara y mostrale el QR del mail. El check-in se registra solo, sin copiar ni pegar nada.</p>
+        <button type="button" id="boton_camara" class="button primary">Escanear con la cámara</button>
+        <p id="camara_estado" aria-live="polite" style="margin-top: 1em; margin-bottom: 0;"></p>
+        <div id="camara_marco" hidden style="margin-top: 1em; max-width: 420px;">
+            <video id="camara_video" playsinline muted style="width: 100%; border-radius: 6px; background: #000;"></video>
+            <canvas id="camara_lienzo" hidden></canvas>
+        </div>
+    </div>
+
+    <div class="box">
         <form action="{{ url_for('recepcion.registrar_checkin') }}" method="POST">
+            <label for="token_qr">Si no se puede escanear, ingresá el código a mano</label>
             <div class="row gtr-50 gtr-uniform">
                 <div class="col-8 col-12-mobilep">
-                    <input 
-                        type="text" 
-                        name="token_qr" 
-                        id="token_qr" 
-                        placeholder="Ingrese o escanee el token / código QR..." 
-                        required 
-                        autofocus 
+                    <input
+                        type="text"
+                        name="token_qr"
+                        id="token_qr"
+                        placeholder="Token / código QR..."
+                        required
                     />
                 </div>
                 <div class="col-4 col-12-mobilep">
@@ -81,4 +92,9 @@
         {% endif %}
     </div>
 </section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/jsQR.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='js/escaner_qr.js') }}"></script>
 {% endblock %}
