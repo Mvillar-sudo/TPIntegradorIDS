@@ -41,10 +41,33 @@ MEDICOS_BASE_SELECT = """
     SELECT m.id_medico, m.id_especialidad,
            u.nombre_usuario AS nombre_medico,
            u.apellido_usuario AS apellido_medico, m.matricula,
-           e.nombre_especialidad AS especialidad
+           e.nombre_especialidad AS especialidad,
+           c.numero_consultorio,
+           c.piso,
+           CONCAT(
+               c.numero_consultorio,
+               IF(c.piso IS NOT NULL AND c.piso <> '', CONCAT(' (', c.piso, ')'), '')
+           ) AS consultorio
     FROM medicos AS m
     JOIN usuarios AS u ON u.id_usuario = m.id_usuario
     JOIN especialidades AS e ON e.id_especialidad = m.id_especialidad
+    LEFT JOIN consultorios AS c ON c.id_consultorio = COALESCE(
+        (SELECT t1.id_consultorio
+         FROM turnos t1
+         WHERE t1.id_medico = m.id_medico AND DATE(t1.fecha_hora) = CURDATE()
+         ORDER BY t1.fecha_hora ASC
+         LIMIT 1),
+        (SELECT a1.id_consultorio
+         FROM agendas a1
+         WHERE a1.id_medico = m.id_medico
+         ORDER BY a1.agenda_fecha_hora_inicio DESC
+         LIMIT 1),
+        (SELECT t2.id_consultorio
+         FROM turnos t2
+         WHERE t2.id_medico = m.id_medico
+         ORDER BY t2.fecha_hora DESC
+         LIMIT 1)
+    )
 """
 
 MINUTOS_CHECKIN_ANTES = 30
