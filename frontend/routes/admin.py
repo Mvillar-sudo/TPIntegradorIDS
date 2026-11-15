@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, session, url_for, flash
 
-from services.agendas import crear_agenda, obtener_medicos
+from services.agendas import crear_agenda, obtener_medicos, obtener_consultorios
 from services.admin import verificar_admin, renderizar_admin, redirigir_por_sesion_vencida, obtener_resumen
 from services.api_client import pedir
 
@@ -19,14 +19,16 @@ def nueva_agenda():
     if request.method == 'GET':
         try:
             lista_medicos = obtener_medicos()
+            lista_consultorios = obtener_consultorios()
             return render_template(
                 'configurar_agenda.html', 
                 medicos=lista_medicos,
+                consultorios=lista_consultorios,
                 usuario=usuario_actual # Pasamos el usuario al HTML
             )
         except Exception as e:
             flash('Error al cargar datos', 'danger')
-            return render_template('configurar_agenda.html', medicos=[], usuario=usuario_actual)
+            return render_template('configurar_agenda.html', medicos=[], consultorios=[], usuario=usuario_actual)
 
     # --- MÉTODO POST: Capturar datos y enviar al backend ---
     if request.method == 'POST':
@@ -40,7 +42,7 @@ def nueva_agenda():
             # 2. Armamos el diccionario EXACTO que valida tu backend
             datos_backend = {
                 "id_medico": int(request.form.get("medico_id")),
-                "id_consultorio": 1,  # Valor fijo temporalmente
+                "id_consultorio": int(request.form.get("consultorio_id")),
                 "agenda_fecha_hora_inicio": f"{f_inicio} {h_inicio}:00",
                 "agenda_fecha_hora_fin": f"{f_fin} {h_fin}:00",
                 "duracion_turno_minutos": int(request.form.get("duracion_turno", 60))

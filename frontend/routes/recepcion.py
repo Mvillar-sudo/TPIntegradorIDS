@@ -1,6 +1,6 @@
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 from services import recepcion as recepcion_service
-from services.agendas import obtener_medicos, crear_agenda 
+from services.agendas import obtener_medicos, obtener_consultorios, crear_agenda
 
 # 1. Definimos el Blueprint UNA sola vez con su prefijo
 recepcion_bp = Blueprint('recepcion', __name__, url_prefix='/recepcion')
@@ -65,11 +65,13 @@ def configurar_agenda():
     
     try:
         lista_medicos = obtener_medicos()
+        lista_consultorios = obtener_consultorios()
         # 4. Le pasamos usuario=usuario_actual al template
-        return render_template('configurar_agenda.html', medicos=lista_medicos, usuario=usuario_actual)
+        return render_template('configurar_agenda.html', medicos=lista_medicos,
+                               consultorios=lista_consultorios, usuario=usuario_actual)
     except Exception as e:
         flash(f'Error al conectar con la API: {str(e)}', 'danger')
-        return render_template('configurar_agenda.html', medicos=[], usuario=usuario_actual)
+        return render_template('configurar_agenda.html', medicos=[], consultorios=[], usuario=usuario_actual)
 
 @recepcion_bp.route('/agenda/guardar', methods=['POST'])
 def guardar_agenda():
@@ -77,6 +79,7 @@ def guardar_agenda():
     try:
         # Capturamos los datos
         medico_id = request.form.get("medico_id")
+        consultorio_id = request.form.get("consultorio_id")
         duracion_turno = request.form.get("duracion_turno")
         f_inicio = request.form.get("fecha_inicio")
         h_inicio = request.form.get("hora_inicio")
@@ -84,13 +87,13 @@ def guardar_agenda():
         h_fin = request.form.get("hora_fin")
 
         # Validación: Si falta el médico o la duración (llegan vacíos), avisamos y cortamos
-        if not medico_id or not duracion_turno:
-            flash('Por favor, seleccioná un médico y especificá la duración del turno.', 'danger')
+        if not medico_id or not consultorio_id or not duracion_turno:
+            flash('Por favor, seleccioná un médico, un consultorio y especificá la duración del turno.', 'danger')
             return redirect(url_for('recepcion.configurar_agenda'))
         
         datos_backend = {
             "id_medico": int(medico_id),
-            "id_consultorio": 1,
+            "id_consultorio": int(consultorio_id),
             "agenda_fecha_hora_inicio": f"{f_inicio} {h_inicio}:00",
             "agenda_fecha_hora_fin": f"{f_fin} {h_fin}:00",
             "duracion_turno_minutos": int(duracion_turno)
