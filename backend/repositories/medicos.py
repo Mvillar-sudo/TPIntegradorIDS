@@ -1,19 +1,22 @@
 from repositories.consultas_repositories import ejecutar_consulta
 from constants import MEDICOS_BASE_SELECT
+from tiempo import obtener_ahora_gmt3
 
 
 def listar_medicos(especialidad_id=None):
+    hoy = obtener_ahora_gmt3().date()
     query = MEDICOS_BASE_SELECT
-    params = ()
+    params = [hoy]
     if especialidad_id is not None:
         query += ' WHERE m.id_especialidad = %s'
-        params = (especialidad_id,)
+        params.append(especialidad_id)
     query += ' ORDER BY u.apellido_usuario, u.nombre_usuario, m.id_medico'
-    return ejecutar_consulta(query, params)
+    return ejecutar_consulta(query, tuple(params))
 
 
 def obtener_medico(medico_id):
-    rows = ejecutar_consulta(MEDICOS_BASE_SELECT + ' WHERE m.id_medico = %s', (medico_id,))
+    hoy = obtener_ahora_gmt3().date()
+    rows = ejecutar_consulta(MEDICOS_BASE_SELECT + ' WHERE m.id_medico = %s', (hoy, medico_id))
     return rows[0] if rows else None
 
 

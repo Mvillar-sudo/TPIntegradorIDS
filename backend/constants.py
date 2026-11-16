@@ -54,7 +54,7 @@ MEDICOS_BASE_SELECT = """
     LEFT JOIN consultorios AS c ON c.id_consultorio = COALESCE(
         (SELECT t1.id_consultorio
          FROM turnos t1
-         WHERE t1.id_medico = m.id_medico AND DATE(t1.fecha_hora) = CURDATE()
+         WHERE t1.id_medico = m.id_medico AND DATE(t1.fecha_hora) = %s
          ORDER BY t1.fecha_hora ASC
          LIMIT 1),
         (SELECT a1.id_consultorio

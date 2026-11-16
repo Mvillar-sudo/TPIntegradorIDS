@@ -1,39 +1,64 @@
-from flask import Blueprint, flash, redirect, url_for, render_template
+from flask import Blueprint, flash, redirect, render_template, session, url_for
 from services.medico import (
     obtener_perfil_medico,
     obtener_turnos_y_medico_hoy,
     registrar_turno_atendido,
 )
 
-medico_bp = Blueprint('medico', __name__)
+medico_bp = Blueprint("medico", __name__)
 
 
 """
 Pre: -
-Post: Renderiza la plantilla 'medico.html' con la información del médico y la lista de turnos asignados desde la API.
+Post: Redirige al login si no hay sesión iniciada, o al inicio si el usuario no tiene rol de médico.
 """
-@medico_bp.route('/medico', methods=['GET'])
+@medico_bp.before_request
+def exigir_medico():
+    if "token" not in session or "usuario" not in session:
+        flash("Iniciá sesión para continuar", "danger")
+        return redirect(url_for("auth.iniciar_sesion"))
+
+    rol = session.get("usuario", {}).get("rol")
+    if rol != "medico":
+        flash("Acceso denegado: Esta sección es solo para médicos.", "danger")
+        return redirect(url_for("public.index"))
+
+
+"""
+Pre: -
+Post: Renderiza la plantilla "medico.html" con la información del médico y la lista de turnos asignados desde la API.
+"""
+@medico_bp.route("/medico", methods=["GET"])
 def agenda():
     turnos, id_medico, error, status = obtener_turnos_y_medico_hoy()
+    if status == 401:
+        session.clear()
+        flash("Tu sesión expiró, iniciá sesión nuevamente.", "danger")
+        return redirect(url_for("auth.iniciar_sesion"))
+
     perfil = obtener_perfil_medico(id_medico)
 
     if error:
-        flash(error, 'danger')
+        flash(error, "danger")
 
-    return render_template('medico.html', medico=perfil, turnos=turnos)
+    return render_template("medico.html", medico=perfil, turnos=turnos)
 
 
 """
-Pre: 'id_turno' es un entero positivo que identifica al turno a atender.
+Pre: "id_turno" es un entero positivo que identifica al turno a atender.
 Post: Registra el turno como atendido en el backend y redirige a la agenda.
 """
-@medico_bp.route('/medico/turnos/<int:id_turno>/atender', methods=['POST'])
+@medico_bp.route("/medico/turnos/<int:id_turno>/atender", methods=["POST"])
 def atender_turno(id_turno):
     datos, error, status = registrar_turno_atendido(id_turno)
+    if status == 401:
+        session.clear()
+        flash("Tu sesión expiró, iniciá sesión nuevamente.", "danger")
+        return redirect(url_for("auth.iniciar_sesion"))
 
     if error:
-        flash(error, 'danger')
+        flash(error, "danger")
     else:
-        flash(f'Consulta finalizada con éxito. Turno #{id_turno} marcado como atendido.', 'success')
+        flash(f"Consulta finalizada con éxito. Turno #{id_turno} marcado como atendido.", "success")
 
-    return redirect(url_for('medico.agenda'))
+    return redirect(url_for("medico.agenda"))
