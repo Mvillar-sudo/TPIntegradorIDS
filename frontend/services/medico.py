@@ -70,10 +70,6 @@ def obtener_turnos_y_medico_hoy():
     return turnos_formateados, id_medico, None, status
 
 
-def obtener_turnos_hoy():
-    turnos, _, error, status = obtener_turnos_y_medico_hoy()
-    return turnos, error, status
-
 
 def registrar_turno_atendido(id_turno: int):
     return pedir('PATCH', f'/medicos/turnos/{id_turno}/atendido')
