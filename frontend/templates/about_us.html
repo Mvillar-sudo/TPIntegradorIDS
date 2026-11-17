@@ -2,6 +2,15 @@
 
 {% block title %}Sobre nosotros | Centro Medico Salud Integral{% endblock %}
 
+{% block head_extra %}
+<style>
+	/* La plantilla "landing" sube #main 14em y el banner tapa el inicio del texto; acá se apoya debajo del banner */
+	body.landing #main {
+		margin-top: 2em;
+	}
+</style>
+{% endblock %}
+
 {% block content %}
 <!-- Banner -->
 	<section id="banner">

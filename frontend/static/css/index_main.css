@@ -3131,7 +3131,7 @@
 			}
 
 			.dropotron li.active > a, .dropotron li.active > span, .dropotron li:hover > a, .dropotron li:hover > span {
-				background: #e89980;
+				background: #666;
 				color: #ffffff;
 			}
 
@@ -3999,8 +3999,8 @@
 }
 
 .dropotron li.menu-logout-item:hover a {
-	background-color: #fef2f2 !important;
-	color: #991b1b !important;
+	background-color: #666 !important;
+	color: #ffffff !important;
 }
 
 #banner {

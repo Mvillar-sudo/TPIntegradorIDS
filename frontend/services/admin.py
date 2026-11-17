@@ -5,7 +5,6 @@ from services.api_client import pedir
 # Cada ítem del menú lateral: (texto, endpoint). Agregar un ABM nuevo = una línea acá.
 MENU_ADMIN = [
     ('Inicio', 'admin.dashboard'),
-    ('Resumen', 'admin.resumen'),
     ('Médicos', 'admin.listado_medicos'),
 ]
 
@@ -33,7 +32,7 @@ def redirigir_por_sesion_vencida():
     return redirect(url_for('auth.iniciar_sesion'))
 
 
-def obtener_resumen():
+def obtener_estadisticas():
     """Pide al backend los totales del panel (médicos, especialidades, turnos de hoy y pacientes).
 
     Devuelve (datos, error, status). Si hay error, datos queda como {} para que la
@@ -43,6 +42,6 @@ def obtener_resumen():
     return (datos if not error else {}), error, status
 
 
-def renderizar_admin(plantilla, titulo='', resumen=None):
+def renderizar_admin(plantilla, titulo='', estadisticas=None):
     """Renderiza una plantilla de admin inyectando el menú lateral."""
-    return render_template(plantilla, menu_admin=MENU_ADMIN, titulo=titulo, resumen=resumen)
+    return render_template(plantilla, menu_admin=MENU_ADMIN, titulo=titulo, estadisticas=estadisticas)
