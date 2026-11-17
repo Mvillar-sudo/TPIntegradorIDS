@@ -1,37 +1,31 @@
-import requests
-import os
-from flask import session 
+from services.api_client import pedir
+
 
 def obtener_medicos():
-    
-    url = f"{API_BASE_URL}/api/v1/medicos" 
-    
+    """Devuelve la lista de médicos del backend. Lanza ValueError con el mensaje si falla."""
+    datos, error, _ = pedir('GET', '/medicos')
 
-    token = session.get('token', '')
-    headers = {
-        'Authorization': f'Bearer {token}'
-    }
-    
-    
-    respuesta = requests.get(url, headers=headers)
-    
-    
-    respuesta.raise_for_status()
-    
-   
-    return respuesta.json()
+    if error:
+        raise ValueError(error)
 
-API_BASE_URL = os.getenv('API_BASE_URL', 'http://127.0.0.1:5001')
+    return datos
+
+
+def obtener_consultorios():
+    """Devuelve la lista de consultorios del backend. Lanza ValueError con el mensaje si falla."""
+    datos, error, _ = pedir('GET', '/consultorios')
+
+    if error:
+        raise ValueError(error)
+
+    return datos
+
 
 def crear_agenda(datos_formateados):
-    url = f"{API_BASE_URL}/api/v1/agendas/generar"
-    token = session.get('token', '')
-    headers = {
-        'Authorization': f'Bearer {token}',
-        'Content-Type': 'application/json'
-    }
-    
-    respuesta = requests.post(url, json=datos_formateados, headers=headers)
-    respuesta.raise_for_status()
-    
-    return respuesta.json()
+    """Crea la agenda en el backend (POST /agendas). Lanza ValueError con el mensaje si falla."""
+    datos, error, _ = pedir('POST', '/agendas', json=datos_formateados, timeout=30)
+
+    if error:
+        raise ValueError(error)
+
+    return datos
