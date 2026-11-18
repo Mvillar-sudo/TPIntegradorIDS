@@ -1,8 +1,9 @@
 from flask import Blueprint, render_template, request, redirect, session, url_for, flash
 
 from services.agendas import crear_agenda, obtener_medicos, obtener_consultorios
-from services.admin import verificar_admin, renderizar_admin, redirigir_por_sesion_vencida, obtener_estadisticas, obtener_agendas_admin, eliminar_agenda_admin, obtener_medicos_admin, obtener_especialidades_admin, crear_medico_admin, obtener_medico_admin, actualizar_medico_admin, eliminar_medico_admin, datos_form_medico
+from services.admin import verificar_admin, renderizar_admin, redirigir_por_sesion_vencida, obtener_estadisticas, obtener_informes_admin, obtener_agendas_admin, eliminar_agenda_admin, obtener_medicos_admin, obtener_especialidades_admin, crear_medico_admin, obtener_medico_admin, actualizar_medico_admin, eliminar_medico_admin, datos_form_medico
 from services.api_client import pedir
+from datetime import date, timedelta
 
 # Creamos el Blueprint para las rutas de admin del frontend
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
@@ -73,6 +74,31 @@ def dashboard():
         flash(error, 'error')
 
     return renderizar_admin('admin/dashboard.html', estadisticas=datos)
+
+
+@admin_bp.route('/informes')
+def informes():
+    bloqueo = verificar_admin()
+    if bloqueo:
+        return bloqueo
+
+    # Por defecto: los últimos 30 días hasta hoy
+    hoy = date.today()
+    desde = request.args.get('desde') or (hoy - timedelta(days=30)).isoformat()
+    hasta = request.args.get('hasta') or hoy.isoformat()
+
+    datos, error, status = obtener_informes_admin(desde, hasta)
+
+    if status == 401:
+        return redirigir_por_sesion_vencida()
+
+    if error:
+        flash(error, 'error')
+
+    return renderizar_admin(
+        'admin/informes.html', titulo='Informes',
+        informes=datos, desde=desde, hasta=hasta
+    )
 
 
 @admin_bp.route('/agendas')
