@@ -20,37 +20,22 @@
 			</tr>
 		</thead>
 		<tbody>
-			<!-- Filas de ejemplo (solo visual) -->
+			{% for m in medicos %}
 			<tr>
-				<td>Laura Gómez</td>
-				<td>30123456</td>
-				<td>Cardiología</td>
-				<td>laura@test.com</td>
+				<td>{{ m.nombre_medico }} {{ m.apellido_medico }}</td>
+				<td>{{ m.dni_medico }}</td>
+				<td>{{ m.especialidad }}</td>
+				<td>{{ m.email_medico }}</td>
 				<td class="admin-acciones">
 					<a href="{{ url_for('admin.editar_medico') }}" class="button admin-boton small">Editar</a>
 					<a href="#" class="button admin-boton small" data-confirmar="¿Seguro que querés eliminar este médico?">Eliminar</a>
 				</td>
 			</tr>
+			{% else %}
 			<tr>
-				<td>Pablo Díaz</td>
-				<td>28456789</td>
-				<td>Pediatría</td>
-				<td>pablo@test.com</td>
-				<td class="admin-acciones">
-					<a href="{{ url_for('admin.editar_medico') }}" class="button admin-boton small">Editar</a>
-					<a href="#" class="button admin-boton small" data-confirmar="¿Seguro que querés eliminar este médico?">Eliminar</a>
-				</td>
+				<td colspan="5">No hay médicos cargados</td>
 			</tr>
-			<tr>
-				<td>Marta Ruiz</td>
-				<td>33987654</td>
-				<td>Dermatología</td>
-				<td>marta@test.com</td>
-				<td class="admin-acciones">
-					<a href="{{ url_for('admin.editar_medico') }}" class="button admin-boton small">Editar</a>
-					<a href="#" class="button admin-boton small" data-confirmar="¿Seguro que querés eliminar este médico?">Eliminar</a>
-				</td>
-			</tr>
+			{% endfor %}
 		</tbody>
 	</table>
 </div>

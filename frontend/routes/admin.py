@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, session, url_for, flash
 
 from services.agendas import crear_agenda, obtener_medicos, obtener_consultorios
-from services.admin import verificar_admin, renderizar_admin, redirigir_por_sesion_vencida, obtener_estadisticas
+from services.admin import verificar_admin, renderizar_admin, redirigir_por_sesion_vencida, obtener_estadisticas, obtener_medicos_admin
 from services.api_client import pedir
 
 # Creamos el Blueprint para las rutas de admin del frontend
@@ -75,15 +75,24 @@ def dashboard():
     return renderizar_admin('admin/dashboard.html', estadisticas=datos)
 
 
-# Vistas solo visuales (sin conexión al backend todavía)
 @admin_bp.route('/medicos')
 def listado_medicos():
     bloqueo = verificar_admin()
     if bloqueo:
         return bloqueo
-    return renderizar_admin('admin/medicos_listado.html')
+
+    datos, error, status = obtener_medicos_admin()
+
+    if status == 401:
+        return redirigir_por_sesion_vencida()
+
+    if error:
+        flash(error, 'error')
+
+    return renderizar_admin('admin/medicos_listado.html', medicos=datos)
 
 
+# Vistas solo visuales (sin conexión al backend todavía)
 @admin_bp.route('/medicos/nuevo')
 def nuevo_medico():
     bloqueo = verificar_admin()

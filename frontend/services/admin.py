@@ -42,6 +42,19 @@ def obtener_estadisticas():
     return (datos if not error else {}), error, status
 
 
-def renderizar_admin(plantilla, titulo='', estadisticas=None):
+def obtener_medicos_admin():
+    """Pide al backend el listado de médicos.
+
+    Devuelve (datos, error, status). Si hay error, datos queda como [] para que la
+    plantilla muestre la tabla vacía.
+    """
+    datos, error, status = pedir('GET', '/medicos')
+    return (datos if not error else []), error, status
+
+
+def renderizar_admin(plantilla, titulo='', estadisticas=None, medicos=None):
     """Renderiza una plantilla de admin inyectando el menú lateral."""
-    return render_template(plantilla, menu_admin=MENU_ADMIN, titulo=titulo, estadisticas=estadisticas)
+    return render_template(
+        plantilla, menu_admin=MENU_ADMIN, titulo=titulo,
+        estadisticas=estadisticas, medicos=medicos
+    )
