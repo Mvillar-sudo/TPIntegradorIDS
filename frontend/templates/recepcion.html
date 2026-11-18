@@ -63,13 +63,14 @@
     </div>
 
     <div class="box">
-        <h3>Pacientes en Sala de Espera</h3>
+        <h3>Pacientes en Sala de Espera{% if sala_espera %} ({{ sala_espera|length }}){% endif %}</h3>
         {% if sala_espera %}
             <div class="table-wrapper">
                 <table>
                     <thead>
                         <tr>
                             <th>Paciente</th>
+                            <th>Médico</th>
                             <th>Consultorio</th>
                             <th>Llegada</th>
                             <th>Tiempo de Espera</th>
@@ -79,6 +80,7 @@
                         {% for turno in sala_espera %}
                             <tr>
                                 <td>{{ turno.paciente }}</td>
+                                <td>{{ turno.medico }}</td>
                                 <td>{{ turno.consultorio }}</td>
                                 <td>{{ turno.hora_llegada }}</td>
                                 <td>{{ turno.minutos_espera }} min</td>

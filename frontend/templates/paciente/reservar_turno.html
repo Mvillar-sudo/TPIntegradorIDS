@@ -20,6 +20,11 @@
         <p class="booking-kicker">Reserva confirmada</p>
         <h2>Tu turno ya está reservado</h2>
         <p>{{ reserva.get('mensaje', 'La reserva se realizó correctamente.') }}</p>
+        {% if reserva.get('email_enviado') %}
+        <p>Te enviamos el código QR a tu mail. Presentalo en recepción al llegar. También lo podés ver en <a href="{{ url_for('turnos.mis_turnos') }}">Mis turnos</a>.</p>
+        {% else %}
+        <p class="booking-alert" role="alert">Tu turno quedó reservado, pero no pudimos enviarte el mail con el código QR. Podés ver el QR en <a href="{{ url_for('turnos.mis_turnos') }}">Mis turnos</a>.</p>
+        {% endif %}
         {% if reserva.get('reserva') %}
         <dl class="success-details">
             <div><dt>Número de turno</dt><dd>#{{ reserva.reserva.id_turno }}</dd></div>

@@ -1,24 +1,10 @@
-from flask import Blueprint, abort, flash, redirect, render_template, request, session, url_for
+from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 
+from services.sesion import exigir_paciente
 from services.reservar_turno import render_reserva, listar_medicos, listar_especialidades, mostrar_paso_horarios, fecha_valida_para_busqueda, contexto_paso_horarios, listar_turnos_disponibles, reservar_turno
 
 
 reservar_turno_bp = Blueprint("reservar_turno", __name__)
-
-
-def exigir_paciente():
-    """
-    - si el usuario no esta autenticado, se redirige a iniciar sesion
-    - si el usuario autenticado no es paciente se lanza error 403 (El usuario no tiene permisos)
-    - si todo sale bien se devuelve vacio
-    """
-    if "token" not in session:
-        flash("Iniciá sesión como paciente para reservar un turno.", "error")
-        return redirect(url_for("auth.iniciar_sesion"))
-
-    if session.get("usuario", {}).get("rol") != "paciente":
-        abort(403)
-    return None
 
 
 @reservar_turno_bp.route("/reservar_turno", methods=["GET"])
