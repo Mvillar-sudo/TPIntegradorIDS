@@ -2,7 +2,6 @@ from flask import Blueprint, render_template, request, redirect, session, url_fo
 
 from services.agendas import crear_agendas_por_dia, obtener_medicos, obtener_consultorios
 from services.admin import verificar_admin, renderizar_admin, redirigir_por_sesion_vencida, obtener_estadisticas, obtener_agendas_admin, eliminar_agenda_admin, obtener_medicos_admin, obtener_especialidades_admin, crear_medico_admin, obtener_medico_admin, actualizar_medico_admin, eliminar_medico_admin, datos_form_medico
-from services.api_client import pedir
 
 # Creamos el Blueprint para las rutas de admin del frontend
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
@@ -13,37 +12,33 @@ def nueva_agenda():
     if bloqueo:
         return bloqueo
 
-    # --- MÉTODO GET: Mostrar el formulario ---
-    usuario_actual = session.get('usuario') 
-
-    if request.method == 'GET':
-        try:
-            lista_medicos = obtener_medicos()
-            lista_consultorios = obtener_consultorios()
-            return render_template(
-                'configurar_agenda.html', 
-                medicos=lista_medicos,
-                consultorios=lista_consultorios,
-                usuario=usuario_actual # Pasamos el usuario al HTML
-            )
-        except Exception as e:
-            flash('Error al cargar datos', 'danger')
-            return render_template('configurar_agenda.html', medicos=[], consultorios=[], usuario=usuario_actual)
-
-    # --- MÉTODO POST: Capturar datos y enviar al backend ---
+    # --- MÉTODO POST: crear la agenda con los datos del formulario ---
     if request.method == 'POST':
         try:
-            creadas, errores = crear_agendas_por_dia(request.form)
-
-            if creadas:
-                flash(f'Se crearon {creadas} agenda(s) correctamente.', 'success')
-            if errores:
-                flash('No se pudieron crear: ' + '; '.join(errores), 'danger')
+            crear_agenda_desde_formulario(request.form)
+        except ValueError as error:
+            flash(f'Error al crear la agenda: {error}', 'danger')
             return redirect(url_for('admin.nueva_agenda'))
 
-        except Exception as e:
-            flash(f'Error al crear la agenda: {str(e)}', 'danger')
-            return redirect(url_for('admin.nueva_agenda'))
+        flash('La agenda se generó correctamente.', 'success')
+        return redirect(url_for('admin.nueva_agenda'))
+
+    # --- MÉTODO GET: mostrar el formulario ---
+    usuario_actual = session.get('usuario')
+
+    try:
+        lista_medicos = obtener_medicos()
+        lista_consultorios = obtener_consultorios()
+        return render_template(
+            'configurar_agenda.html',
+            medicos=lista_medicos,
+            consultorios=lista_consultorios,
+            usuario=usuario_actual
+        )
+    except ValueError as error:
+        flash(str(error), 'danger')
+        return render_template('configurar_agenda.html', medicos=[], consultorios=[], usuario=usuario_actual)
+
 
 @admin_bp.route('/')
 def dashboard():

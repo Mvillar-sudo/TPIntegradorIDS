@@ -2,25 +2,9 @@ from flask import Blueprint, Response, abort, flash, redirect, render_template, 
 
 from services import turnos as turnos_service
 from services.api_client import SIN_CONEXION
-from services.sesion import ir_al_login
+from services.sesion import exigir_paciente, ir_al_login
 
 turnos_bp = Blueprint('turnos', __name__)
-
-
-def exigir_paciente():
-    """
-    Pre: -
-    Post: Devuelve None si hay un paciente con sesión iniciada. Si no, devuelve la respuesta
-          (una redirección con un mensaje) que la ruta tiene que devolver.
-    """
-    if 'token' not in session:
-        return ir_al_login('Iniciá sesión para continuar')
-
-    if session.get('usuario', {}).get('rol') != 'paciente':
-        flash('Esta pantalla es solo para pacientes', 'error')
-        return redirect(url_for('public.index'))
-
-    return None
 
 
 @turnos_bp.route('/mis-turnos', methods=['GET'])

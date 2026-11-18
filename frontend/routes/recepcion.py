@@ -1,6 +1,7 @@
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 from services import recepcion as recepcion_service
-from services.agendas import obtener_medicos, obtener_consultorios, crear_agendas_por_dia
+from services.agendas import obtener_medicos, obtener_consultorios, crear_agenda_desde_formulario
+from services.sesion import exigir_rol
 
 # 1. Definimos el Blueprint UNA sola vez con su prefijo
 recepcion_bp = Blueprint('recepcion', __name__, url_prefix='/recepcion')
@@ -8,18 +9,12 @@ recepcion_bp = Blueprint('recepcion', __name__, url_prefix='/recepcion')
 
 """
 Pre: -
-Post: Redirige al login si no hay sesión iniciada, o a la home si el usuario no tiene rol de recepcionista o admin.
+Post: Redirige al login si no hay sesión iniciada, o muestra el acceso denegado (403) si el usuario
+      no tiene rol de recepcionista o admin.
 """
 @recepcion_bp.before_request
 def exigir_recepcionista():
-    if 'token' not in session or 'usuario' not in session:
-        flash('Iniciá sesión para continuar', 'danger')
-        return redirect(url_for('auth.iniciar_sesion'))
-
-    rol = session.get('usuario', {}).get('rol')
-    if rol not in ('recepcionista', 'admin'):
-        flash('Acceso denegado: Se requiere rol de recepción o administración.', 'danger')
-        return redirect(url_for('public.index'))
+    return exigir_rol(('recepcionista', 'admin'))
 
 
 """
@@ -53,41 +48,38 @@ def registrar_checkin():
 
     return redirect(url_for('recepcion.pantalla_recepcion'))
 
-# 2. Arreglamos la ruta (el prefijo ya aporta el /recepcion)
 @recepcion_bp.route('/agenda/configurar', methods=['GET'])
 def configurar_agenda():
     """
     Pre: -
-    Post: Obtiene los médicos de la API y renderiza el formulario.
+    Post: Obtiene los médicos y consultorios de la API y renderiza el formulario. Si la API falla,
+          muestra el mensaje de error y el formulario vacío.
     """
-    # 3. Simulamos el usuario para que Jinja2 no tire error de "undefined"
-    usuario_actual = session.get('usuario', {'rol': 'admin'})
-    
+    usuario_actual = session.get('usuario')
+
     try:
         lista_medicos = obtener_medicos()
         lista_consultorios = obtener_consultorios()
-        # 4. Le pasamos usuario=usuario_actual al template
         return render_template('configurar_agenda.html', medicos=lista_medicos,
                                consultorios=lista_consultorios, usuario=usuario_actual)
-    except Exception as e:
-        flash(f'Error al conectar con la API: {str(e)}', 'danger')
+    except ValueError as error:
+        flash(str(error), 'danger')
         return render_template('configurar_agenda.html', medicos=[], consultorios=[], usuario=usuario_actual)
+
 
 @recepcion_bp.route('/agenda/guardar', methods=['POST'])
 def guardar_agenda():
+    """
+    Pre: el formulario trae medico_id, consultorio_id, duracion_turno, fecha_inicio, hora_inicio,
+         fecha_fin y hora_fin.
+    Post: Crea la agenda en el backend y vuelve al formulario con un mensaje de éxito o con el
+          motivo por el que no se pudo.
+    """
     try:
-        if not request.form.get("medico_id") or not request.form.get("consultorio_id") or not request.form.get("duracion_turno"):
-            flash('Por favor, seleccioná un médico, un consultorio y especificá la duración del turno.', 'danger')
-            return redirect(url_for('recepcion.configurar_agenda'))
-
-        creadas, errores = crear_agendas_por_dia(request.form)
-
-        if creadas:
-            flash(f'Se crearon {creadas} agenda(s) correctamente.', 'success')
-        if errores:
-            flash('No se pudieron crear: ' + '; '.join(errores), 'danger')
+        crear_agenda_desde_formulario(request.form)
+    except ValueError as error:
+        flash(f'Error al crear la agenda: {error}', 'danger')
         return redirect(url_for('recepcion.configurar_agenda'))
 
-    except Exception as e:
-        flash(f'Error al crear la agenda: {str(e)}', 'danger')
-        return redirect(url_for('recepcion.configurar_agenda'))
+    flash('La agenda se generó correctamente.', 'success')
+    return redirect(url_for('recepcion.configurar_agenda'))

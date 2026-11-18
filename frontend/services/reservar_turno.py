@@ -1,6 +1,7 @@
-from flask import Blueprint, abort, flash, redirect, render_template, request, session, url_for
+from flask import flash, redirect, render_template, request, session, url_for
 from services.api_client import pedir
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
+from services.tiempo import obtener_ahora_gmt3
 
 
 def listar_especialidades():
@@ -56,8 +57,7 @@ def fecha_minima():
     """
     devuelve fecha minima segun 'dia actual + un dia' en formato ISO
     """
-    zona_gmt3 = timezone(timedelta(hours=-3))
-    return (datetime.now(zona_gmt3).date() + timedelta(days=1)).isoformat()
+    return (obtener_ahora_gmt3().date() + timedelta(days=1)).isoformat()
 
 
 def fecha_valida_para_busqueda(fecha):
