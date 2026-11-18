@@ -11,7 +11,7 @@ medico_bp = Blueprint("medico", __name__)
 @medico_bp.route("/medicos/turnos/hoy", methods=["GET"])
 def ver_turnos_hoy():
 
-    user_data, error_token, codigo = token_required(["admin", "medico"])
+    user_data, error_token, codigo = token_required(["medico"])
 
     if error_token is not None:
         return jsonify({
@@ -30,7 +30,7 @@ def ver_turnos_hoy():
 @medico_bp.route("/medicos/turnos/<id_turno>/atendido", methods=["PATCH"])
 def marcar_atendido(id_turno):
 
-    user_data, error_token, codigo = token_required(["admin", "medico"])
+    user_data, error_token, codigo = token_required(["medico"])
 
     if error_token is not None:
         return jsonify({

@@ -538,10 +538,10 @@ paths:
       description: >
         Devuelve los turnos del día del médico autenticado. Antes de responder marca como
         ausentes los turnos reservados cuya ventana de check-in ya venció.
-        Si el usuario no tiene perfil de médico (p. ej. un admin) responde 403.
+        Solo accesible para usuarios con rol médico; cualquier otro rol responde 403.
       security:
         - bearerAuth: []
-      x-required-roles: [admin, medico]
+      x-required-roles: [medico]
       responses:
         '200':
           description: Turnos del día del médico.
@@ -562,10 +562,10 @@ paths:
     patch:
       tags: [Médicos]
       summary: Marcar turno como atendido
-      description: Requiere que el turno pertenezca al médico autenticado y esté confirmado (check-in realizado).
+      description: Solo para el rol médico. Requiere que el turno pertenezca al médico autenticado y esté confirmado (check-in realizado).
       security:
         - bearerAuth: []
-      x-required-roles: [admin, medico]
+      x-required-roles: [medico]
       parameters:
         - name: id_turno
           in: path
