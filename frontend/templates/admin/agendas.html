@@ -1,0 +1,14 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Agendas | Panel de administrador{% endblock %}
+
+{% block admin_content %}
+<div class="admin-titulo">
+	<h2>Agendas</h2>
+</div>
+
+<div class="admin-accesos">
+	<a href="{{ url_for('admin.listado_agendas') }}" class="button admin-boton">Mostrar agendas</a>
+	<a href="{{ url_for('admin.nueva_agenda') }}" class="button admin-boton">Nueva agenda</a>
+</div>
+{% endblock %}

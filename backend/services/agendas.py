@@ -12,3 +12,7 @@ def listar():
 
 def crear(values):
     return agendas.crear_agenda(values)
+
+
+def eliminar(agenda_id):
+    return agendas.eliminar_agenda(agenda_id)

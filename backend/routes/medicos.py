@@ -7,7 +7,7 @@ from validators.medicos import validar_medico
 from services import medicos
 
 from constants import GESTION_ROLES, LECTORES_ROLES
-from utils import respuesta_error, validar_entero_positivo
+from utils import respuesta_error, validar_entero_positivo, validar_texto
 
 medicos_bp = Blueprint('medicos', __name__)
 
@@ -29,6 +29,28 @@ def listar_medicos():
             specialty_id = validar_entero_positivo(raw_specialty, 'id_especialidad')
 
         return jsonify(medicos.listar(specialty_id)), 200
+
+    except (ValueError, LookupError, Error) as error:
+        return respuesta_error(error)
+
+
+@medicos_bp.route('/medicos/matricula-disponible', methods=['GET'])
+def matricula_disponible():
+
+    _, error_token, codigo = token_required(GESTION_ROLES)
+
+    if error_token is not None:
+        return jsonify({
+            "error": error_token
+        }), codigo
+
+    try:
+        matricula = validar_texto(request.args.get('matricula'), 'matricula', 50)
+
+        return jsonify({
+            'matricula': matricula,
+            'disponible': medicos.matricula_disponible(matricula),
+        }), 200
 
     except (ValueError, LookupError, Error) as error:
         return respuesta_error(error)

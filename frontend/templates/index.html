@@ -113,7 +113,7 @@
 									<h3>Panel de Administración</h3>
 									<p>Gestión general de usuarios y configuración</p>
 									<ul class="actions special">
-										<li><a href="/admin/" class="button primary">Administración</a></li>
+										<li><a href="/admin/" class="button alt">Administración</a></li>
 									</ul>
 								</section>
 								<section>
@@ -159,18 +159,24 @@
 								</section>
 							</div>
 							<div class="features-row">
-								{% if session.get('usuario') %}
 								<section>
 									<h3>Revisá tus turnos</h3>
 									<ul class="actions special">
 										<li><a href="/mis-turnos" class="button alt">Mis turnos</a></li>
 									</ul>
 								</section>
-								{% endif %}
 								<section>
 									<h3>Conocé nuestras especialidades</h3>
 									<ul class="actions special">
 										<li><a href="/especialidades" class="button alt">Conocer especialidades</a></li>
+									</ul>
+								</section>
+							</div>
+							<div class="features-row" style="display: flex; justify-content: center;">
+								<section style="float: none; width: 100%; max-width: 38em; margin: 0 auto; text-align: center;">
+									<h3 style="text-align: center;">Acerca de nosotros</h3>
+									<ul class="actions special" style="justify-content: center; display: flex;">
+										<li><a href="/about-us" class="button alt">Saber más</a></li>
 									</ul>
 								</section>
 							</div>

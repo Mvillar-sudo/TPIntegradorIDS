@@ -161,26 +161,6 @@ tr.fila-confirmado:hover {
     border: 1px solid #fecaca;
 }
 
-.btn-atender {
-    padding: 8px 16px;
-    background: #27ae60;
-    color: #ffffff;
-    border: none;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.1s;
-}
-
-.btn-atender:hover {
-    background: #219653;
-}
-
-.btn-atender:active {
-    transform: scale(0.98);
-}
-
 .texto-espera {
     color: #718096;
     font-size: 0.85rem;

@@ -38,9 +38,13 @@ MAX_DIAS_AGENDA = 365
 MAX_DURACION_MINUTOS = 60
 
 MEDICOS_BASE_SELECT = """
-    SELECT m.id_medico, m.id_especialidad,
+    SELECT m.id_medico, m.id_usuario, m.id_especialidad,
            u.nombre_usuario AS nombre_medico,
-           u.apellido_usuario AS apellido_medico, m.matricula,
+           u.apellido_usuario AS apellido_medico,
+           u.dni_usuario AS dni_medico,
+           u.email_usuario AS email_medico,
+           u.telefono_usuario AS telefono_medico,
+           m.matricula,
            e.nombre_especialidad AS especialidad,
            c.numero_consultorio,
            c.piso,

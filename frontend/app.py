@@ -32,6 +32,5 @@ app.register_blueprint(reservar_turno_bp)
 app.register_blueprint(errores_bp)
 
 
-
 if __name__ == "__main__":
     app.run(port=3000, debug=False)

@@ -1,6 +1,14 @@
-{% extends "base.html" %}
+{% extends "index.html" %}
+
+{% block title %}Configurar agenda | Centro Medico Salud Integral{% endblock %}
+{% block header_class %}{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/configurar_agenda.css') }}" />
+{% endblock %}
+
 {% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/configurar_agenda.css') }}">
+<section id="main" class="container agenda-main">
 <div class="main-container">
     <h2>Configurar Agenda Médica</h2>
     
@@ -83,8 +91,9 @@
             {% endfor %}
         </div>
 
-        <button type="submit" id="btn-submit" class="btn btn-primary">Generar Agenda</button>
-    <a href="/" class="btn btn-secondary">Cancelar</a>
+        <button type="submit" id="btn-submit" class="button alt">Generar Agenda</button>
+    <a href="/" class="button alt">Cancelar</a>
     </form>
 </div>
+</section>
 {% endblock %}

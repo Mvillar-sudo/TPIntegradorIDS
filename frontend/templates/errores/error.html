@@ -13,11 +13,11 @@
 		</header>
 		<p style="text-align: center;">{{ mensaje }}</p>
 		<ul class="actions special">
-			<li><a href="/" class="button primary">Volver al inicio</a></li>
+			<li><a href="/" class="button alt">Volver al inicio</a></li>
 			{% if session.get('usuario') %}
-			<li><a href="{{ url_for('auth.cerrar_sesion') }}" class="button">Cerrar sesión</a></li>
+			<li><a href="{{ url_for('auth.cerrar_sesion') }}" class="button alt">Cerrar sesión</a></li>
 			{% else %}
-			<li><a href="{{ url_for('auth.iniciar_sesion') }}" class="button">Iniciar sesión</a></li>
+			<li><a href="{{ url_for('auth.iniciar_sesion') }}" class="button alt">Iniciar sesión</a></li>
 			{% endif %}
 		</ul>
 	</section>

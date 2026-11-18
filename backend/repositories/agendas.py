@@ -18,6 +18,67 @@ def listar_agendas():
     """)
 
 
+def eliminar_agenda(agenda_id):
+    """Borra la agenda y los turnos que generó, siempre que todos sigan disponibles.
+
+    Los turnos no guardan a qué agenda pertenecen, así que se toman los del mismo médico y
+    consultorio dentro del período de la agenda (el sistema no permite agendas superpuestas).
+    Todo ocurre en una transacción: se bloquean esos turnos antes de revisarlos para que nadie
+    pueda reservar uno mientras se decide si se borra.
+    """
+    connection = get_connection()
+    cursor = connection.cursor(dictionary=True)
+
+    try:
+        cursor.execute("""
+            SELECT id_medico, id_consultorio, agenda_fecha_hora_inicio, agenda_fecha_hora_fin
+            FROM agendas
+            WHERE id_agenda = %s
+            FOR UPDATE
+        """, (agenda_id,))
+        agenda = cursor.fetchone()
+        if agenda is None:
+            raise LookupError('No se encontró la agenda solicitada')
+
+        periodo = (
+            agenda['id_medico'], agenda['id_consultorio'],
+            agenda['agenda_fecha_hora_inicio'], agenda['agenda_fecha_hora_fin'],
+        )
+
+        cursor.execute("""
+            SELECT estado
+            FROM turnos
+            WHERE id_medico = %s AND id_consultorio = %s
+              AND fecha_hora >= %s AND fecha_hora < %s
+            FOR UPDATE
+        """, periodo)
+        turnos = cursor.fetchall()
+
+        if any(turno['estado'] != 'disponible' for turno in turnos):
+            raise ValueError(
+                'No se puede eliminar una agenda con turnos reservados, atendidos o cancelados'
+            )
+
+        cursor.execute("""
+            DELETE FROM turnos
+            WHERE id_medico = %s AND id_consultorio = %s
+              AND fecha_hora >= %s AND fecha_hora < %s
+        """, periodo)
+        cursor.execute('DELETE FROM agendas WHERE id_agenda = %s', (agenda_id,))
+
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+        return len(turnos)
+
+    except Exception:
+        connection.rollback()
+        cursor.close()
+        connection.close()
+        raise
+
+
 def crear_agenda(values):
     connection = get_connection()
     cursor = connection.cursor()

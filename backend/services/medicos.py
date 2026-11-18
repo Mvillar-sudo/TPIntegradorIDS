@@ -12,6 +12,11 @@ def obtener(medico_id):
     return item
 
 
+def matricula_disponible(matricula, medico_id=None):
+    """True si ninguna otra persona médica usa esa matrícula (la matrícula es única)."""
+    return not medicos.matricula_existe(matricula, medico_id)
+
+
 def crear(values):
     if not medicos.usuario_es_medico(values['id_usuario']):
         raise ValueError('El usuario indicado no existe o no tiene rol de médico')
@@ -25,11 +30,15 @@ def crear(values):
 
 
 def actualizar(medico_id, values):
-    obtener(medico_id)
+    medico = obtener(medico_id)
     if 'id_especialidad' in values and not medicos.especialidad_existe(values['id_especialidad']):
         raise ValueError('La especialidad indicada no existe')
     if 'matricula' in values and medicos.matricula_existe(values['matricula'], medico_id):
         raise ValueError('La matrícula ingresada ya existe')
+    if 'dni' in values and medicos.dni_existe(values['dni'], medico['id_usuario']):
+        raise ValueError('El DNI ingresado ya está registrado')
+    if 'email' in values and medicos.email_existe(values['email'], medico['id_usuario']):
+        raise ValueError('El email ingresado ya está registrado')
     medicos.actualizar_medico(medico_id, values)
     return obtener(medico_id)
 
