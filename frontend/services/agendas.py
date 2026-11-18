@@ -1,4 +1,9 @@
+from datetime import date, timedelta
+
 from services.api_client import pedir
+
+DIAS_SEMANA = {'Lunes': 0, 'Martes': 1, 'Miércoles': 2, 'Jueves': 3, 'Viernes': 4, 'Sábado': 5, 'Domingo': 6}
+MAX_DIAS_RANGO = 90
 
 
 def obtener_medicos():

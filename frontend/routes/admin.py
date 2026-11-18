@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, session, url_for, flash
 
-from services.agendas import crear_agenda_desde_formulario, obtener_medicos, obtener_consultorios
+from services.agendas import crear_agendas_por_dia, obtener_medicos, obtener_consultorios
 from services.admin import verificar_admin, renderizar_admin, redirigir_por_sesion_vencida, obtener_estadisticas, obtener_agendas_admin, eliminar_agenda_admin, obtener_medicos_admin, obtener_especialidades_admin, crear_medico_admin, obtener_medico_admin, actualizar_medico_admin, eliminar_medico_admin, datos_form_medico
 
 # Creamos el Blueprint para las rutas de admin del frontend
