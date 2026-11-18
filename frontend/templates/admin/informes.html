@@ -1,0 +1,79 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Informes | Panel de administrador{% endblock %}
+
+{% block admin_content %}
+<div class="admin-titulo">
+	<h2>Informes</h2>
+</div>
+
+<form method="get" class="admin-filtros">
+	<div>
+		<label for="desde">Desde</label>
+		<input type="date" name="desde" id="desde" value="{{ desde }}" required />
+	</div>
+	<div>
+		<label for="hasta">Hasta</label>
+		<input type="date" name="hasta" id="hasta" value="{{ hasta }}" required />
+	</div>
+	<input type="submit" value="Ver informes" class="button admin-boton" />
+</form>
+
+<h3>Ausentismo por especialidad</h3>
+<div class="admin-tabla-contenedor">
+	<table>
+		<thead>
+			<tr>
+				<th>Especialidad</th>
+				<th>Turnos atendidos</th>
+				<th>Turnos ausentes</th>
+				<th>% de ausentismo</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for f in informes.get('ausentismo_por_especialidad', []) %}
+			<tr>
+				<td>{{ f.nombre_especialidad }}</td>
+				<td>{{ f.turnos_atendidos }}</td>
+				<td>{{ f.turnos_ausentes }}</td>
+				<td>{{ f.porcentaje_ausentismo }}%</td>
+			</tr>
+			{% else %}
+			<tr>
+				<td colspan="4">No hay datos para el período</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+
+<h3>Ocupación por consultorio</h3>
+<div class="admin-tabla-contenedor">
+	<table>
+		<thead>
+			<tr>
+				<th>Consultorio</th>
+				<th>Piso</th>
+				<th>Turnos generados</th>
+				<th>Turnos ocupados</th>
+				<th>% de ocupación</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for f in informes.get('ocupacion_por_consultorio', []) %}
+			<tr>
+				<td>{{ f.numero_consultorio }}</td>
+				<td>{{ f.piso }}</td>
+				<td>{{ f.total_turnos_generados }}</td>
+				<td>{{ f.turnos_ocupados }}</td>
+				<td>{{ f.porcentaje_ocupacion }}%</td>
+			</tr>
+			{% else %}
+			<tr>
+				<td colspan="5">No hay datos para el período</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+{% endblock %}
