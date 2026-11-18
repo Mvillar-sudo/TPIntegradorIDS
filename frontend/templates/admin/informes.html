@@ -17,6 +17,7 @@
 		<input type="date" name="hasta" id="hasta" value="{{ hasta }}" required />
 	</div>
 	<input type="submit" value="Ver informes" class="button admin-boton" />
+	<a href="{{ url_for('admin.informes_pdf', desde=desde, hasta=hasta) }}" class="button admin-boton">Descargar PDF</a>
 </form>
 
 <h3>Ausentismo por especialidad</h3>
