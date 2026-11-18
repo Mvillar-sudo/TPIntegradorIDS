@@ -76,10 +76,13 @@ def guardar_agenda():
           motivo por el que no se pudo.
     """
     try:
-        crear_agenda_desde_formulario(request.form)
+        creadas, errores = crear_agenda_desde_formulario(request.form)
     except ValueError as error:
         flash(f'Error al crear la agenda: {error}', 'danger')
         return redirect(url_for('recepcion.configurar_agenda'))
 
-    flash('La agenda se generó correctamente.', 'success')
+    if creadas:
+        flash(f'Se crearon {creadas} agenda(s) correctamente.', 'success')
+    if errores:
+        flash('No se pudieron crear: ' + '; '.join(errores), 'danger')
     return redirect(url_for('recepcion.configurar_agenda'))

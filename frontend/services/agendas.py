@@ -40,9 +40,12 @@ def crear_agenda_desde_formulario(formulario):
     """
     Pre: 'formulario' es el formulario de la pantalla de agendas (request.form), con medico_id,
          consultorio_id, duracion_turno, fecha_inicio, hora_inicio, fecha_fin y hora_fin.
-    Post: Arma los datos como los pide el backend y crea la agenda. Devuelve la respuesta del
-          backend. Lanza ValueError con un mensaje legible si falta algún dato o si el backend
-          rechaza la agenda.
+          Además trae 'dias_atencion' (checkboxes con los días de la semana en que se atiende).
+    Post: Crea una agenda por cada día tildado dentro del rango de fechas, con la hora de inicio
+          y de fin de ese día (así el backend no genera turnos fuera de ese horario). Devuelve
+          (cantidad_creadas, errores), donde errores es una lista de textos "dd/mm: motivo" de
+          los días que el backend rechazó. Lanza ValueError con un mensaje legible si falta algún
+          dato o si el formulario no es válido.
     """
     campos = ('medico_id', 'consultorio_id', 'duracion_turno',
               'fecha_inicio', 'hora_inicio', 'fecha_fin', 'hora_fin')
@@ -51,14 +54,50 @@ def crear_agenda_desde_formulario(formulario):
         raise ValueError('Completá el médico, el consultorio, las fechas, las horas y la duración del turno.')
 
     try:
-        datos_backend = {
-            'id_medico': int(formulario['medico_id']),
-            'id_consultorio': int(formulario['consultorio_id']),
-            'agenda_fecha_hora_inicio': f"{formulario['fecha_inicio']} {formulario['hora_inicio']}:00",
-            'agenda_fecha_hora_fin': f"{formulario['fecha_fin']} {formulario['hora_fin']}:00",
-            'duracion_turno_minutos': int(formulario['duracion_turno']),
-        }
+        id_medico = int(formulario['medico_id'])
+        id_consultorio = int(formulario['consultorio_id'])
+        duracion = int(formulario['duracion_turno'])
     except ValueError:
         raise ValueError('El médico, el consultorio y la duración del turno tienen que ser números.') from None
 
-    return crear_agenda(datos_backend)
+    try:
+        desde = date.fromisoformat(formulario['fecha_inicio'])
+        hasta = date.fromisoformat(formulario['fecha_fin'])
+    except ValueError:
+        raise ValueError('Ingresá una fecha de inicio y de fin válidas.') from None
+
+    hora_inicio = formulario['hora_inicio']
+    hora_fin = formulario['hora_fin']
+    dias = {DIAS_SEMANA[dia] for dia in formulario.getlist('dias_atencion') if dia in DIAS_SEMANA}
+
+    if hasta < desde:
+        raise ValueError('La fecha de fin no puede ser anterior a la de inicio.')
+    if (hasta - desde).days > MAX_DIAS_RANGO:
+        raise ValueError(f'El rango no puede superar {MAX_DIAS_RANGO} días.')
+    if hora_fin <= hora_inicio:
+        raise ValueError('La hora de fin debe ser posterior a la de inicio.')
+    if not dias:
+        raise ValueError('Tildá al menos un día de atención.')
+
+    creadas = 0
+    errores = []
+    dia = desde
+    while dia <= hasta:
+        if dia.weekday() in dias:
+            try:
+                crear_agenda({
+                    'id_medico': id_medico,
+                    'id_consultorio': id_consultorio,
+                    'agenda_fecha_hora_inicio': f'{dia.isoformat()} {hora_inicio}:00',
+                    'agenda_fecha_hora_fin': f'{dia.isoformat()} {hora_fin}:00',
+                    'duracion_turno_minutos': duracion,
+                })
+                creadas += 1
+            except ValueError as error:
+                errores.append(f'{dia.strftime("%d/%m")}: {error}')
+        dia += timedelta(days=1)
+
+    if creadas == 0 and not errores:
+        raise ValueError('Ningún día del rango coincide con los días tildados.')
+
+    return creadas, errores

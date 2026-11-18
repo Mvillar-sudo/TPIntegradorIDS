@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, session, url_for, flash
 
-from services.agendas import crear_agendas_por_dia, obtener_medicos, obtener_consultorios
+from services.agendas import crear_agenda_desde_formulario, obtener_medicos, obtener_consultorios
 from services.admin import verificar_admin, renderizar_admin, redirigir_por_sesion_vencida, obtener_estadisticas, obtener_agendas_admin, eliminar_agenda_admin, obtener_medicos_admin, obtener_especialidades_admin, crear_medico_admin, obtener_medico_admin, actualizar_medico_admin, eliminar_medico_admin, datos_form_medico
 
 # Creamos el Blueprint para las rutas de admin del frontend
@@ -15,12 +15,15 @@ def nueva_agenda():
     # --- MÉTODO POST: crear la agenda con los datos del formulario ---
     if request.method == 'POST':
         try:
-            crear_agenda_desde_formulario(request.form)
+            creadas, errores = crear_agenda_desde_formulario(request.form)
         except ValueError as error:
             flash(f'Error al crear la agenda: {error}', 'danger')
             return redirect(url_for('admin.nueva_agenda'))
 
-        flash('La agenda se generó correctamente.', 'success')
+        if creadas:
+            flash(f'Se crearon {creadas} agenda(s) correctamente.', 'success')
+        if errores:
+            flash('No se pudieron crear: ' + '; '.join(errores), 'danger')
         return redirect(url_for('admin.nueva_agenda'))
 
     # --- MÉTODO GET: mostrar el formulario ---
