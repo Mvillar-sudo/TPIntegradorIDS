@@ -1,7 +1,11 @@
-from flask import Blueprint, render_template, request, redirect, session, url_for, flash
+from flask import Blueprint, Response, render_template, request, redirect, session, url_for, flash
+
+from datetime import date, timedelta
 
 from services.agendas import crear_agenda_desde_formulario, obtener_medicos, obtener_consultorios
-from services.admin import verificar_admin, renderizar_admin, redirigir_por_sesion_vencida, obtener_estadisticas, obtener_agendas_admin, eliminar_agenda_admin, obtener_medicos_admin, obtener_especialidades_admin, crear_medico_admin, obtener_medico_admin, actualizar_medico_admin, eliminar_medico_admin, datos_form_medico
+from services.admin import verificar_admin, renderizar_admin, redirigir_por_sesion_vencida, obtener_estadisticas, obtener_informes_admin, obtener_agendas_admin, eliminar_agenda_admin, obtener_medicos_admin, obtener_especialidades_admin, crear_medico_admin, obtener_medico_admin, actualizar_medico_admin, eliminar_medico_admin, datos_form_medico
+from services.api_client import pedir
+from services.informes_pdf import generar_pdf_informes
 
 # Creamos el Blueprint para las rutas de admin del frontend
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
@@ -58,6 +62,57 @@ def dashboard():
         flash(error, 'error')
 
     return renderizar_admin('admin/dashboard.html', estadisticas=datos)
+
+
+@admin_bp.route('/informes')
+def informes():
+    bloqueo = verificar_admin()
+    if bloqueo:
+        return bloqueo
+
+    # Por defecto: los últimos 30 días hasta hoy
+    hoy = date.today()
+    desde = request.args.get('desde') or (hoy - timedelta(days=30)).isoformat()
+    hasta = request.args.get('hasta') or hoy.isoformat()
+
+    datos, error, status = obtener_informes_admin(desde, hasta)
+
+    if status == 401:
+        return redirigir_por_sesion_vencida()
+
+    if error:
+        flash(error, 'error')
+
+    return renderizar_admin(
+        'admin/informes.html', titulo='Informes',
+        informes=datos, desde=desde, hasta=hasta
+    )
+
+
+@admin_bp.route('/informes/pdf')
+def informes_pdf():
+    bloqueo = verificar_admin()
+    if bloqueo:
+        return bloqueo
+
+    desde = request.args.get('desde', '')
+    hasta = request.args.get('hasta', '')
+
+    datos, error, status = obtener_informes_admin(desde, hasta)
+
+    if status == 401:
+        return redirigir_por_sesion_vencida()
+
+    if error:
+        flash(error, 'error')
+        return redirect(url_for('admin.informes', desde=desde, hasta=hasta))
+
+    pdf = generar_pdf_informes(datos, desde, hasta)
+    return Response(
+        pdf,
+        mimetype='application/pdf',
+        headers={'Content-Disposition': f'attachment; filename=informes_{desde}_{hasta}.pdf'}
+    )
 
 
 @admin_bp.route('/agendas')
