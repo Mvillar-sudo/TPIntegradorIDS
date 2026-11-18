@@ -1,8 +1,9 @@
 from datetime import datetime
 
-from flask import abort, flash, redirect, render_template, session, url_for
+from flask import flash, redirect, render_template, session, url_for
 
 from services.api_client import pedir
+from services.sesion import exigir_rol
 
 # Cada ítem del menú lateral: (texto, endpoint). Agregar un ABM nuevo = una línea acá.
 MENU_ADMIN = [
@@ -17,17 +18,10 @@ FORMATO_FECHA_HORA = '%d/%m/%Y %H:%M'
 def verificar_admin():
     """Protege las rutas de /admin: hay que estar logueado y ser admin.
 
-    Devuelve None si todo está bien, o una redirección si falta iniciar sesión.
+    Devuelve None si todo está bien, o una redirección al login si falta iniciar sesión.
     Si el usuario no es admin corta con 403.
     """
-    if 'token' not in session:
-        flash('Iniciá sesión para continuar', 'error')
-        return redirect(url_for('auth.iniciar_sesion'))
-
-    if session.get('usuario', {}).get('rol') != 'admin':
-        abort(403)
-
-    return None
+    return exigir_rol(('admin',))
 
 
 def redirigir_por_sesion_vencida():

@@ -29,3 +29,31 @@ def crear_agenda(datos_formateados):
         raise ValueError(error)
 
     return datos
+
+
+def crear_agenda_desde_formulario(formulario):
+    """
+    Pre: 'formulario' es el formulario de la pantalla de agendas (request.form), con medico_id,
+         consultorio_id, duracion_turno, fecha_inicio, hora_inicio, fecha_fin y hora_fin.
+    Post: Arma los datos como los pide el backend y crea la agenda. Devuelve la respuesta del
+          backend. Lanza ValueError con un mensaje legible si falta algún dato o si el backend
+          rechaza la agenda.
+    """
+    campos = ('medico_id', 'consultorio_id', 'duracion_turno',
+              'fecha_inicio', 'hora_inicio', 'fecha_fin', 'hora_fin')
+
+    if not all(formulario.get(campo) for campo in campos):
+        raise ValueError('Completá el médico, el consultorio, las fechas, las horas y la duración del turno.')
+
+    try:
+        datos_backend = {
+            'id_medico': int(formulario['medico_id']),
+            'id_consultorio': int(formulario['consultorio_id']),
+            'agenda_fecha_hora_inicio': f"{formulario['fecha_inicio']} {formulario['hora_inicio']}:00",
+            'agenda_fecha_hora_fin': f"{formulario['fecha_fin']} {formulario['hora_fin']}:00",
+            'duracion_turno_minutos': int(formulario['duracion_turno']),
+        }
+    except ValueError:
+        raise ValueError('El médico, el consultorio y la duración del turno tienen que ser números.') from None
+
+    return crear_agenda(datos_backend)

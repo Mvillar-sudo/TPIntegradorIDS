@@ -23,6 +23,8 @@ Backend y frontend en Flask, base de datos MySQL con SQL escrito a mano (sin ORM
   - Códigos QR de prueba para registrar llegada: `qr_valido_123` y `qr_confirmado_456`.
 - **Reservar un turno**: usar `pedro@test.com`, que no tiene turnos (Juan y Laura ya tienen uno activo con cada médico y el sistema no deja reservar un segundo turno activo con el mismo médico). Los seeds dejan 6 turnos disponibles para mañana y pasado; Carlos y Jose tienen uno a las 09:00 de mañana, para probar el solapamiento de horario.
 
+- **Escáner de QR con la cámara** (recepción): el navegador solo deja usar la cámara si el frontend se abre desde `http://127.0.0.1:3000`, `localhost` o `https`. Desde otra dirección (por ejemplo la IP de la compu, abierta desde un celular) la cámara se bloquea y hay que cargar el código a mano.
+
 ## Usuarios de prueba
 
 Los carga `database/seeds.sql`. Todos tienen la contraseña `Prueba1234`. **Solo para desarrollo:** no usar estos usuarios en un despliegue real.
@@ -42,3 +44,7 @@ Para loguearse: `POST /api/v1/auth/login` con `{"email": "...", "password": "Pru
 ## Fecha y hora
 
 Todo el sistema trabaja en hora de Argentina (GMT-3). Las fechas se guardan en un único campo `DATETIME` sin zona horaria y el backend las compara con `tiempo.obtener_ahora_gmt3()`, así que no depende de la zona horaria de la computadora o del servidor.
+
+## Librerías de terceros
+
+- **jsQR** 1.4.0 (licencia Apache 2.0): lee el código QR con la cámara en la pantalla de recepción. Está copiada en `frontend/static/js/jsQR.js` y su licencia en `frontend/static/js/jsQR.LICENSE.txt`.

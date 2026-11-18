@@ -5,23 +5,19 @@ from services.medico import (
     registrar_turno_atendido,
 )
 
+from services.sesion import exigir_rol
+
 medico_bp = Blueprint("medico", __name__)
 
 
 """
 Pre: -
-Post: Redirige al login si no hay sesión iniciada, o al inicio si el usuario no tiene rol de médico.
+Post: Redirige al login si no hay sesión iniciada, o muestra el acceso denegado (403) si el usuario
+      no tiene rol de médico.
 """
 @medico_bp.before_request
 def exigir_medico():
-    if "token" not in session or "usuario" not in session:
-        flash("Iniciá sesión para continuar", "danger")
-        return redirect(url_for("auth.iniciar_sesion"))
-
-    rol = session.get("usuario", {}).get("rol")
-    if rol != "medico":
-        flash("Acceso denegado: Esta sección es solo para médicos.", "danger")
-        return redirect(url_for("public.index"))
+    return exigir_rol(("medico",))
 
 
 """

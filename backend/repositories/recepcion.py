@@ -1,6 +1,7 @@
 from mysql.connector import Error as MySQLError
 
 from db import get_connection
+from tiempo import obtener_ahora_gmt3
 
 
 """
@@ -43,10 +44,11 @@ def obtener_turnos_sala_espera():
             LEFT JOIN consultorios c ON t.id_consultorio = c.id_consultorio
             WHERE t.estado = 'confirmado'
               AND t.fecha_hora_checkin IS NOT NULL
-              AND (DATE(t.fecha_hora_checkin) = CURDATE() OR DATE(t.fecha_hora) = CURDATE())
+              AND (DATE(t.fecha_hora_checkin) = %s OR DATE(t.fecha_hora) = %s)
             ORDER BY t.fecha_hora_checkin ASC
         """
-        cursor.execute(query)
+        hoy = obtener_ahora_gmt3().date()
+        cursor.execute(query, (hoy, hoy))
         return cursor.fetchall()
     finally:
         if cursor is not None:
