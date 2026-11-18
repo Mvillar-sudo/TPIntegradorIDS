@@ -1,10 +1,10 @@
 from flask import Blueprint, Response, render_template, request, redirect, session, url_for, flash
 
-from datetime import date, timedelta
+from datetime import timedelta
 
+from services.tiempo import obtener_ahora_gmt3
 from services.agendas import crear_agenda_desde_formulario, obtener_medicos, obtener_consultorios
 from services.admin import verificar_admin, renderizar_admin, redirigir_por_sesion_vencida, obtener_estadisticas, obtener_informes_admin, obtener_agendas_admin, eliminar_agenda_admin, obtener_medicos_admin, obtener_especialidades_admin, crear_medico_admin, obtener_medico_admin, actualizar_medico_admin, eliminar_medico_admin, datos_form_medico
-from services.api_client import pedir
 from services.informes_pdf import generar_pdf_informes
 
 # Creamos el Blueprint para las rutas de admin del frontend
@@ -71,7 +71,7 @@ def informes():
         return bloqueo
 
     # Por defecto: los últimos 30 días hasta hoy
-    hoy = date.today()
+    hoy = obtener_ahora_gmt3().date()
     desde = request.args.get('desde') or (hoy - timedelta(days=30)).isoformat()
     hasta = request.args.get('hasta') or hoy.isoformat()
 

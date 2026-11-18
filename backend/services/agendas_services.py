@@ -1,4 +1,5 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
+from tiempo import obtener_ahora_gmt3
 from constants import MAX_ESPACIOS_GENERADOS
 import repositories.agendas_repository as agendas_repository # El archivo del paso anterior con el INSERT masivo
 
@@ -11,7 +12,7 @@ def crear(values):
     fin = values['agenda_fecha_hora_fin']
     duracion = timedelta(minutes=values['duracion_turno_minutos'])
     
-    now = datetime.now()
+    now = obtener_ahora_gmt3()
     slot_start = inicio
     lista_turnos = []
     
