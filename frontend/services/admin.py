@@ -10,6 +10,7 @@ MENU_ADMIN = [
     ('Inicio', 'admin.dashboard'),
     ('Médicos', 'admin.listado_medicos'),
     ('Agendas', 'admin.menu_agendas'),
+    ('Informes', 'admin.informes'),
 ]
 
 FORMATO_FECHA_HORA = '%d/%m/%Y %H:%M'
@@ -33,6 +34,16 @@ def redirigir_por_sesion_vencida():
 
 def obtener_estadisticas():
     datos, error, status = pedir('GET', '/admin/resumen')
+    return (datos if not error else {}), error, status
+
+
+def obtener_informes_admin(desde, hasta):
+    """Pide al backend los informes de ausentismo por especialidad y ocupación por consultorio.
+
+    'desde' y 'hasta' son strings YYYY-MM-DD. Devuelve (datos, error, status). Si hay error,
+    datos queda como {} para que la plantilla muestre las tablas vacías.
+    """
+    datos, error, status = pedir('GET', '/estadisticas', params={'desde': desde, 'hasta': hasta})
     return (datos if not error else {}), error, status
 
 
@@ -177,11 +188,12 @@ def eliminar_agenda_admin(id_agenda):
 
 
 def renderizar_admin(plantilla, titulo='', estadisticas=None, medicos=None,
-                     especialidades=None, form=None, edicion=False, agendas=None):
+                     especialidades=None, form=None, edicion=False, agendas=None,
+                     **contexto):
     """Renderiza una plantilla de admin inyectando el menú lateral."""
     return render_template(
         plantilla, menu_admin=MENU_ADMIN, titulo=titulo,
         estadisticas=estadisticas, medicos=medicos,
         especialidades=especialidades, form=form or {}, edicion=edicion,
-        agendas=agendas
+        agendas=agendas, **contexto
     )

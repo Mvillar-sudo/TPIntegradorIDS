@@ -170,3 +170,16 @@ body.landing #main.admin-main {
 		width: 100%;
 	}
 }
+
+/* Filtros de fechas de la pantalla de informes */
+.admin-filtros {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	gap: 1em;
+	margin-bottom: 2em;
+}
+
+.admin-filtros label {
+	margin-bottom: 0.4em;
+}
