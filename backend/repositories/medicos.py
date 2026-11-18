@@ -61,10 +61,41 @@ def crear_medico(values):
     )
 
 
+COLUMNAS_EDITABLES = {
+    'id_especialidad': 'm.id_especialidad',
+    'matricula': 'm.matricula',
+    'nombre': 'u.nombre_usuario',
+    'apellido': 'u.apellido_usuario',
+    'dni': 'u.dni_usuario',
+    'email': 'u.email_usuario',
+    'telefono': 'u.telefono_usuario',
+}
+
+
+def dni_existe(dni, excluding_usuario=None):
+    query = 'SELECT id_usuario FROM usuarios WHERE dni_usuario = %s'
+    params = [dni]
+    if excluding_usuario is not None:
+        query += ' AND id_usuario <> %s'
+        params.append(excluding_usuario)
+    return bool(ejecutar_consulta(query, tuple(params)))
+
+
+def email_existe(email, excluding_usuario=None):
+    query = 'SELECT id_usuario FROM usuarios WHERE email_usuario = %s'
+    params = [email]
+    if excluding_usuario is not None:
+        query += ' AND id_usuario <> %s'
+        params.append(excluding_usuario)
+    return bool(ejecutar_consulta(query, tuple(params)))
+
+
 def actualizar_medico(medico_id, values):
-    assignments = ', '.join(f'{column} = %s' for column in values)
+    # Una sola sentencia sobre medicos y usuarios: o se guarda todo o no se guarda nada
+    assignments = ', '.join(f'{COLUMNAS_EDITABLES[campo]} = %s' for campo in values)
     ejecutar_consulta(
-        f'UPDATE medicos SET {assignments} WHERE id_medico = %s',
+        'UPDATE medicos AS m JOIN usuarios AS u ON u.id_usuario = m.id_usuario '
+        f'SET {assignments} WHERE m.id_medico = %s',
         (*values.values(), medico_id),
     )
 
@@ -79,4 +110,9 @@ def tiene_dependencias(medico_id):
 
 
 def eliminar(medico_id):
-    ejecutar_consulta('DELETE FROM medicos WHERE id_medico = %s', (medico_id,))
+    # Borra el perfil y también el usuario del médico, para que no pueda seguir iniciando sesión
+    ejecutar_consulta(
+        'DELETE m, u FROM medicos AS m JOIN usuarios AS u ON u.id_usuario = m.id_usuario '
+        'WHERE m.id_medico = %s',
+        (medico_id,),
+    )

@@ -364,6 +364,33 @@ paths:
         '403': {$ref: '#/components/responses/Prohibido'}
         '503': {$ref: '#/components/responses/BaseNoDisponible'}
 
+  /api/v1/medicos/matricula-disponible:
+    get:
+      tags: [Médicos]
+      summary: Consultar si una matrícula está disponible
+      description: >-
+        La matrícula de un médico es única. Se consulta antes de dar de alta a un médico
+        para no crear un usuario que luego no pueda tener su perfil.
+      security:
+        - bearerAuth: []
+      x-required-roles: [admin, recepcionista]
+      parameters:
+        - {name: matricula, in: query, required: true, schema: {type: string, maxLength: 50}, example: M12345}
+      responses:
+        '200':
+          description: Resultado de la consulta.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  matricula: {type: string, example: M12345}
+                  disponible: {type: boolean, example: false}
+        '400': {$ref: '#/components/responses/DatosInvalidos'}
+        '401': {$ref: '#/components/responses/NoAutorizado'}
+        '403': {$ref: '#/components/responses/Prohibido'}
+        '503': {$ref: '#/components/responses/BaseNoDisponible'}
+
   /api/v1/medicos:
     get:
       tags: [Médicos]
@@ -451,7 +478,10 @@ paths:
     patch:
       tags: [Médicos]
       summary: Actualizar un médico
-      description: Actualización parcial de especialidad y/o matrícula. Debe indicarse al menos un campo.
+      description: >-
+        Actualización parcial de la especialidad, la matrícula y los datos personales del usuario del médico
+        (nombre, apellido, DNI, email gmail.com y teléfono). Debe indicarse al menos un campo.
+        DNI, email y matrícula no pueden repetirse.
       security:
         - bearerAuth: []
       x-required-roles: [admin]
@@ -464,6 +494,11 @@ paths:
               properties:
                 id_especialidad: {type: integer, example: 2}
                 matricula: {type: string, maxLength: 50, example: MP11111}
+                nombre: {type: string, maxLength: 100, example: Carlos}
+                apellido: {type: string, maxLength: 100, example: Pérez}
+                dni: {type: string, example: '30123456', description: 7 u 8 dígitos}
+                email: {type: string, example: carlos@gmail.com}
+                telefono: {type: string, nullable: true, example: '11 5555-1234', description: Vacío o null lo borra}
       responses:
         '200':
           description: Médico actualizado.
@@ -478,7 +513,7 @@ paths:
     delete:
       tags: [Médicos]
       summary: Eliminar un médico
-      description: Solo si no tiene agendas ni turnos asociados.
+      description: Solo si no tiene agendas ni turnos asociados. Elimina también el usuario del médico.
       security:
         - bearerAuth: []
       x-required-roles: [admin]
@@ -863,6 +898,37 @@ paths:
         '403': {$ref: '#/components/responses/Prohibido'}
         '503': {$ref: '#/components/responses/BaseNoDisponible'}
 
+  /api/v1/agendas/{agenda_id}:
+    parameters:
+      - name: agenda_id
+        in: path
+        required: true
+        schema: {type: integer}
+        example: 7
+    delete:
+      tags: [Agendas]
+      summary: Eliminar una agenda
+      description: >
+        Elimina la agenda y los turnos que generó (los del mismo médico y consultorio dentro de su período),
+        siempre que todos estén disponibles. Si alguno está reservado, confirmado, atendido, ausente o cancelado,
+        se rechaza y no se borra nada.
+      security:
+        - bearerAuth: []
+      x-required-roles: [admin]
+      responses:
+        '204':
+          description: Agenda y turnos disponibles eliminados.
+        '400':
+          description: La agenda tiene turnos que no están disponibles.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+              example: {error: No se puede eliminar una agenda con turnos reservados, atendidos o cancelados}
+        '401': {$ref: '#/components/responses/NoAutorizado'}
+        '403': {$ref: '#/components/responses/Prohibido'}
+        '404': {$ref: '#/components/responses/NoEncontrado'}
+        '503': {$ref: '#/components/responses/BaseNoDisponible'}
+
   /api/v1/estadisticas:
     get:
       tags: [Estadísticas]
@@ -993,9 +1059,13 @@ components:
       type: object
       properties:
         id_medico: {type: integer, example: 3}
+        id_usuario: {type: integer, example: 5}
         id_especialidad: {type: integer, example: 1}
         nombre_medico: {type: string, example: Carlos}
         apellido_medico: {type: string, example: Pérez}
+        dni_medico: {type: string, example: '30123456'}
+        email_medico: {type: string, example: carlos@gmail.com}
+        telefono_medico: {type: string, nullable: true, example: '11 5555-1234'}
         matricula: {type: string, example: M12345}
         especialidad: {type: string, example: Cardiología}
     TurnoHoyMedico:

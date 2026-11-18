@@ -153,6 +153,12 @@ body.landing #main.admin-main {
 	margin-right: 0.25em;
 }
 
+/* El botón Eliminar es un formulario (POST); que quede en línea con Editar */
+.admin-acciones form {
+	display: inline;
+	margin: 0;
+}
+
 @media screen and (max-width: 980px) {
 	.admin-layout {
 		flex-direction: column;
