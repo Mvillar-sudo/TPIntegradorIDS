@@ -38,11 +38,6 @@ def redirigir_por_sesion_vencida():
 
 
 def obtener_estadisticas():
-    """Pide al backend los totales del panel (médicos, especialidades, turnos de hoy y pacientes).
-
-    Devuelve (datos, error, status). Si hay error, datos queda como {} para que la
-    plantilla muestre "-" en cada tarjeta.
-    """
     datos, error, status = pedir('GET', '/admin/resumen')
     return (datos if not error else {}), error, status
 
