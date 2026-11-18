@@ -1,6 +1,6 @@
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 from services import recepcion as recepcion_service
-from services.agendas import obtener_medicos, obtener_consultorios, crear_agenda
+from services.agendas import obtener_medicos, obtener_consultorios, crear_agendas_por_dia
 
 # 1. Definimos el Blueprint UNA sola vez con su prefijo
 recepcion_bp = Blueprint('recepcion', __name__, url_prefix='/recepcion')
@@ -75,35 +75,19 @@ def configurar_agenda():
 
 @recepcion_bp.route('/agenda/guardar', methods=['POST'])
 def guardar_agenda():
-    print("DATOS RECIBIDOS DEL HTML:", request.form)
     try:
-        # Capturamos los datos
-        medico_id = request.form.get("medico_id")
-        consultorio_id = request.form.get("consultorio_id")
-        duracion_turno = request.form.get("duracion_turno")
-        f_inicio = request.form.get("fecha_inicio")
-        h_inicio = request.form.get("hora_inicio")
-        f_fin = request.form.get("fecha_fin")
-        h_fin = request.form.get("hora_fin")
-
-        # Validación: Si falta el médico o la duración (llegan vacíos), avisamos y cortamos
-        if not medico_id or not consultorio_id or not duracion_turno:
+        if not request.form.get("medico_id") or not request.form.get("consultorio_id") or not request.form.get("duracion_turno"):
             flash('Por favor, seleccioná un médico, un consultorio y especificá la duración del turno.', 'danger')
             return redirect(url_for('recepcion.configurar_agenda'))
-        
-        datos_backend = {
-            "id_medico": int(medico_id),
-            "id_consultorio": int(consultorio_id),
-            "agenda_fecha_hora_inicio": f"{f_inicio} {h_inicio}:00",
-            "agenda_fecha_hora_fin": f"{f_fin} {h_fin}:00",
-            "duracion_turno_minutos": int(duracion_turno)
-        }
 
-        crear_agenda(datos_backend)
-        
-        flash('La agenda se generó correctamente.', 'success')
+        creadas, errores = crear_agendas_por_dia(request.form)
+
+        if creadas:
+            flash(f'Se crearon {creadas} agenda(s) correctamente.', 'success')
+        if errores:
+            flash('No se pudieron crear: ' + '; '.join(errores), 'danger')
         return redirect(url_for('recepcion.configurar_agenda'))
-        
+
     except Exception as e:
         flash(f'Error al crear la agenda: {str(e)}', 'danger')
         return redirect(url_for('recepcion.configurar_agenda'))
