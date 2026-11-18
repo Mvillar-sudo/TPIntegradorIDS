@@ -1,9 +1,10 @@
 from flask import Blueprint, Response, render_template, request, redirect, session, url_for, flash
 
-from services.agendas import crear_agenda, obtener_medicos, obtener_consultorios
+from datetime import date, timedelta
+
+from services.agendas import crear_agendas_por_dia, obtener_medicos, obtener_consultorios
 from services.admin import verificar_admin, renderizar_admin, redirigir_por_sesion_vencida, obtener_estadisticas, obtener_informes_admin, obtener_agendas_admin, eliminar_agenda_admin, obtener_medicos_admin, obtener_especialidades_admin, crear_medico_admin, obtener_medico_admin, actualizar_medico_admin, eliminar_medico_admin, datos_form_medico
 from services.api_client import pedir
-from datetime import date, timedelta
 from services.informes_pdf import generar_pdf_informes
 
 # Creamos el Blueprint para las rutas de admin del frontend
@@ -15,50 +16,33 @@ def nueva_agenda():
     if bloqueo:
         return bloqueo
 
-    # --- MÉTODO GET: Mostrar el formulario ---
-    usuario_actual = session.get('usuario') 
-
-    if request.method == 'GET':
-        try:
-            lista_medicos = obtener_medicos()
-            lista_consultorios = obtener_consultorios()
-            return render_template(
-                'configurar_agenda.html', 
-                medicos=lista_medicos,
-                consultorios=lista_consultorios,
-                usuario=usuario_actual # Pasamos el usuario al HTML
-            )
-        except Exception as e:
-            flash('Error al cargar datos', 'danger')
-            return render_template('configurar_agenda.html', medicos=[], consultorios=[], usuario=usuario_actual)
-
-    # --- MÉTODO POST: Capturar datos y enviar al backend ---
+    # --- MÉTODO POST: crear la agenda con los datos del formulario ---
     if request.method == 'POST':
         try:
-            # 1. Capturamos los datos del formulario HTML
-            f_inicio = request.form.get("fecha_inicio")
-            h_inicio = request.form.get("hora_inicio")
-            f_fin = request.form.get("fecha_fin")
-            h_fin = request.form.get("hora_fin")
-            
-            # 2. Armamos el diccionario EXACTO que valida tu backend
-            datos_backend = {
-                "id_medico": int(request.form.get("medico_id")),
-                "id_consultorio": int(request.form.get("consultorio_id")),
-                "agenda_fecha_hora_inicio": f"{f_inicio} {h_inicio}:00",
-                "agenda_fecha_hora_fin": f"{f_fin} {h_fin}:00",
-                "duracion_turno_minutos": int(request.form.get("duracion_turno", 60))
-            }
+            crear_agenda_desde_formulario(request.form)
+        except ValueError as error:
+            flash(f'Error al crear la agenda: {error}', 'danger')
+            return redirect(url_for('admin.nueva_agenda'))
 
-            # 3. Enviamos los datos mediante requests (a través de tu servicio)
-            crear_agenda(datos_backend)
-            
-            flash('La agenda se generó correctamente.', 'success')
-            return redirect(url_for('admin.nueva_agenda'))
-            
-        except Exception as e:
-            flash(f'Error al crear la agenda: {str(e)}', 'danger')
-            return redirect(url_for('admin.nueva_agenda'))
+        flash('La agenda se generó correctamente.', 'success')
+        return redirect(url_for('admin.nueva_agenda'))
+
+    # --- MÉTODO GET: mostrar el formulario ---
+    usuario_actual = session.get('usuario')
+
+    try:
+        lista_medicos = obtener_medicos()
+        lista_consultorios = obtener_consultorios()
+        return render_template(
+            'configurar_agenda.html',
+            medicos=lista_medicos,
+            consultorios=lista_consultorios,
+            usuario=usuario_actual
+        )
+    except ValueError as error:
+        flash(str(error), 'danger')
+        return render_template('configurar_agenda.html', medicos=[], consultorios=[], usuario=usuario_actual)
+
 
 @admin_bp.route('/')
 def dashboard():

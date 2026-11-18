@@ -1,5 +1,6 @@
 from repositories.consultas_repositories import ejecutar_consulta
 from constants import CATALOGO
+from tiempo import obtener_ahora_gmt3
 
 
 def _contar(query, params=None):
@@ -64,4 +65,7 @@ def contar_pacientes():
     return _contar("SELECT COUNT(*) AS total FROM usuarios WHERE rol_usuario = %s", ('paciente',),)
 
 def contar_turnos_hoy():
-    return _contar("SELECT COUNT(*) AS total FROM turnos WHERE DATE(fecha_hora) = CURDATE()")
+    return _contar(
+        "SELECT COUNT(*) AS total FROM turnos WHERE DATE(fecha_hora) = %s",
+        (obtener_ahora_gmt3().date(),),
+    )
