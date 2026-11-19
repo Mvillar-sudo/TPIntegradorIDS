@@ -558,6 +558,34 @@ paths:
         '403': {$ref: '#/components/responses/Prohibido'}
         '500': {$ref: '#/components/responses/ErrorInterno'}
 
+  /api/v1/medicos/turnos/semana:
+    get:
+      tags: [Médicos]
+      summary: Consultar turnos de los próximos 7 días del médico
+      description: >
+        Devuelve los turnos del médico autenticado desde mañana a las 00:00 durante 7 días,
+        sin los cancelados. Solo para el rol médico.
+      security:
+        - bearerAuth: []
+      x-required-roles: [medico]
+      responses:
+        '200':
+          description: Turnos de la semana.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id_medico: {type: integer, example: 3}
+                  desde: {type: string, format: date-time, example: '2026-11-19T00:00:00'}
+                  hasta: {type: string, format: date-time, example: '2026-11-26T00:00:00'}
+                  turnos_semana:
+                    type: array
+                    items: {$ref: '#/components/schemas/TurnoHoyMedico'}
+        '401': {$ref: '#/components/responses/NoAutorizado'}
+        '403': {$ref: '#/components/responses/Prohibido'}
+        '500': {$ref: '#/components/responses/ErrorInterno'}
+
   /api/v1/medicos/turnos/{id_turno}/atendido:
     patch:
       tags: [Médicos]

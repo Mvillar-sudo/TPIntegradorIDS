@@ -73,3 +73,27 @@ def obtener_turnos_y_medico_hoy():
 
 def registrar_turno_atendido(id_turno: int):
     return pedir('PATCH', f'/medicos/turnos/{id_turno}/atendido')
+
+DIAS = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo']
+
+
+def formatear_dia(fecha: str | None) -> str:
+    """'2026-11-19T09:00:00' -> 'jueves 19/11/2026'"""
+    try:
+        d = datetime.fromisoformat(fecha)
+        return f"{DIAS[d.weekday()]} {d.strftime('%d/%m/%Y')}"
+    except (ValueError, TypeError):
+        return '-'
+
+
+def obtener_turnos_semana():
+    """Devuelve (dias, error, status); 'dias' es una lista de (texto_del_dia, [turnos]) en orden."""
+    datos, error, status = pedir('GET', '/medicos/turnos/semana')
+    if error or not isinstance(datos, dict):
+        return [], error or "No se pudieron obtener los turnos", status
+
+    dias = {}
+    for turno in datos.get('turnos_semana', []):
+        dias.setdefault(formatear_dia(turno.get('fecha_hora')), []).append(formatear_turno_medico(turno))
+
+    return list(dias.items()), None, status

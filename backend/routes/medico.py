@@ -3,7 +3,7 @@ from mysql.connector import Error as MySQLError
 
 from validators.validator_auth import token_required
 from validators.medico import validar_id_turno
-from services.medico import (listar_turnos_hoy_servicio, marcar_atendido_servicio)
+from services.medico import (listar_turnos_hoy_servicio, listar_turnos_semana_servicio, marcar_atendido_servicio)
 from services.checkin_qr import marcar_ausentes
 medico_bp = Blueprint("medico", __name__)
 
@@ -45,6 +45,21 @@ def marcar_atendido(id_turno):
     id_usuario = user_data["id_usuario"]
     try:
         respuesta, status_code = marcar_atendido_servicio(id_usuario, id_turno_valido)
+        return jsonify(respuesta), status_code
+    except MySQLError:
+        return jsonify({"error": "No se pudo conectar a la base de datos o fallo la consulta"}), 500
+
+
+@medico_bp.route("/medicos/turnos/semana", methods=["GET"])
+def ver_turnos_semana():
+
+    user_data, error_token, codigo = token_required(["medico"])
+
+    if error_token is not None:
+        return jsonify({"error": error_token}), codigo
+
+    try:
+        respuesta, status_code = listar_turnos_semana_servicio(user_data["id_usuario"])
         return jsonify(respuesta), status_code
     except MySQLError:
         return jsonify({"error": "No se pudo conectar a la base de datos o fallo la consulta"}), 500
