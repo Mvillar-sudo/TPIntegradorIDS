@@ -2,6 +2,7 @@ from flask import Blueprint, flash, redirect, render_template, session, url_for
 from services.medico import (
     obtener_perfil_medico,
     obtener_turnos_y_medico_hoy,
+    obtener_turnos_semana,
     registrar_turno_atendido,
 )
 
@@ -58,3 +59,20 @@ def atender_turno(id_turno):
         flash(f"Consulta finalizada con éxito. Turno #{id_turno} marcado como atendido.", "success")
 
     return redirect(url_for("medico.agenda"))
+
+"""
+Pre: -
+Post: Renderiza 'medico_semana.html' con los turnos del médico de los próximos 7 días agrupados por día.
+"""
+@medico_bp.route("/medico/semana", methods=["GET"])
+def agenda_semana():
+    dias, error, status = obtener_turnos_semana()
+    if status == 401:
+        session.clear()
+        flash("Tu sesión expiró, iniciá sesión nuevamente.", "danger")
+        return redirect(url_for("auth.iniciar_sesion"))
+
+    if error:
+        flash(error, "danger")
+
+    return render_template("medico_semana.html", dias=dias)
