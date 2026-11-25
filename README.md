@@ -48,3 +48,19 @@ Todo el sistema trabaja en hora de Argentina (GMT-3). Las fechas se guardan en u
 ## Librerías de terceros
 
 - **jsQR** 1.4.0 (licencia Apache 2.0): lee el código QR con la cámara en la pantalla de recepción. Está copiada en `frontend/static/js/jsQR.js` y su licencia en `frontend/static/js/jsQR.LICENSE.txt`.
+
+## Probar el escáner de QR desde el celular
+
+La cámara del navegador solo funciona con `localhost` o con `https`, así que desde el celular
+hay que abrir el frontend a través de un túnel https. Con Cloudflare Quick Tunnel
+(no necesita cuenta):
+
+1. Levantar el backend y el frontend (puerto 3000).
+2. En otra terminal: `cloudflared tunnel --url http://localhost:3000`
+3. Abrir en el celular la dirección `https://...trycloudflare.com` que imprime.
+4. Iniciar sesión como recepcionista, ir a check-in y tocar "Escanear con la cámara".
+
+La dirección cambia cada vez y es pública mientras el túnel esté abierto: usarla solo
+para pruebas, con los usuarios de prueba, y cerrarla con Ctrl + C.
+Los turnos de prueba (seeds) tienen fecha relativa a la hora de carga: para probar el check-in,
+recargar la base justo antes (entra en la ventana de -30/+15 minutos).
