@@ -27,7 +27,6 @@ CATALOGO_CAMPOS = {
 
 ADMIN_ROLES = ('admin',)
 LECTORES_ROLES = ('admin', 'recepcionista', 'paciente', 'medico')
-PERSONAL_ROLES = ('admin', 'recepcionista', 'medico')
 GESTION_ROLES = ('admin', 'recepcionista')
 ROLES_PERSONAL_CREABLES = ('recepcionista', 'medico')
 

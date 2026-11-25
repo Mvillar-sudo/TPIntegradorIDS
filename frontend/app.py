@@ -1,5 +1,4 @@
-from dotenv import load_dotenv
-from flask import Flask, render_template, request, redirect, url_for, flash, Blueprint
+from flask import Flask
 
 from datetime import timedelta
 from constants import FRONTEND_SECRET_KEY
@@ -12,11 +11,6 @@ from routes.public import public_bp
 from routes.turnos import turnos_bp
 from routes.reservar_turno import reservar_turno_bp
 from routes.errores import errores_bp
-
-
-from constants import FRONTEND_SECRET_KEY
-
-from services.agendas import obtener_medicos, crear_agenda
 
 app = Flask(__name__)
 app.secret_key = FRONTEND_SECRET_KEY
