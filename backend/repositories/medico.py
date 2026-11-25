@@ -126,3 +126,41 @@ def actualizar_turno_a_atendido(id_turno, id_medico):
             cursor.close()
         if conn is not None and conn.is_connected():
             conn.close()
+
+
+"""
+Pre: 'id_medico' es un entero positivo; 'desde' y 'hasta' son datetime (hora de Argentina).
+Post: Devuelve los turnos del médico con fecha_hora en [desde, hasta), con paciente asignado y sin
+      los cancelados, ordenados por fecha y hora.
+"""
+def obtener_turnos_por_medico_entre_fechas(id_medico, desde, hasta):
+    conn = None
+    cursor = None
+    try:
+        conn = _obtener_conexion()
+        cursor = conn.cursor(dictionary=True)
+        query = """
+            SELECT
+                t.id_turno,
+                t.fecha_hora,
+                t.estado,
+                t.token_qr,
+                t.fecha_hora_checkin,
+                u.nombre_usuario AS paciente_nombre,
+                u.apellido_usuario AS paciente_apellido,
+                u.dni_usuario AS paciente_dni
+            FROM turnos t
+            INNER JOIN usuarios u ON t.id_paciente = u.id_usuario
+            WHERE t.id_medico = %s
+              AND t.fecha_hora >= %s
+              AND t.fecha_hora < %s
+              AND t.estado <> 'cancelado'
+            ORDER BY t.fecha_hora ASC
+        """
+        cursor.execute(query, (id_medico, desde, hasta))
+        return cursor.fetchall()
+    finally:
+        if cursor is not None:
+            cursor.close()
+        if conn is not None and conn.is_connected():
+            conn.close()
