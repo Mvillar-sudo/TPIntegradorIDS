@@ -1,3 +1,4 @@
+import logging
 from db import get_connection
 from datetime import datetime, time, timedelta
 from repositories.consultas_repositories import ejecutar_consulta
@@ -71,7 +72,7 @@ def obtener_turnos_disponibles(medico_id=None, fecha=None, especialidad_id=None)
         return resultados
 
     except Exception as e:
-        print(f"Error al obtener turnos disponibles: {e}")
+        logging.error(f"Error al obtener turnos disponibles: {e}")
         return None
 
     finally:
@@ -200,7 +201,7 @@ def reservar_turno(id_turno, id_paciente, codigo_qr_hash):
         if conexion is not None:
             conexion.rollback()
 
-        print(f"Error al reservar turno: {e}")
+        logging.error(f"Error al reservar turno: {e}")
         return {"estado": "error"}
 
     finally:
