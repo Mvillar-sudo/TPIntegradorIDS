@@ -1,0 +1,203 @@
+<!DOCTYPE HTML>
+<!--
+	Alpha by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>{% block title %}Portal general | Centro Medico Salud Integral{% endblock %}</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/index_main.css') }}" />
+		{% block head_extra %}{% endblock %}
+	</head>
+	<body class="landing is-preload">
+		<div id="page-wrapper">
+
+			<!-- Header -->
+				<header id="header" class="{% block header_class %}alt{% endblock %}">
+					<h1>Centro Medico Salud Integral</h1>
+					<nav id="nav">
+						<ul>
+							<li><a href="/">Inicio</a></li>
+
+							{% if session.get('usuario') %}
+							<li>
+								<a href="#" class="button icon solid fa-angle-down">{{ session.usuario.nombre }}</a>
+								<ul>
+									{% if session.usuario.rol == 'recepcionista' %}
+										<li><a href="/recepcion/">Recepción / Check-in</a></li>
+									{% elif session.usuario.rol == 'admin' %}
+										<li><a href="/admin/">Panel Administración</a></li>
+										<li><a href="/admin/medicos">Gestión de Médicos</a></li>
+										<li><a href="/recepcion/">Recepción</a></li>
+									{% elif session.usuario.rol == 'medico' %}
+										<li><a href="/medico">Portal Médico</a></li>
+									{% else %}
+										<li><a href="/turnos">Reservar turno</a></li>
+										<li><a href="/mis-turnos">Mis turnos</a></li>
+										<li><a href="/medicos">Médicos</a></li>
+										<li><a href="/especialidades">Especialidades</a></li>
+									{% endif %}
+									<li class="menu-logout-item"><a href="/logout">Cerrar sesión</a></li>
+								</ul>
+							</li>
+							{% else %}
+							<li>
+								<a href="#" class="icon solid fa-angle-down">Menú</a>
+								<ul>
+									<li><a href="/medicos">Médicos</a></li>
+									<li><a href="/turnos">Reservar turno</a></li>
+									<li><a href="/especialidades">Especialidades</a></li>
+								</ul>
+							</li>
+							{% if request.path == '/register' %}
+							<li><a href="/login" class="button">Iniciar sesión</a></li>
+							{% elif request.path == '/login' %}
+							<li><a href="/register" class="button">Registrarse</a></li>
+							{% else %}
+							<li><a href="/login" class="button">Iniciar sesión</a></li>
+							<li><a href="/register" class="button">Registrarse</a></li>
+							{% endif %}
+							{% endif %}
+						</ul>
+					</nav>
+				</header>
+
+			{% block content %}
+			<!-- Banner -->
+				<section id="banner">
+					{% with mensajes = get_flashed_messages(with_categories=true) %}
+						{% if mensajes %}
+						<div class="flash-messages-banner">
+							{% for categoria, mensaje in mensajes %}
+								<div class="mensaje mensaje-{{ categoria }}">
+									<span class="mensaje-icono">
+										{% if categoria == 'success' %}✓{% elif categoria in ('danger', 'error') %}⚠{% else %}ℹ{% endif %}
+									</span>
+									<span class="mensaje-texto">{{ mensaje }}</span>
+								</div>
+							{% endfor %}
+						</div>
+						{% endif %}
+					{% endwith %}
+
+					<h2>Bienvenido</h2>
+					<p>Esta es la pagina de inicio del Centro Medico de Salud Integral.</p>
+				</section>
+
+			<!-- Main -->
+				<section id="main" class="container">
+
+					<section class="box special">
+						<header class="major">
+							<h2>Opciones</h2>
+						</header>
+					</section>
+
+					<section class="box special features">
+						{% if session.get('usuario') and session.usuario.rol == 'recepcionista' %}
+							<div class="features-row" style="display: flex; justify-content: center;">
+								<section style="float: none; width: 100%; max-width: 38em; margin: 0 auto; text-align: center;">
+									<h3 style="text-align: center;">Backoffice Recepción</h3>
+									<p style="text-align: center;">Registro de llegada de pacientes por QR y control de sala de espera</p>
+									<ul class="actions special" style="justify-content: center; display: flex;">
+										<li><a href="/recepcion/" class="button primary">Ir a Recepción</a></li>
+									</ul>
+								</section>
+							</div>
+						{% elif session.get('usuario') and session.usuario.rol == 'admin' %}
+							<div class="features-row">
+								<section>
+									<h3>Panel de Administración</h3>
+									<p>Gestión general de usuarios y configuración</p>
+									<ul class="actions special">
+										<li><a href="/admin/" class="button primary">Administración</a></li>
+									</ul>
+								</section>
+								<section>
+									<h3>Gestión de Médicos</h3>
+									<p>Administración y alta de médicos</p>
+									<ul class="actions special">
+										<li><a href="/admin/medicos" class="button alt">Médicos</a></li>
+									</ul>
+								</section>
+							</div>
+							<div class="features-row" style="display: flex; justify-content: center;">
+								<section style="float: none; width: 100%; max-width: 38em; margin: 0 auto; text-align: center;">
+									<h3 style="text-align: center;">Backoffice Recepción</h3>
+									<p style="text-align: center;">Supervisión de recepción y turnos</p>
+									<ul class="actions special" style="justify-content: center; display: flex;">
+										<li><a href="/recepcion/" class="button alt">Recepción</a></li>
+									</ul>
+								</section>
+							</div>
+						{% elif session.get('usuario') and session.usuario.rol == 'medico' %}
+							<div class="features-row" style="display: flex; justify-content: center;">
+								<section style="float: none; width: 100%; max-width: 38em; margin: 0 auto; text-align: center;">
+									<h3 style="text-align: center;">Portal Profesional Médico</h3>
+									<p style="text-align: center;">Gestión de consultas y atención de pacientes del día</p>
+									<ul class="actions special" style="justify-content: center; display: flex;">
+										<li><a href="/medico" class="button primary">Ir al Portal Médico</a></li>
+									</ul>
+								</section>
+							</div>
+						{% else %}
+							<div class="features-row">
+								<section>
+									<h3>Conocé a nuestros médicos</h3>
+									<ul class="actions special">
+										<li><a href="/medicos" class="button alt">Médicos</a></li>
+									</ul>
+								</section>
+								<section>
+									<h3>Reservá tu turno</h3>
+									<ul class="actions special">
+										<li><a href="/turnos" class="button alt">Reservar turno</a></li>
+									</ul>
+								</section>
+							</div>
+							<div class="features-row">
+								{% if session.get('usuario') %}
+								<section>
+									<h3>Revisá tus turnos</h3>
+									<ul class="actions special">
+										<li><a href="/mis-turnos" class="button alt">Mis turnos</a></li>
+									</ul>
+								</section>
+								{% endif %}
+								<section>
+									<h3>Conocé nuestras especialidades</h3>
+									<ul class="actions special">
+										<li><a href="/especialidades" class="button alt">Conocer especialidades</a></li>
+									</ul>
+								</section>
+							</div>
+						{% endif %}
+					</section>
+				</section>
+			{% endblock %}
+
+			<!-- Footer -->
+				<footer id="footer">
+					<ul class="copyright">
+						<li>Todos los derechos reservados</li><li>Autores : <a href="https://github.com/Mvillar-sudo/TPIntegradorIDS">404 Not Found Group</a></li>
+					</ul>
+				</footer>
+
+		</div>
+
+		<!-- Scripts -->
+			<script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/jquery.dropotron.min.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/jquery.scrollex.min.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/browser.min.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/breakpoints.min.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/util.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/formularios.js') }}"></script>
+            {% block scripts %}{% endblock %}
+
+	</body>
+</html>

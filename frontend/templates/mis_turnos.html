@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mis Turnos</title>
+</head>
+<body>
+
+    <h1>Mis Turnos Reservados</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div style="padding: 10px; margin-bottom: 10px; color: {% if category == 'error' %}red{% else %}green{% endif %};">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <ul>
+        <li>
+            <strong>Servicio:</strong> Consulta Médica <br>
+            <strong>Fecha y Hora:</strong> 15/11/2026 14:00 <br>
+            
+            <form action="#" method="POST">
+                <button type="submit">Cancelar Turno</button>
+            </form>
+        </li>
+    </ul>
+
+</body>
+</html>

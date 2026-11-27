@@ -1,0 +1,125 @@
+.mensaje {
+	padding: 0.8em 1em;
+	border-radius: 4px;
+	margin-bottom: 1.5em;
+}
+
+.mensaje-success {
+	background: #ecfdf5;
+	border: 1px solid #10b981;
+	color: #065f46;
+}
+
+.mensaje-error {
+	background: #fef2f2;
+	border: 1px solid #ef4444;
+	color: #991b1b;
+}
+
+/* ---------- 1. Tarjeta ---------- */
+.auth-box {
+	--azul: #1d5fa8;          
+	--azul-oscuro: #164a86;  
+
+	max-width: 32em;
+	margin: 0 auto 2em auto;  
+	padding: 0;               /* anula el padding de 3em de .box */
+	border-radius: 4px;
+	box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+.auth-registro {
+	max-width: 40em;          /* el registro tiene más campos */
+}
+
+/* ---------- 2. Cabecera con línea ---------- */
+.auth-cabecera {
+	padding: 1.5em 2.5em;
+	border-bottom: 1px solid #e5e5e5;
+	color: var(--azul);
+	font-weight: 600;
+	font-size: 1.1em;
+}
+
+.auth-cuerpo {
+	padding: 2.5em;
+}
+
+/* ---------- 3. Título y enlace ---------- */
+.auth-cuerpo h2 {
+	text-align: center;
+	font-size: 1.6em;
+	font-weight: 600;
+	color: #1a1a1a;
+	margin: 0 0 0.4em 0;
+}
+
+.auth-subtitulo {
+	text-align: center;
+	margin: 0 0 2em 0;
+}
+
+.auth-subtitulo a {
+	color: var(--azul);
+	font-weight: 600;
+	border-bottom: 1px solid var(--azul);
+}
+
+/* ---------- 4. Etiquetas y campos ---------- */
+.auth-cuerpo label {
+	color: #333;
+	font-size: 1em;
+	font-weight: 400;
+	margin: 0 0 0.5em 0;
+}
+
+/* todos los input menos el botón de enviar */
+.auth-cuerpo input:not([type="submit"]) {
+	height: 3.2em;
+	background: #fff;
+	border: 1px solid #9aa3ad;
+	border-radius: 6px;
+	margin-bottom: 1.5em;
+}
+
+.auth-cuerpo input:not([type="submit"]):focus {
+	border-color: var(--azul);
+	box-shadow: 0 0 0 2px var(--azul);
+}
+
+/* dos campos lado a lado (nombre/apellido, contraseñas) */
+.auth-fila {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0 1em;
+}
+
+/* ---------- 5. Botón ---------- */
+.auth-cuerpo .auth-boton {
+	width: 100%;
+	height: 3.2em;
+	line-height: 3.2em;
+	border-radius: 999px;     
+	background-color: var(--azul);
+	color: #fff;
+	font-weight: 600;
+	margin-top: 0.5em;
+}
+
+.auth-cuerpo .auth-boton:hover {
+	background-color: var(--azul-oscuro);
+}
+
+/* ---------- Celular ---------- */
+@media (max-width: 480px) {
+	.auth-cabecera { padding: 1.2em 1.5em; }
+	.auth-cuerpo   { padding: 1.8em 1.5em; }
+	.auth-fila     { grid-template-columns: 1fr; }  /* una columna */
+}
+
+/* La plantilla usa body.landing #main { margin-top: -14em } para el inicio.
+   Acá lo anulamos y dejamos lugar para la barra fija de arriba. */
+body.landing #main.auth-fondo {
+	margin-top: 0;
+	padding-top: 6em;
+}
