@@ -34,3 +34,22 @@ def coleccion_agendas():
 
     except (ValueError, LookupError, Error) as error:
         return respuesta_error(error)
+
+
+@agendas_bp.route('/agendas/<int:agenda_id>', methods=['DELETE'])
+def eliminar_agenda(agenda_id):
+
+    _, error_token, codigo = token_required(["admin"])
+
+    if error_token is not None:
+        return jsonify({
+            "error": error_token
+        }), codigo
+
+    try:
+        agendas.eliminar(agenda_id)
+
+        return '', 204
+
+    except (ValueError, LookupError, Error) as error:
+        return respuesta_error(error)

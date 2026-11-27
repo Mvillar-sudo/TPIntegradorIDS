@@ -1,5 +1,6 @@
 from datetime import datetime
 from services.api_client import pedir
+from services.tiempo import obtener_ahora_gmt3
 
 FORMATO_HORA = '%H:%M'
 
@@ -47,7 +48,7 @@ Pre: -
 Post: Llama a la API del backend para obtener los turnos en sala de espera y los devuelve formateados para la vista.
 """
 def obtener_sala_espera() -> list[dict]:
-    presente = datetime.now()
+    presente = obtener_ahora_gmt3()
     turnos, error, status = pedir('GET', '/recepcion/sala-espera')
     if error or not isinstance(turnos, list):
         return []

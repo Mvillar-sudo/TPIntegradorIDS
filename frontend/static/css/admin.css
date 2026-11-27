@@ -60,7 +60,7 @@ body.landing #main.admin-main {
 	margin: 0;
 }
 
-/* Tarjetas de resumen */
+/* Tarjetas de estadísticas */
 .admin-tarjetas {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(11em, 1fr));
@@ -90,23 +90,33 @@ body.landing #main.admin-main {
 	opacity: 0.7;
 }
 
-/* Botón del panel: mismo estilo que el botón de login/registro (auth.css) */
+/* Botón del panel: mismo estilo que los botones de la página principal (.button.alt de index_main.css) */
 .button.admin-boton {
-	background-color: #1d5fa8;
-	color: #fff;
-	font-weight: 600;
-	border-radius: 999px;
-	box-shadow: none;
+	background-color: transparent;
+	box-shadow: inset 0 0 0 2px #e5e5e5;
+	color: #777;
+	font-weight: 400;
+	border-radius: 6px;
 }
 
 .button.admin-boton:hover {
-	background-color: #164a86;
+	background-color: #f8f8f8;
+}
+
+.button.admin-boton:active {
+	background-color: #f0f0f0;
 }
 
 /* Página actual en el menú lateral */
 .button.admin-boton.activo {
-	background-color: #164a86;
-	box-shadow: 0 0 0 2px #1d5fa8;
+	background-color: #f0f0f0;
+	box-shadow: inset 0 0 0 2px #c8c8c8;
+	color: #555;
+}
+
+/* Botón de envío dentro de un formulario (reemplaza al de auth.css) */
+.auth-cuerpo .button.admin-boton {
+	margin-top: 0.5em;
 }
 
 /* Formularios del panel: los <select> con el mismo aspecto que los campos de auth.css */
@@ -143,6 +153,12 @@ body.landing #main.admin-main {
 	margin-right: 0.25em;
 }
 
+/* El botón Eliminar es un formulario (POST); que quede en línea con Editar */
+.admin-acciones form {
+	display: inline;
+	margin: 0;
+}
+
 @media screen and (max-width: 980px) {
 	.admin-layout {
 		flex-direction: column;
@@ -153,4 +169,17 @@ body.landing #main.admin-main {
 		flex: none;
 		width: 100%;
 	}
+}
+
+/* Filtros de fechas de la pantalla de informes */
+.admin-filtros {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	gap: 1em;
+	margin-bottom: 2em;
+}
+
+.admin-filtros label {
+	margin-bottom: 0.4em;
 }

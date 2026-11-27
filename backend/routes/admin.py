@@ -10,9 +10,18 @@ from validators.admin import validar_catalogo
 admin_bp = Blueprint('admin', __name__)
 
 
-def _validar_recurso(recurso):
-    if recurso not in CATALOGO_CAMPOS:
-        raise LookupError('El catálogo solicitado no existe')
+@admin_bp.before_request
+def validar_recurso_pedido():
+    """
+    Pre: -
+    Post: Si la ruta tiene un <recurso> que no es un catálogo (por ejemplo /cualquiera), responde
+          404 antes de pedir el token. Así una ruta que no existe da 404 y no 401.
+    """
+    recurso = (request.view_args or {}).get('recurso')
+
+    if recurso is not None and recurso not in CATALOGO_CAMPOS:
+        return respuesta_error(LookupError('El catálogo solicitado no existe'))
+
 
 @admin_bp.route('/<recurso>', methods=['GET'])
 def listar_catalogos(recurso):
@@ -25,8 +34,6 @@ def listar_catalogos(recurso):
         }), codigo
 
     try:
-        _validar_recurso(recurso)
-        
         return jsonify(admin.listar(recurso)), 200
 
     except (ValueError, LookupError, Error) as error:
@@ -45,7 +52,6 @@ def crear_catalogo(recurso):
         }), codigo
 
     try:
-        _validar_recurso(recurso)
         values = validar_catalogo(
             recurso,
             request.get_json(silent=True)
@@ -67,8 +73,6 @@ def obtener_catalogo(recurso, item_id):
         }), codigo
 
     try:
-        _validar_recurso(recurso)
-
         return jsonify(admin.obtener(recurso, item_id)), 200
 
     except (ValueError, LookupError, Error) as error:
@@ -85,7 +89,6 @@ def actualizar_catalogo(recurso, item_id):
         }), codigo
 
     try:
-        _validar_recurso(recurso)
         values = validar_catalogo(
             recurso,
             request.get_json(silent=True),
@@ -109,8 +112,6 @@ def eliminar_catalogo(recurso, item_id):
         }), codigo
 
     try:
-        _validar_recurso(recurso)
-        
         admin.eliminar(recurso, item_id)
 
         return '', 204

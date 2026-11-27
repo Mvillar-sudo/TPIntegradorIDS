@@ -1,3 +1,4 @@
+import logging
 from db import get_connection
 
 
@@ -21,7 +22,7 @@ def obtener_especialidades():
         return resultados
 
     except Exception as e:
-        print(f"Error al obtener las especialidades: {e}")
+        logging.error(f"Error al obtener las especialidades: {e}")
         return None
 
     finally:

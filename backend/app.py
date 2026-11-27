@@ -4,6 +4,7 @@ from config import validar_configuracion
 
 from routes.admin import admin_bp
 from routes.agendas import agendas_bp
+from routes.consultorios import consultorios_bp
 from routes.turnos import turnos_bp
 from routes.especialidades import especialidades_bp
 from routes.checkin_qr import checkin_qr_bp
@@ -28,6 +29,7 @@ app.register_blueprint(turnos_bp, url_prefix='/api/v1')
 app.register_blueprint(especialidades_bp, url_prefix='/api/v1')
 app.register_blueprint(admin_bp, url_prefix='/api/v1')
 app.register_blueprint(agendas_bp, url_prefix='/api/v1')
+app.register_blueprint(consultorios_bp, url_prefix='/api/v1')
 app.register_blueprint(checkin_qr_bp, url_prefix='/api/v1')
 app.register_blueprint(medico_bp, url_prefix='/api/v1')
 app.register_blueprint(medicos_bp, url_prefix="/api/v1")

@@ -1,5 +1,4 @@
-from dotenv import load_dotenv
-from flask import Flask, render_template, request, redirect, url_for, flash, Blueprint
+from flask import Flask
 
 from datetime import timedelta
 from constants import FRONTEND_SECRET_KEY
@@ -10,10 +9,8 @@ from routes.medico import medico_bp
 from routes.admin import admin_bp
 from routes.public import public_bp
 from routes.turnos import turnos_bp
-
-from constants import FRONTEND_SECRET_KEY
-
-load_dotenv()
+from routes.reservar_turno import reservar_turno_bp
+from routes.errores import errores_bp
 
 app = Flask(__name__)
 app.secret_key = FRONTEND_SECRET_KEY
@@ -25,6 +22,8 @@ app.register_blueprint(recepcion_bp)
 app.register_blueprint(admin_bp)
 app.register_blueprint(public_bp)
 app.register_blueprint(turnos_bp)
+app.register_blueprint(reservar_turno_bp)
+app.register_blueprint(errores_bp)
 
 
 if __name__ == "__main__":

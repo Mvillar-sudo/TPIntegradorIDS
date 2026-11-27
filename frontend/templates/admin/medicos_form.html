@@ -17,32 +17,43 @@
 			<div class="auth-fila">
 				<div>
 					<label for="nombre">Nombre</label>
-					<input type="text" name="nombre" id="nombre" required />
+					<input type="text" name="nombre" id="nombre" value="{{ form.get('nombre', '') }}" required />
 				</div>
 				<div>
 					<label for="apellido">Apellido</label>
-					<input type="text" name="apellido" id="apellido" required />
+					<input type="text" name="apellido" id="apellido" value="{{ form.get('apellido', '') }}" required />
 				</div>
 			</div>
 
 			<label for="dni">DNI</label>
-			<input type="text" name="dni" id="dni" inputmode="numeric" pattern="[0-9]{7,8}" required />
+			<input type="text" name="dni" id="dni" inputmode="numeric" pattern="[0-9]{7,8}" value="{{ form.get('dni', '') }}" required />
 
-			<label for="email">Email</label>
-			<input type="email" name="email" id="email" required />
+			<label for="email">Email (gmail.com)</label>
+			<input type="email" name="email" id="email" value="{{ form.get('email', '') }}" required />
 
 			<label for="telefono">Teléfono (opcional)</label>
-			<input type="tel" name="telefono" id="telefono" />
+			<input type="tel" name="telefono" id="telefono" value="{{ form.get('telefono', '') }}" />
 
-			<label for="especialidad">Especialidad</label>
-			<select name="especialidad" id="especialidad" required>
+			<label for="matricula">Matrícula</label>
+			<input type="text" name="matricula" id="matricula" maxlength="50" value="{{ form.get('matricula', '') }}" required />
+
+			<label for="id_especialidad">Especialidad</label>
+			<select name="id_especialidad" id="id_especialidad" required {% if not especialidades %}disabled{% endif %}>
 				<option value="">- Elegí una especialidad -</option>
-				<option>Cardiología</option>
-				<option>Pediatría</option>
-				<option>Dermatología</option>
+				{% for especialidad in especialidades or [] %}
+				<option value="{{ especialidad.id_especialidad }}" {% if form.get('id_especialidad') == especialidad.id_especialidad|string %}selected{% endif %}>{{ especialidad.nombre }}</option>
+				{% endfor %}
 			</select>
 
-			<input type="submit" value="Guardar" class="auth-boton" />
+			{% if not edicion %}
+			<label for="password">Contraseña</label>
+			<input type="password" name="password" id="password" minlength="8" maxlength="128" required />
+
+			<label for="password_confirm">Repetir contraseña</label>
+			<input type="password" name="password_confirm" id="password_confirm" minlength="8" maxlength="128" required />
+			{% endif %}
+
+			<input type="submit" value="Guardar" class="button admin-boton fit" />
 		</form>
 
 		<p class="auth-subtitulo"><a href="{{ url_for('admin.listado_medicos') }}">Cancelar</a></p>

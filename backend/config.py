@@ -44,11 +44,13 @@ def obtener_configuracion_mail():
     Post: Devuelve un diccionario con los datos para enviar mails por SMTP: host, puerto, usuario,
           password, remitente (MAIL_FROM o, si no está, SMTP_USER) y url_frontend (sin barra final).
     """
+    # Google muestra la contraseña de aplicación en grupos de 4 separados por espacios (a veces
+    # espacios "raros" al copiar). Sin ningún espacio funciona igual y evita errores de codificación.
     return {
-        "host": os.getenv("SMTP_HOST", ""),
-        "puerto": int(os.getenv("SMTP_PORT", "587")),
-        "usuario": os.getenv("SMTP_USER", ""),
-        "password": os.getenv("SMTP_PASSWORD", ""),
+        "host": os.getenv("SMTP_HOST", "").strip(),
+        "puerto": int(os.getenv("SMTP_PORT") or "587"),
+        "usuario": os.getenv("SMTP_USER", "").strip(),
+        "password": "".join(os.getenv("SMTP_PASSWORD", "").split()),
         "remitente": os.getenv("MAIL_FROM") or os.getenv("SMTP_USER") or "",
         "url_frontend": os.getenv("FRONTEND_URL", "http://127.0.0.1:3000").rstrip("/"),
     }

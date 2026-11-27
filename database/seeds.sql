@@ -36,7 +36,8 @@ INSERT INTO usuarios (rol_usuario, nombre_usuario, apellido_usuario, dni_usuario
 ('recepcionista', 'Ana',    'López',      '11223344', 'ana@test.com',    'scrypt:32768:8:1$y1noT8CNV2drega1$99cda200edd4941ba7a7c9e0d33cef7aee3c272fdb2847bdad7ce31d0704d5cbd224afb85f8863973447375bdd0d9b32196a92ea681d816a82a29507c287668c', '1155559012', NULL),
 ('admin',         'María',  'Rodríguez',  '44332211', 'maria@test.com',  'scrypt:32768:8:1$jJoHLfHSdv7U1L9v$df151298820128a2a5188af12ff40464a74403aa2d109cea1fadcd6e45b3ae3eba6945e165d94a2604d86baf45103e6174d2856daaa27d3c74fd320940a6b075', '1155553456', NULL),
 ('paciente',      'Laura',  'Martínez',   '55667788', 'laura@test.com',  'scrypt:32768:8:1$tkiF8Li42Qcb7lcV$fa023dc4c9c041832d029242cf95d7229ccf60f58a043940a546a4b1d159f3ab0280d15e2e85e4dbe5ea5e2683c463b8feee975bc5c7c8fd1543e72c4c63e539', '1155557890', 2),
-('medico',        'Jose', 'Gonzalez',     '11335577', 'jose@test.com', 'scrypt:32768:8:1$I1hcVptpONvQjEJM$957911a2a41e7fd694a81a938d13362df3f7a75c22c7e03905c5523a21d6e15b38644d036c953f3fc52b486fc640f3203477694517407ac8617710f0df6f243c', '1145555678', NULL);
+('medico',        'Jose', 'Gonzalez',     '11335577', 'jose@test.com', 'scrypt:32768:8:1$I1hcVptpONvQjEJM$957911a2a41e7fd694a81a938d13362df3f7a75c22c7e03905c5523a21d6e15b38644d036c953f3fc52b486fc640f3203477694517407ac8617710f0df6f243c', '1145555678', NULL),
+('paciente',      'Pedro',  'Sánchez',    '66778899', 'pedro@test.com',  'scrypt:32768:8:1$a4vp1JGvlmAGDCZi$48e66629fafa126ce011b364974cbfc34d43fa37e8f642b323cd9c43e57b9dfd165efae4d5098f25dbb69da969a4ed399d1f9d7f32d15b0a371b55d7a19e9137', '1155554321', 4);
 
 -- 5. Médicos de prueba
 INSERT INTO medicos (id_usuario, id_especialidad, matricula) VALUES
@@ -61,4 +62,14 @@ VALUES (1, 1, 1, DATE_ADD(NOW(), INTERVAL -2 HOUR), 'ausente', 'qr_ausente_789',
 -- Turno 4: reservado fuera de ventana 
 INSERT INTO turnos (id_medico, id_paciente, id_consultorio, fecha_hora, estado, token_qr, fecha_hora_checkin)
 VALUES (1, 5, 1, DATE_ADD(NOW(), INTERVAL 3 HOUR), 'reservado', 'qr_laura_101', NULL);
+
+-- Turnos disponibles de prueba (para probar la reserva), de mañana y pasado en hora de Argentina.
+-- Carlos y Jose tienen un turno a las 09:00 de mañana: sirve para probar el solapamiento de horario.
+INSERT INTO turnos (id_medico, id_consultorio, fecha_hora, estado) VALUES
+(1, 1, TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL 1 DAY), '09:00:00'), 'disponible'),
+(1, 1, TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL 1 DAY), '09:30:00'), 'disponible'),
+(1, 1, TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL 2 DAY), '10:00:00'), 'disponible'),
+(2, 2, TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL 1 DAY), '09:00:00'), 'disponible'),
+(2, 2, TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL 1 DAY), '10:30:00'), 'disponible'),
+(2, 2, TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL 2 DAY), '11:00:00'), 'disponible');
 

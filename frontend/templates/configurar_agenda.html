@@ -1,8 +1,18 @@
-{% extends "base.html" %}
+{% extends "index.html" %}
+
+{% block title %}Configurar agenda | Centro Medico Salud Integral{% endblock %}
+{% block header_class %}{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/configurar_agenda.css') }}" />
+{% endblock %}
+
 {% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/configurar_agenda.css') }}">
+<section id="main" class="container agenda-main">
 <div class="main-container">
     <h2>Configurar Agenda Médica</h2>
+
+    {% include '_flashes.html' %}
     
     <!-- La acción apunta a la ruta de tu front-end que procesará el formulario -->
     <form method="POST" action="{{ url_for('recepcion.guardar_agenda') }}" onsubmit="document.getElementById('btn-submit').disabled=true;">
@@ -11,12 +21,12 @@
         <div class="mb-3">
     <label for="medico" class="form-label">Médico Profesional</label>
     
-    {% if usuario.rol == 'admin' %}
-        <!-- Vista Administrador: Puede elegir cualquier médico -->
+    {% if usuario.rol in ('admin', 'recepcionista') %}
+        <!-- Vista Administrador/Recepción: Puede elegir cualquier médico -->
         <select class="form-select" id="medico" name="medico_id" required>
             <option value="" selected disabled>Seleccione un médico...</option>
             {% for medico in medicos %}
-                <option value="{{ medico.id_medico }}">{{ medico.apellido }}, {{ medico.nombre }}</option>
+                <option value="{{ medico.id_medico }}">{{ medico.apellido_medico }}, {{ medico.nombre_medico }}</option>
             {% endfor %}
         </select>
     
@@ -27,6 +37,17 @@
         <input type="hidden" name="medico_id" value="{{ usuario.id_medico }}">
     {% endif %}
 </div>
+
+        <!-- Selector de Consultorio -->
+        <div class="mb-3">
+            <label for="consultorio" class="form-label">Consultorio</label>
+            <select class="form-select" id="consultorio" name="consultorio_id" required>
+                <option value="" selected disabled>Seleccione un consultorio...</option>
+                {% for consultorio in consultorios %}
+                    <option value="{{ consultorio.id_consultorio }}">Consultorio {{ consultorio.numero_consultorio }}{% if consultorio.piso %} ({{ consultorio.piso }}){% endif %}</option>
+                {% endfor %}
+            </select>
+        </div>
 
         <!-- Periodo de la agenda -->
         <div class="row mb-3">
@@ -72,8 +93,9 @@
             {% endfor %}
         </div>
 
-        <button type="submit" id="btn-submit" class="btn btn-primary">Generar Agenda</button>
-    <a href="/" class="btn btn-secondary">Cancelar</a>
+        <button type="submit" id="btn-submit" class="button alt">Generar Agenda</button>
+    <a href="/" class="button alt">Cancelar</a>
     </form>
 </div>
+</section>
 {% endblock %}

@@ -1,7 +1,12 @@
+
+from datetime import datetime, time, timedelta
+from tiempo import obtener_ahora_gmt3
+
 try:
     from repositories.medico import (
         obtener_medico_por_usuario_id,
         obtener_turnos_hoy_por_medico,
+        obtener_turnos_por_medico_entre_fechas,
         buscar_turno_por_id,
         actualizar_turno_a_atendido,
     )
@@ -9,6 +14,7 @@ except ImportError:
     from backend.repositories.medico import (
         obtener_medico_por_usuario_id,
         obtener_turnos_hoy_por_medico,
+        obtener_turnos_por_medico_entre_fechas,
         buscar_turno_por_id,
         actualizar_turno_a_atendido,
     )
@@ -98,4 +104,30 @@ def marcar_atendido_servicio(id_usuario, id_turno):
         "id_turno": id_turno,
         "estado": "atendido",
         "mensaje": "Turno marcado como atendido exitosamente"
+    }, 200
+
+DIAS_SEMANA_VISTA = 7
+
+"""
+Pre: 'id_usuario' es un entero positivo correspondiente a un usuario con rol 'medico'.
+Post: Devuelve (respuesta_json, status_code) con los turnos del médico de los próximos 7 días
+      (desde mañana a las 00:00).
+"""
+def listar_turnos_semana_servicio(id_usuario):
+    medico = obtener_medico_por_usuario_id(id_usuario)
+
+    if not medico:
+        return {"error": "Usuario no registrado como médico"}, 403
+
+    # Para incluir hoy, cambiar timedelta(days=1) por timedelta(days=0)
+    desde = datetime.combine(obtener_ahora_gmt3().date() + timedelta(days=1), time.min)
+    hasta = desde + timedelta(days=DIAS_SEMANA_VISTA)
+
+    turnos = obtener_turnos_por_medico_entre_fechas(medico["id_medico"], desde, hasta)
+
+    return {
+        "id_medico": medico["id_medico"],
+        "desde": formatear_fecha_iso(desde),
+        "hasta": formatear_fecha_iso(hasta),
+        "turnos_semana": [_formatear_turno(t) for t in turnos],
     }, 200

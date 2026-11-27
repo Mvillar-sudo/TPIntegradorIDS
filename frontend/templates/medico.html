@@ -1,35 +1,83 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Médico | Centro Médico Salud Integral</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/medico.css') }}">
-</head>
-<body>
-    <header>
-        <h1>Centro Médico Salud Integral</h1>
+{% extends "base_template.html" %}
+
+{% block title %}Portal Médico | Centro Médico Salud Integral{% endblock %}
+
+{% block header_class %}{% endblock %}
+
+{% block head_extra %}
+<style>
+    .badge-estado {
+        display: inline-block;
+        padding: 0.25em 0.7em;
+        border-radius: 4px;
+        font-size: 0.85em;
+        font-weight: 600;
+        text-transform: capitalize;
+    }
+    .badge-reservado {
+        background-color: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeeba;
+    }
+    .badge-confirmado {
+        background-color: #cce5ff;
+        color: #004085;
+        border: 1px solid #b8daff;
+    }
+    .badge-atendido {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    .badge-ausente,
+    .badge-cancelado {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    tr.fila-atendido {
+        background-color: rgba(212, 237, 218, 0.25);
+    }
+    tr.fila-ausente {
+        background-color: rgba(248, 215, 218, 0.25);
+    }
+    .texto-espera {
+        color: #856404;
+        font-size: 0.9em;
+        font-style: italic;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section id="main" class="container" style="margin-top: 0; padding-top: 6em;">
+    <header class="major">
+        <h2>Portal Profesional Médico</h2>
+        <p>Gestión de consultas y atención de pacientes del día</p>
     </header>
 
-    <main class="main-container">
-        {% with mensajes = get_flashed_messages(with_categories=true) %}
-            {% for categoria, mensaje in mensajes %}
-                <p class="mensaje mensaje-{{ categoria }}">{{ mensaje }}</p>
-            {% endfor %}
-        {% endwith %}
+        <ul class="actions special">
+        <li><a href="{{ url_for('medico.agenda_semana') }}" class="button primary">Ver turnos de la próxima semana</a></li>
+    </ul>
 
-        <h2>Portal Profesional Médico</h2>
+    <div class="box">
+        <h3>Información de Consulta</h3>
+        <div class="row gtr-50 gtr-uniform">
+            <div class="col-4 col-12-mobilep">
+                <p style="margin-bottom: 0;"><strong>Profesional:</strong> {{ medico.nombre }}</p>
+            </div>
+            <div class="col-4 col-12-mobilep">
+                <p style="margin-bottom: 0;"><strong>Especialidad:</strong> {{ medico.especialidad }}</p>
+            </div>
+            <div class="col-4 col-12-mobilep">
+                <p style="margin-bottom: 0;"><strong>Consultorio:</strong> {{ medico.consultorio }}</p>
+            </div>
+        </div>
+    </div>
 
-        <section>
-            <h3>Información de Consulta</h3>
-            <p><strong>Profesional:</strong> {{ medico.nombre }}</p>
-            <p><strong>Consultorio:</strong> {{ medico.consultorio }}</p>
-            <p><strong>Especialidad:</strong> {{ medico.especialidad }}</p>
-        </section>
-
-        <section>
-            <h3>Agenda de Turnos del Día</h3>
-
+    <div class="box">
+        <h3>Agenda de Turnos del Día</h3>
+        <div class="table-wrapper">
             <table>
                 <thead>
                     <tr>
@@ -47,14 +95,14 @@
                             <td><strong>{{ turno.hora }} hs</strong></td>
                             <td>{{ turno.paciente }}</td>
                             <td>{{ turno.dni }}</td>
-                            <td>{{ turno.hora_llegada }} hs</td>
+                            <td>{% if turno.hora_llegada and turno.hora_llegada != '-' %}{{ turno.hora_llegada }} hs{% else %}-{% endif %}</td>
                             <td>
-                                <span class="badge badge-{{ turno.estado }}">{{ turno.estado }}</span>
+                                <span class="badge-estado badge-{{ turno.estado }}">{{ turno.estado }}</span>
                             </td>
                             <td>
                                 {% if turno.puede_atender %}
-                                    <form method="POST" action="{{ url_for('medico.atender_turno', id_turno=turno.id_turno) }}" style="display:inline;">
-                                        <button type="submit" class="btn-atender">Atender</button>
+                                    <form method="POST" action="{{ url_for('medico.atender_turno', id_turno=turno.id_turno) }}" style="margin: 0;">
+                                        <button type="submit" class="button primary small">Atender</button>
                                     </form>
                                 {% elif turno.estado == 'reservado' %}
                                     <span class="texto-espera">Esperando check-in</span>
@@ -65,12 +113,12 @@
                         </tr>
                     {% else %}
                         <tr>
-                            <td colspan="6" class="sin-turnos">No posee turnos asignados para el día de hoy.</td>
+                            <td colspan="6" style="text-align: center;">No posee turnos asignados para el día de hoy.</td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
-        </section>
-    </main>
-</body>
-</html>
+        </div>
+    </div>
+</section>
+{% endblock %}

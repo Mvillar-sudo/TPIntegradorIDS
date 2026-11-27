@@ -1,0 +1,46 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Agendas creadas | Panel de administrador{% endblock %}
+
+{% block admin_content %}
+<div class="admin-titulo">
+	<h2>Agendas creadas</h2>
+	<div class="admin-acciones">
+		<a href="{{ url_for('admin.menu_agendas') }}" class="button admin-boton">Volver</a>
+		<a href="{{ url_for('admin.nueva_agenda') }}" class="button admin-boton">Nueva agenda</a>
+	</div>
+</div>
+
+<div class="admin-tabla-contenedor">
+	<table>
+		<thead>
+			<tr>
+				<th>Médico</th>
+				<th>Consultorio</th>
+				<th>Desde</th>
+				<th>Hasta</th>
+				<th>Acciones</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for a in agendas %}
+			<tr>
+				<td>{{ a.medico }}</td>
+				<td>{{ a.consultorio }}</td>
+				<td>{{ a.inicio }}</td>
+				<td>{{ a.fin }}</td>
+				<td class="admin-acciones">
+					<form method="post" action="{{ url_for('admin.eliminar_agenda', id_agenda=a.id) }}" data-confirmar="¿Seguro que querés eliminar la agenda de {{ a.medico }} del {{ a.inicio }} al {{ a.fin }}? Se eliminan también sus turnos disponibles. Solo se puede si ninguno fue reservado.">
+						<input type="submit" value="Eliminar" class="button admin-boton small" />
+					</form>
+				</td>
+			</tr>
+			{% else %}
+			<tr>
+				<td colspan="5">No hay agendas creadas</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+{% endblock %}

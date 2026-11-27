@@ -1,54 +1,99 @@
 from datetime import datetime
-from .datos_medico_ejemplo import (
-    turnos_hoy_medico_ejemplo,
-    atender_turno_ejemplo,
-    perfil_medico_ejemplo,
-)
+from flask import session
+from .api_client import pedir
 
 FORMATO_HORA = '%H:%M'
 
-"""
-Pre: -
-Post: Devuelve los datos del perfil del profesional médico para la cabecera de la vista.
-"""
-def obtener_perfil_medico() -> dict:
-    return perfil_medico_ejemplo()
 
-"""
-Pre: 'fecha' es una cadena ISO válida de fecha/hora, o None.
-Post: Devuelve la hora formateada en 'HH:MM' o '-' si 'fecha' es nula o vacía.
-"""
 def formatear_hora(fecha: str | None) -> str:
     if not fecha:
         return '-'
-    return datetime.fromisoformat(fecha).strftime(FORMATO_HORA)
+    try:
+        return datetime.fromisoformat(fecha).strftime(FORMATO_HORA)
+    except (ValueError, TypeError):
+        return '-'
 
-"""
-Pre: 'turno' es un diccionario con los campos del turno (id_turno, paciente, dni, fecha_hora, fecha_hora_checkin, estado).
-Post: Devuelve un diccionario adaptado para presentar en la interfaz.
-"""
+
 def formatear_turno_medico(turno: dict) -> dict:
     return {
-        'id_turno': turno['id_turno'],
-        'paciente': turno['paciente'],
-        'dni': turno['dni'],
-        'hora': formatear_hora(turno['fecha_hora']),
-        'hora_llegada': formatear_hora(turno['fecha_hora_checkin']),
-        'estado': turno['estado'],
-        'puede_atender': turno['estado'] == 'confirmado',
+        'id_turno': turno.get('id_turno') or turno.get('id'),
+        'paciente': turno.get('paciente'),
+        'dni': turno.get('paciente_dni') or turno.get('dni') or '-',
+        'hora': formatear_hora(turno.get('fecha_hora')),
+        'hora_llegada': formatear_hora(turno.get('fecha_hora_checkin')),
+        'estado': turno.get('estado'),
+        'puede_atender': turno.get('estado') == 'confirmado',
     }
 
-"""
-Pre: -
-Post: Devuelve la lista de turnos del día asignados al médico, formateados y listos para mostrar.
-"""
-def obtener_turnos_hoy() -> list[dict]:
-    turnos = turnos_hoy_medico_ejemplo()
-    return [formatear_turno_medico(turno) for turno in turnos]
 
-"""
-Pre: 'id_turno' es un entero positivo correspondiente a un turno en estado 'confirmado'.
-Post: Marca el turno como atendido y devuelve el diccionario de resultado.
-"""
-def registrar_turno_atendido(id_turno: int) -> dict:
-    return atender_turno_ejemplo(id_turno)
+def obtener_perfil_medico(id_medico: int | None = None) -> dict:
+    usuario_sesion = session.get('usuario') or {}
+    nombre_sesion = f"{usuario_sesion.get('nombre', '')} {usuario_sesion.get('apellido', '')}".strip()
+
+    perfil = {
+        'nombre': nombre_sesion or 'Médico de Guardia',
+        'especialidad': 'No especificada',
+        'consultorio': 'Sin asignar',
+    }
+
+    if not id_medico:
+        return perfil
+
+    datos, error, _ = pedir('GET', f'/medicos/{id_medico}')
+    if error or not isinstance(datos, dict):
+        return perfil
+
+    nombre_api = f"{datos.get('nombre_medico', '')} {datos.get('apellido_medico', '')}".strip()
+    if nombre_api:
+        perfil['nombre'] = nombre_api
+    if datos.get('especialidad'):
+        perfil['especialidad'] = datos['especialidad']
+    if datos.get('consultorio'):
+        perfil['consultorio'] = datos['consultorio']
+
+    return perfil
+
+
+def obtener_turnos_y_medico_hoy():
+    datos, error, status = pedir('GET', '/medicos/turnos/hoy')
+    if error or not datos:
+        return [], None, error or "No se pudieron obtener los turnos", status
+
+    if isinstance(datos, dict):
+        id_medico = datos.get('id_medico')
+        lista_turnos = datos.get('turnos_hoy', [])
+    else:
+        id_medico = None
+        lista_turnos = datos
+
+    turnos_formateados = [formatear_turno_medico(turno) for turno in lista_turnos]
+    return turnos_formateados, id_medico, None, status
+
+
+
+def registrar_turno_atendido(id_turno: int):
+    return pedir('PATCH', f'/medicos/turnos/{id_turno}/atendido')
+
+DIAS = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo']
+
+
+def formatear_dia(fecha: str | None) -> str:
+    """'2026-11-19T09:00:00' -> 'jueves 19/11/2026'"""
+    try:
+        d = datetime.fromisoformat(fecha)
+        return f"{DIAS[d.weekday()]} {d.strftime('%d/%m/%Y')}"
+    except (ValueError, TypeError):
+        return '-'
+
+
+def obtener_turnos_semana():
+    """Devuelve (dias, error, status); 'dias' es una lista de (texto_del_dia, [turnos]) en orden."""
+    datos, error, status = pedir('GET', '/medicos/turnos/semana')
+    if error or not isinstance(datos, dict):
+        return [], error or "No se pudieron obtener los turnos", status
+
+    dias = {}
+    for turno in datos.get('turnos_semana', []):
+        dias.setdefault(formatear_dia(turno.get('fecha_hora')), []).append(formatear_turno_medico(turno))
+
+    return list(dias.items()), None, status
