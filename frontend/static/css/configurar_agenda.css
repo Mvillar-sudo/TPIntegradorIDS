@@ -1,0 +1,146 @@
+/* =========================================
+   CONFIGURAR AGENDA
+   Todas las reglas están acotadas a .main-container para no afectar el header
+   ni el resto de la página (el header lo define index_main.css).
+   :where() acota sin subir la especificidad, así los estilos del tema se resuelven igual que antes.
+   ========================================= */
+
+/* El header es sólido, por lo que el contenido tiene que empezar debajo de él */
+body.landing #main.agenda-main {
+    margin-top: 0;
+    padding-top: 6em;
+    max-width: 60em;
+}
+
+:where(.main-container),
+:where(.main-container) * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.main-container {
+    max-width: 850px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: #ffffff;
+    color: #2c3e50;
+    line-height: 1.6;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.main-container h2 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+}
+
+/* Alertas y Mensajes flash */
+:where(.main-container) .mensaje {
+    padding: 10px 14px;
+    border-radius: 4px;
+    margin-bottom: 1.25rem;
+    font-size: 0.95rem;
+}
+:where(.main-container) .mensaje-success {
+    background: #ecfdf5;
+    border: 1px solid #10b981;
+    color: #065f46;
+}
+:where(.main-container) .mensaje-danger,
+:where(.main-container) .mensaje-error {
+    background: #fef2f2;
+    border: 1px solid #ef4444;
+    color: #991b1b;
+}
+
+/* =========================================
+   ESTILOS DE FORMULARIO
+   ========================================= */
+:where(.main-container) form {
+    margin-top: 1rem;
+}
+
+/* Filas y Columnas (reemplaza a Bootstrap row/col) */
+:where(.main-container) .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 1.25rem;
+}
+:where(.main-container) .col-md-6 {
+    flex: 1;
+    min-width: 250px;
+}
+
+/* Márgenes inferiores para bloques solos */
+:where(.main-container) .mb-3,
+:where(.main-container) .mb-4 {
+    margin-bottom: 1.25rem;
+}
+
+/* Etiquetas (Labels) */
+:where(.main-container) .form-label {
+    display: block;
+    color: #34495e;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+/* Inputs y Selects */
+:where(.main-container) .form-control,
+:where(.main-container) .form-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    color: #2c3e50;
+    background-color: #fdfdfd;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+:where(.main-container) .form-control:focus,
+:where(.main-container) .form-select:focus {
+    border-color: #2c3e50;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.1);
+}
+
+/* Inputs deshabilitados (Ej: el nombre del médico cuando no es admin) */
+:where(.main-container) .form-control:disabled {
+    background-color: #f5f7fa;
+    color: #718096;
+    cursor: not-allowed;
+}
+
+/* Botones: el aspecto viene de .button de index_main.css; acá solo el espaciado */
+.main-container .button {
+    margin-top: 1rem;
+}
+.main-container .button + .button {
+    margin-left: 0.75rem;
+}
+
+/* Checkboxes de los días de atención */
+:where(.main-container) .form-check-inline {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 1.5rem;
+    margin-top: 0.5rem;
+    cursor: pointer;
+}
+:where(.main-container) .form-check-input {
+    margin-right: 0.5rem;
+    width: 16px;
+    height: 16px;
+    accent-color: #2c3e50;
+    cursor: pointer;
+}
+:where(.main-container) .form-check-label {
+    color: #4a5568;
+    font-size: 0.95rem;
+    cursor: pointer;
+}

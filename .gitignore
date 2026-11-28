@@ -4,3 +4,6 @@ __pycache__/
 *.pyc
 .env
 .DS_Store
+AGENTS.md
+.claude/skills/probar-proyecto/
+.claude/

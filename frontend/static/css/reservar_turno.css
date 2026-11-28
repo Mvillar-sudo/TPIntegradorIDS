@@ -1,0 +1,286 @@
+.booking-shell {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 7em 1.5rem 4em;
+}
+
+.booking-heading {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.booking-heading h1,
+.booking-panel h2,
+.booking-success h2 {
+    color: #646464;
+    font-weight: 300;
+    line-height: 1.2;
+}
+
+.booking-heading h1 { font-size: 2.5rem; }
+.booking-panel h2,
+.booking-success h2 { font-size: 1.8rem; }
+
+.booking-kicker {
+    margin: 0 0 .5rem;
+    color: #7fcdb8;
+    font-size: .8rem;
+    font-weight: 600;
+    font-style: normal;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.booking-heading > p:not(.booking-kicker),
+.panel-intro p:last-child {
+    margin-bottom: 0;
+    color: #777;
+    font-style: normal;
+}
+
+/* Pasos de la reserva */
+.booking-progress {
+    display: flex;
+    align-items: center;
+    margin: 0 auto 2rem;
+}
+
+.progress-step {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    color: #999;
+    font-size: .9rem;
+    white-space: nowrap;
+}
+
+.progress-step span {
+    display: grid;
+    width: 2rem;
+    height: 2rem;
+    place-items: center;
+    border: 1px solid #e5e5e5;
+    border-radius: 50%;
+    background: #fff;
+}
+
+.progress-step.is-current,
+.progress-step.is-complete { color: #646464; }
+
+.progress-step.is-current span,
+.progress-step.is-complete span {
+    border-color: #7fcdb8;
+    background: #7fcdb8;
+    color: #fff;
+}
+
+.progress-line {
+    height: 1px;
+    flex: 1;
+    margin: 0 .75rem;
+    background: #e5e5e5;
+}
+
+/* Campos y distribución de los paneles */
+.booking-panel,
+.booking-success {
+    padding: 2.5rem;
+}
+
+.booking-panel h2,
+.booking-success h2 { margin-bottom: .5rem; }
+.panel-intro { margin-bottom: 1.5rem; }
+
+.field-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.2rem;
+}
+
+.booking-field {
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+    color: #646464;
+    font-size: .95rem;
+}
+
+.booking-field select,
+.booking-field input {
+    width: 100%;
+    min-height: 3rem;
+    padding: .5rem .8rem;
+    border: 1px solid #e5e5e5;
+    border-radius: 6px;
+    background: #f8f8f8;
+    color: #777;
+    font: inherit;
+}
+
+.booking-field select:focus,
+.booking-field input:focus,
+.booking-button:focus-visible,
+.time-option:focus-visible {
+    border-color: #e89980;
+    outline: 2px solid #e89980;
+    outline-offset: 2px;
+}
+
+.field-hint {
+    margin: .6rem 0 0;
+    color: #999;
+    font-size: .85rem;
+}
+
+.panel-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: .75rem;
+    margin-top: 2rem;
+}
+.panel-actions-split { justify-content: space-between; }
+
+.booking-button {
+    padding: 0 1.2rem;
+    font-family: inherit;
+    font-size: .9rem;
+}
+
+.booking-button:disabled {
+    background: #ccc;
+    color: #fff;
+    cursor: not-allowed;
+}
+
+/* Fecha y horarios disponibles */
+.date-field {
+    max-width: 320px;
+    margin-bottom: 2rem;
+}
+
+.availability-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: .8rem;
+}
+
+.availability-heading h3 {
+    margin: 0;
+    color: #646464;
+    font-size: 1.1rem;
+}
+
+.availability-heading span {
+    color: #999;
+    font-size: .85rem;
+}
+
+.time-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: .6rem;
+}
+
+.time-option {
+    min-height: 2.8rem;
+    border: 1px solid #e5e5e5;
+    border-radius: 6px;
+    background: #f8f8f8;
+    color: #646464;
+    cursor: pointer;
+    font: inherit;
+}
+
+.time-option:hover,
+.time-option:has(input[type="radio"]:checked) {
+    border-color: #7fcdb8;
+    background: #7fcdb8;
+    color: #fff;
+}
+
+.empty-state {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 1rem;
+    border-radius: 6px;
+    background: #f8f8f8;
+    color: #777;
+    font-size: .9rem;
+}
+
+.office-note {
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    margin-top: 1rem;
+    padding: .8rem 1rem;
+    border-left: 3px solid #7fcdb8;
+    background: #f8f8f8;
+}
+
+.office-icon { color: #7fcdb8; font-size: 1.5rem; }
+.office-note strong,
+.office-note small { display: block; }
+.office-note small { color: #999; }
+
+/* Resumen y mensajes */
+.reservation-summary,
+.success-details { margin: 0; border-top: 1px solid #e5e5e5; }
+
+.reservation-summary > div,
+.success-details > div {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 1rem;
+    padding: .8rem 0;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.reservation-summary dt,
+.success-details dt { color: #999; }
+.reservation-summary dd,
+.success-details dd { margin: 0; color: #646464; }
+
+.booking-alert {
+    margin: 0 0 1rem;
+    padding: .8rem 1rem;
+    border-left: 3px solid #e89980;
+    background: #fff5f2;
+    color: #646464;
+}
+
+.booking-success {
+    max-width: 680px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.booking-success > p:not(.booking-kicker) { color: #777; }
+.success-details { margin: 1.5rem 0; text-align: left; }
+
+.success-mark {
+    display: grid;
+    width: 3rem;
+    height: 3rem;
+    place-items: center;
+    margin: 0 auto 1rem;
+    border-radius: 50%;
+    background: #7fcdb8;
+    color: #fff;
+    font-size: 1.5rem;
+}
+
+[hidden] { display: none !important; }
+
+@media (max-width: 600px) {
+    .booking-shell { padding: 6rem 1rem 3rem; }
+    .booking-heading h1 { font-size: 2rem; }
+    .booking-panel, .booking-success { padding: 1.3rem; }
+    .progress-step { flex-direction: column; gap: .25rem; font-size: .75rem; }
+    .progress-line { margin: 0 .3rem .9rem; }
+    .field-grid { grid-template-columns: 1fr; }
+    .booking-button { padding: 0 .8rem; font-size: .82rem; }
+    .reservation-summary > div,
+    .success-details > div { grid-template-columns: 1fr; gap: .2rem; }
+}
