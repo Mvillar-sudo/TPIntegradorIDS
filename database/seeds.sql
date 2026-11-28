@@ -73,3 +73,50 @@ INSERT INTO turnos (id_medico, id_consultorio, fecha_hora, estado) VALUES
 (2, 2, TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL 1 DAY), '10:30:00'), 'disponible'),
 (2, 2, TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL 2 DAY), '11:00:00'), 'disponible');
 
+
+-- =============================================
+-- DATOS EXTRA PARA LA DEMO
+-- (se agregan al final para no cambiar los id de los turnos 1 a 10 de arriba)
+-- =============================================
+
+-- 7. Médicos nuevos: Pediatría y Traumatología (clave de los dos: Prueba1234)
+INSERT INTO usuarios (rol_usuario, nombre_usuario, apellido_usuario, dni_usuario, email_usuario, password_hash, telefono_usuario, id_cobertura) VALUES
+('medico', 'Sofía', 'Fernández', '22446688', 'sofia@test.com', 'scrypt:32768:8:1$I1hcVptpONvQjEJM$957911a2a41e7fd694a81a938d13362df3f7a75c22c7e03905c5523a21d6e15b38644d036c953f3fc52b486fc640f3203477694517407ac8617710f0df6f243c', '1155550001', NULL),
+('medico', 'Diego', 'Romero',    '33557799', 'diego@test.com', 'scrypt:32768:8:1$I1hcVptpONvQjEJM$957911a2a41e7fd694a81a938d13362df3f7a75c22c7e03905c5523a21d6e15b38644d036c953f3fc52b486fc640f3203477694517407ac8617710f0df6f243c', '1155550002', NULL);
+
+INSERT INTO medicos (id_usuario, id_especialidad, matricula) VALUES
+((SELECT id_usuario FROM usuarios WHERE email_usuario = 'sofia@test.com'), (SELECT id_especialidad FROM especialidades WHERE nombre_especialidad = 'Pediatría'), 'MN-24680'),
+((SELECT id_usuario FROM usuarios WHERE email_usuario = 'diego@test.com'), (SELECT id_especialidad FROM especialidades WHERE nombre_especialidad = 'Traumatología'), 'MN-13579');
+
+-- 8. Agendas de mañana (los turnos disponibles de cada médico salen de estas franjas)
+INSERT INTO agendas (id_medico, id_consultorio, agenda_fecha_hora_inicio, agenda_fecha_hora_fin) VALUES
+(1, 1, TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL 1 DAY), '09:00:00'), TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL 1 DAY), '10:00:00')),
+(2, 2, TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL 1 DAY), '09:00:00'), TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL 1 DAY), '11:00:00')),
+((SELECT id_medico FROM medicos WHERE matricula = 'MN-24680'), 3, TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL 1 DAY), '10:00:00'), TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL 1 DAY), '12:00:00')),
+((SELECT id_medico FROM medicos WHERE matricula = 'MN-13579'), 4, TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL 1 DAY), '14:00:00'), TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL 1 DAY), '16:00:00'));
+
+-- 9. Turnos disponibles de los médicos nuevos
+INSERT INTO turnos (id_medico, id_consultorio, fecha_hora, estado) VALUES
+((SELECT id_medico FROM medicos WHERE matricula = 'MN-24680'), 3, TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL 1 DAY), '10:00:00'), 'disponible'),
+((SELECT id_medico FROM medicos WHERE matricula = 'MN-24680'), 3, TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL 1 DAY), '10:30:00'), 'disponible'),
+((SELECT id_medico FROM medicos WHERE matricula = 'MN-24680'), 3, TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL 2 DAY), '10:00:00'), 'disponible'),
+((SELECT id_medico FROM medicos WHERE matricula = 'MN-13579'), 4, TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL 1 DAY), '14:00:00'), 'disponible'),
+((SELECT id_medico FROM medicos WHERE matricula = 'MN-13579'), 4, TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL 1 DAY), '14:30:00'), 'disponible'),
+((SELECT id_medico FROM medicos WHERE matricula = 'MN-13579'), 4, TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL 2 DAY), '15:00:00'), 'disponible');
+
+-- 10. Turnos reservados para los próximos días (se ven en "Mis turnos" con su QR y en la semana del médico)
+INSERT INTO turnos (id_medico, id_paciente, id_consultorio, fecha_hora, estado, token_qr) VALUES
+(1, (SELECT id_usuario FROM usuarios WHERE email_usuario = 'juan@test.com'), 1, TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL 1 DAY), '11:00:00'), 'reservado', 'qr_demo_carlos_01'),
+(2, (SELECT id_usuario FROM usuarios WHERE email_usuario = 'pedro@test.com'), 2, TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL 2 DAY), '12:00:00'), 'reservado', 'qr_demo_jose_02'),
+((SELECT id_medico FROM medicos WHERE matricula = 'MN-24680'), (SELECT id_usuario FROM usuarios WHERE email_usuario = 'laura@test.com'), 3, TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL 1 DAY), '11:00:00'), 'reservado', 'qr_demo_sofia_03'),
+((SELECT id_medico FROM medicos WHERE matricula = 'MN-13579'), (SELECT id_usuario FROM usuarios WHERE email_usuario = 'pedro@test.com'), 4, TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL 1 DAY), '15:00:00'), 'reservado', 'qr_demo_diego_04');
+
+-- 11. Historial: turnos atendidos (para la pantalla de informes) y uno cancelado
+INSERT INTO turnos (id_medico, id_paciente, id_consultorio, fecha_hora, estado, token_qr, fecha_hora_checkin) VALUES
+(1, (SELECT id_usuario FROM usuarios WHERE email_usuario = 'juan@test.com'),  1, TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL -1 DAY), '10:00:00'), 'atendido', 'qr_hist_01', TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL -1 DAY), '09:55:00')),
+(2, (SELECT id_usuario FROM usuarios WHERE email_usuario = 'laura@test.com'), 2, TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL -1 DAY), '11:00:00'), 'atendido', 'qr_hist_02', TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL -1 DAY), '10:50:00')),
+((SELECT id_medico FROM medicos WHERE matricula = 'MN-24680'), (SELECT id_usuario FROM usuarios WHERE email_usuario = 'pedro@test.com'), 3, TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL -2 DAY), '09:00:00'), 'atendido', 'qr_hist_03', TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL -2 DAY), '08:50:00')),
+((SELECT id_medico FROM medicos WHERE matricula = 'MN-13579'), (SELECT id_usuario FROM usuarios WHERE email_usuario = 'juan@test.com'), 4, TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL -1 DAY), '15:00:00'), 'atendido', 'qr_hist_04', TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL -1 DAY), '14:55:00'));
+
+INSERT INTO turnos (id_medico, id_paciente, id_consultorio, fecha_hora, estado, token_qr, fecha_hora_cancelacion) VALUES
+(1, (SELECT id_usuario FROM usuarios WHERE email_usuario = 'pedro@test.com'), 1, TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL -3 DAY), '14:00:00'), 'cancelado', 'qr_hist_05', TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL -4 DAY), '18:00:00'));
